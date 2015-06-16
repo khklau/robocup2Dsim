@@ -1,0 +1,14 @@
+def options(optCtx):
+    return
+
+def prepare(prepCtx):
+    return
+
+def configure(confCtx):
+    return
+
+def build(buildCtx):
+    return
+
+def install(installCtx):
+    return
