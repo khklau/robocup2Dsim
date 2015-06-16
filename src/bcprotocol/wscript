@@ -30,6 +30,11 @@ def build(buildCtx):
 	bcprotocolCxxNodeList.append(cxxNode)
 	bcprotocolHNodeList.append(hNode)
 	bcprotocolCapnpTaskList.append(compileTask)
+	buildCtx(
+		rule='cp ${SRC} ${TGT}',
+		source=hNode,
+		target=os.path.join(buildCtx.env.component.build_tree.includePathFromBuild(buildCtx), os.path.basename(str(hNode))),
+		after=compileTask)
     buildCtx.stlib(
 	    name='stlib_robocup2Dsim_bcprotocol',
 	    source=bcprotocolCxxNodeList,
@@ -41,12 +46,6 @@ def build(buildCtx):
 	    use=['CAPNPROTO_STLIB'],
 	    install_path=buildCtx.env.component.install_tree.test,
 	    after=['shlib_robocup2Dsim_core'] + bcprotocolCapnpTaskList)
-#    for headerNode in bcprotocolHNodeList:
-#	buildCtx(
-#		rule='cp ${SRC} ${TGT}',
-#		source=headerNode.abspath(),
-#		target=os.path.join(buildCtx.env.component.build_tree.includePathFromBuild(buildCtx), os.path.basename(str(headerNode))),
-#		after=bcprotocolCapnpTaskList)
 
 def install(installCtx):
     installCtx.env.component = installCtx.env.product.getComponent(name(installCtx))
