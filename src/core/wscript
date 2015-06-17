@@ -6,7 +6,9 @@ def name(context):
     return os.path.basename(str(context.path))
 
 coreCapnpFiles=[
-	'metadata.capnp']
+	'entity.capnp',
+	'metadata.capnp',
+	'rule.capnp']
 
 def configure(confCtx):
     confCtx.env.component = Component.fromContext(confCtx, name(confCtx), confCtx.env.product)
