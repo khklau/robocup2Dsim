@@ -83,12 +83,12 @@ struct ReconnectError
 
 struct ByeRequest
 {
-    teamName @1 :Text;
-    uniform @2 :Entity.UniformNumber;
+    teamName @0 :Text;
+    uniform @1 :Entity.UniformNumber;
 }
 
 struct ByeReply
 {
-    teamName @1 :Text;
-    uniform @2 :Entity.UniformNumber;
+    teamName @0 :Text;
+    uniform @1 :Entity.UniformNumber;
 }
