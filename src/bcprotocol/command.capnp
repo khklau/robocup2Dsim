@@ -16,16 +16,14 @@ struct ErrorGameInPlayOn { }
 
 struct InitRequest
 {
-    sequence @0 :Metadata.SequenceNumber;
-    version @1 :Metadata.Version;
-    teamName @2 :Text;
-    uniform @3 :Entity.UniformNumber;
-    playerType @4 :Entity.PlayerType;
+    version @0 :Metadata.Version;
+    teamName @1 :Text;
+    uniform @2 :Entity.UniformNumber;
+    playerType @3 :Entity.PlayerType;
 }
 
 struct InitReply
 {
-    sequence @0 :Metadata.SequenceNumber;
     union
     {
 	result @0 :InitResult;
@@ -53,14 +51,12 @@ struct InitError
 
 struct ReconnectRequest
 {
-    sequence @0 :Metadata.SequenceNumber;
-    teamName @1 :Text;
-    uniform @2 :Entity.UniformNumber;
+    teamName @0 :Text;
+    uniform @1 :Entity.UniformNumber;
 }
 
 struct ReconnectReply
 {
-    sequence @0 :Metadata.SequenceNumber;
     union
     {
 	result @0 :ReconnectResult;
@@ -87,12 +83,12 @@ struct ReconnectError
 
 struct ByeRequest
 {
-    sequence @0 :Metadata.SequenceNumber;
     teamName @1 :Text;
     uniform @2 :Entity.UniformNumber;
 }
 
 struct ByeReply
 {
-    sequence @0 :Metadata.SequenceNumber;
+    teamName @1 :Text;
+    uniform @2 :Entity.UniformNumber;
 }
