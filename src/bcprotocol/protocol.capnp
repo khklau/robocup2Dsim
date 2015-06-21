@@ -3,16 +3,17 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("robocup2Dsim::bcprotocol");
 
+using Metadata = import "/src/core/metadata.capnp";
 using Command = import "command.capnp";
 
-Struct RequestHeader
+struct RequestHeader
 {
     sequence @0 :Metadata.SequenceNumber;
 }
 
 struct Request
 {
-    header @0 :RequestHeader
+    header @0 :RequestHeader;
     union
     {
 	init @1 :Command.InitRequest;
