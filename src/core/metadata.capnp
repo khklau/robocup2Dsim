@@ -3,6 +3,9 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("robocup2Dsim::core");
 
+using SequenceNumber = UInt16;
+using FrameNumber = UInt32;
+
 struct Version
 {
     numberA @0 :UInt8;
