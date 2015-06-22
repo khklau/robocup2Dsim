@@ -26,6 +26,9 @@
 *.exe
 *.out
 *.app
+
+# Vim
+*.swp
 _
 # Waf
 /.lock-waf*
