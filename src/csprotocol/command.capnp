@@ -7,12 +7,12 @@ using Entity = import "/src/core/entity.capnp";
 using Metadata = import "/src/core/metadata.capnp";
 using Rule = import "/src/core/rule.capnp";
 
-struct ErrorVersionMismatch { }
-struct ErrorNoSuchTeam { }
-struct ErrorTeamFull { }
-struct ErrorUniformTaken { }
-struct ErrorGoalieTaken { }
-struct ErrorGameInPlayOn { }
+struct VersionMismatchError { }
+struct NoSuchTeamError { }
+struct TeamFullError { }
+struct UniformTakenError { }
+struct GoalieTakenError { }
+struct GameInPlayOnError { }
 
 struct InitRequest
 {
@@ -41,11 +41,11 @@ struct InitError
 {
     union
     {
-	versionMismatch @0 :ErrorVersionMismatch;
-	noSuchTeam @1 :ErrorNoSuchTeam;
-	teamFull @2 :ErrorTeamFull;
-	uniformTaken @3 :ErrorUniformTaken;
-	goalieTaken @4 :ErrorGoalieTaken;
+	versionMismatch @0 :VersionMismatchError;
+	noSuchTeam @1 :NoSuchTeamError;
+	teamFull @2 :TeamFullError;
+	uniformTaken @3 :UniformTakenError;
+	goalieTaken @4 :GoalieTakenError;
     }
 }
 
@@ -74,10 +74,10 @@ struct ReconnectError
 {
     union
     {
-	noSuchTeam @0 :ErrorNoSuchTeam;
-	teamFull @1 :ErrorTeamFull;
-	uniformTaken @2 :ErrorUniformTaken;
-	gameInPlayOn @3 :ErrorGameInPlayOn;
+	noSuchTeam @0 :NoSuchTeamError;
+	teamFull @1 :TeamFullError;
+	uniformTaken @2 :UniformTakenError;
+	gameInPlayOn @3 :GameInPlayOnError;
     }
 }
 
