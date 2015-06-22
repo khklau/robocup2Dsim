@@ -6,7 +6,9 @@ def name(context):
     return os.path.basename(str(context.path))
 
 bcprotocolCapnpFiles=[
-	'command.capnp']
+	'command.capnp',
+	'control.capnp',
+	'protocol.capnp']
 
 def configure(confCtx):
     confCtx.env.component = Component.fromContext(confCtx, name(confCtx), confCtx.env.product)
