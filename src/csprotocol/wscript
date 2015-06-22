@@ -6,6 +6,7 @@ def name(context):
     return os.path.basename(str(context.path))
 
 bcprotocolCapnpFiles=[
+	'command.capnp',
 	'protocol.capnp']
 
 def configure(confCtx):
