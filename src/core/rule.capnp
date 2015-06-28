@@ -3,6 +3,8 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("robocup2Dsim::core");
 
+using Score = UInt8;
+
 enum PlayMode
 {
     beforeKickOff @0;

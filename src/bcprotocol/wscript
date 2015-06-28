@@ -7,6 +7,7 @@ def name(context):
 
 bcprotocolCapnpFiles=[
 	'control.capnp',
+	'info.capnp',
 	'protocol.capnp']
 
 def configure(confCtx):

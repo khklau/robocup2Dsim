@@ -3,15 +3,21 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("robocup2Dsim::bcprotocol");
 
-using Command = import "command.capnp";
+using Control = import "control.capnp";
+using Error = import "/src/core/error.capnp";
+using Info = import "info.capnp";
 
 struct BotTransmission
 {
     union
     {
-	init @0 :Command.InitRequest;
-	reconnect @1 :Command.ReconnectRequest;
-	bye @2 :Command.ByeRequest;
+	catch @0 :Control.CatchInstruction;
+	dash @1 :Control.DashInstruction;
+	kick @2 :Control.KickInstruction;
+	turnBody @3 :Control.TurnBodyInstruction;
+	turnHead @4 :Control.TurnHeadInstruction;
+	scoreQuery @5 :Info.ScoreQuery;
+	timeQuery @6 :Info.TimeQuery;
     }
 }
 
@@ -19,8 +25,9 @@ struct ClientTransmission
 {
     union
     {
-	init @0 :Command.InitReply;
-	reconnect @1 :Command.ReconnectReply;
-	bye @2 :Command.ByeReply;
+	unknownMsg @0 :Error.UnknownMsgError;
+	malformedMsg @1 :Error.MalformedMsgError;
+	scoreResult @2 :Info.ScoreResult;
+	timeResult @3 :Info.TimeResult;
     }
 }
