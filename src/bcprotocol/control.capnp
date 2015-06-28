@@ -9,3 +9,24 @@ struct CatchInstruction
 {
     direction @0 :Physics.Degree;
 }
+
+struct DashInstruction
+{
+    power @0 :Physics.Newton;
+}
+
+struct KickInstruction
+{
+    power @0 :Physics.Newton;
+    direction @1 :Physics.Degree;
+}
+
+struct TurnBodyInstruction
+{
+    direction @0 :Physics.Degree;
+}
+
+struct TurnHeadInstruction
+{
+    direction @0 :Physics.Degree;
+}
