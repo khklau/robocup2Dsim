@@ -5,28 +5,28 @@ $Cxx.namespace("robocup2Dsim::bcprotocol");
 
 using Physics = import "/src/core/physics.capnp";
 
-struct CatchInstruction
+struct CatchAction
 {
     direction @0 :Physics.Degree;
 }
 
-struct DashInstruction
+struct DashAction
 {
     power @0 :Physics.Newton;
 }
 
-struct KickInstruction
+struct KickAction
 {
     power @0 :Physics.Newton;
     direction @1 :Physics.Degree;
 }
 
-struct TurnBodyInstruction
+struct TurnBodyAction
 {
     direction @0 :Physics.Degree;
 }
 
-struct TurnHeadInstruction
+struct TurnHeadAction
 {
     direction @0 :Physics.Degree;
 }

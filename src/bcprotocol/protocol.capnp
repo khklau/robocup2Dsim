@@ -11,11 +11,11 @@ struct BotTransmission
 {
     union
     {
-	catch @0 :Control.CatchInstruction;
-	dash @1 :Control.DashInstruction;
-	kick @2 :Control.KickInstruction;
-	turnBody @3 :Control.TurnBodyInstruction;
-	turnHead @4 :Control.TurnHeadInstruction;
+	catch @0 :Control.CatchAction;
+	dash @1 :Control.DashAction;
+	kick @2 :Control.KickAction;
+	turnBody @3 :Control.TurnBodyAction;
+	turnHead @4 :Control.TurnHeadAction;
 	scoreQuery @5 :Info.ScoreQuery;
 	timeQuery @6 :Info.TimeQuery;
     }
