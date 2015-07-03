@@ -3,16 +3,13 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("robocup2Dsim::core");
 
+using Field = import "field.capnp";
+using Physics = import "/core/physics.capnp";
+
 enum PlayerType
 {
     outfield @0;
     goalie @1;
-}
-
-enum Side
-{
-    left @0;
-    right @1;
 }
 
 enum UniformNumber
@@ -32,6 +29,35 @@ enum UniformNumber
 
 struct PlayerId
 {
-    side @0 :Side;
+    side @0 :Field.Side;
     uniform @1 :UniformNumber;
+    type @2 :PlayerType;
+}
+
+struct Player
+{
+    id @0 :PlayerId;
+}
+
+enum ParticipantType
+{
+    player @0;
+    coach @1;
+    referee @2;
+    trainer @3;
+}
+
+struct Ball {}
+
+struct OnFieldEntity
+{
+    union
+    {
+	player @0 :Player;
+	ball @1 :Ball;
+	goal @2 :Field.Goal;
+	line @3 :Field.Line;
+	flag @4 :Field.Flag;
+	spot @5 :Field.Spot;
+    }
 }
