@@ -4,7 +4,7 @@ using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("robocup2Dsim::bcprotocol");
 
 using Control = import "control.capnp";
-using Error = import "/src/core/error.capnp";
+using Error = import "/core/error.capnp";
 using Info = import "info.capnp";
 
 struct BotTransmission

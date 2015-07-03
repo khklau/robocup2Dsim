@@ -3,8 +3,8 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("robocup2Dsim::csprotocol");
 
-using Error = import "/src/core/error.capnp";
-using Metadata = import "/src/core/metadata.capnp";
+using Error = import "/core/error.capnp";
+using Metadata = import "/core/metadata.capnp";
 using Command = import "command.capnp";
 
 struct TransmissionHeader

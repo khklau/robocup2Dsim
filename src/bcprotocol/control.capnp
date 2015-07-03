@@ -3,7 +3,7 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("robocup2Dsim::bcprotocol");
 
-using Physics = import "/src/core/physics.capnp";
+using Physics = import "/core/physics.capnp";
 
 struct CatchAction
 {

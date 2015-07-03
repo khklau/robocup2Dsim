@@ -3,9 +3,9 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("robocup2Dsim::bcprotocol");
 
-using Entity = import "/src/core/entity.capnp";
-using Metadata = import "/src/core/metadata.capnp";
-using Rule = import "/src/core/rule.capnp";
+using Entity = import "/core/entity.capnp";
+using Metadata = import "/core/metadata.capnp";
+using Rule = import "/core/rule.capnp";
 
 struct VersionMismatchError { }
 struct NoSuchTeamError { }
