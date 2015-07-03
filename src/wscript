@@ -14,6 +14,7 @@ def configure(confCtx):
     confCtx.load('cxx_env dep_resolver')
     confCtx.env.product = Product.fromContext(confCtx, NAME, confCtx.env.solution)
     confCtx.env.solution.addProduct(confCtx.env.product)
+    confCtx.env.product.include_path_list.append(confCtx.env.product.build_tree.include)
     confCtx.env.product.include_path_list.append(confCtx.env['INCLUDES_CAPNPROTO'])
     confCtx.env.product.include_path_list.append(confCtx.env['INCLUDES_GTEST'])
     confCtx.env.product.include_path_list.append(confCtx.env['INCLUDES_GMOCK'])
