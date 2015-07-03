@@ -8,7 +8,8 @@ def name(context):
 bcprotocolCapnpFiles=[
 	'control.capnp',
 	'info.capnp',
-	'protocol.capnp']
+	'protocol.capnp',
+	'sensor.capnp']
 
 def configure(confCtx):
     confCtx.env.component = Component.fromContext(confCtx, name(confCtx), confCtx.env.product)
@@ -19,6 +20,7 @@ def build(buildCtx):
     bcprotocolCxxNodeList=[]
     bcprotocolHNodeList=[]
     bcprotocolCapnpTaskList=[]
+    bcprotocolPublishTaskList=[]
     for capnpFile in bcprotocolCapnpFiles:
 	compileTask='capnp_%s' % capnpFile
 	capnpNode=buildCtx.path.find_node(capnpFile)
@@ -28,26 +30,29 @@ def build(buildCtx):
 		name=compileTask,
 		source=[capnpNode],
 		target=[cxxNode, hNode],
-		includes=['.', buildCtx.srcnode.abspath()])
-	bcprotocolCxxNodeList.append(cxxNode)
-	bcprotocolHNodeList.append(hNode)
-	bcprotocolCapnpTaskList.append(compileTask)
+		includes=['.', buildCtx.srcnode.find_node('src').abspath()])
+	publishTask='publish_%s.h' % capnpFile
 	buildCtx(
+		name=publishTask,
 		rule='cp ${SRC} ${TGT}',
 		source=hNode,
 		target=os.path.join(buildCtx.env.component.build_tree.includePathFromBuild(buildCtx), os.path.basename(str(hNode))),
 		after=compileTask)
+	bcprotocolCxxNodeList.append(cxxNode)
+	bcprotocolHNodeList.append(hNode)
+	bcprotocolCapnpTaskList.append(compileTask)
+	bcprotocolPublishTaskList.append(publishTask)
     buildCtx.stlib(
 	    name='stlib_robocup2Dsim_bcprotocol',
 	    source=bcprotocolCxxNodeList,
 	    target='bcprotocol',
-	    includes=['.', os.path.join(buildCtx.path.get_bld().abspath(), os.pardir, 'core'), buildCtx.bldnode.abspath()] + buildCtx.env.component.include_path_list,
+	    includes=['.'] + buildCtx.env.component.include_path_list,
 	    libpath=buildCtx.env.component.lib_path_list,
 	    cxxflags=buildCtx.env.CXXFLAGS,
 	    linkflags=buildCtx.env.LDFLAGS,
 	    use=['CAPNPROTO_STLIB'],
 	    install_path=buildCtx.env.component.install_tree.test,
-	    after=['shlib_robocup2Dsim_core'] + bcprotocolCapnpTaskList)
+	    after=['stlib_robocup2Dsim_core'] + bcprotocolPublishTaskList)
 
 def install(installCtx):
     installCtx.env.component = installCtx.env.product.getComponent(name(installCtx))
