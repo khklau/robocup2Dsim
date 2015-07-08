@@ -35,47 +35,79 @@ struct Communication
     }
 }
 
-struct PlayerObservation1
+struct PlayerVisual1
 {
     id @0 :Entity.PlayerId;
-    distance @1 :Physics.Millimeter;
-    direction @2 :Physics.Degree;
+    direction @1 :Physics.Degree;
+    distance @2 :Physics.Millimeter;
+    body @3 :Physics.Degree;
+    head @4 :Physics.Degree;
 }
 
-struct PlayerObservation2
+struct PlayerVisual2
 {
-    id @0 :Entity.PlayerId;
-    distance @1 :Physics.Millimeter;
-    direction @2 :Physics.Degree;
+    side @0 :Field.Side;
+    direction @1 :Physics.Degree;
+    distance @2 :Physics.Millimeter;
 }
 
-struct PlayerObservation3
+struct PlayerVisual3
 {
-    id @0 :Entity.PlayerId;
-    distance @1 :Physics.Millimeter;
-    direction @2 :Physics.Degree;
+    direction @0 :Physics.Degree;
 }
 
-struct PlayerObservation4
+struct BallVisual1
 {
-    id @0 :Entity.PlayerId;
+    direction @0 :Physics.Degree;
     distance @1 :Physics.Millimeter;
-    direction @2 :Physics.Degree;
 }
 
-struct Observation
+struct BallVisual2
+{
+    direction @0 :Physics.Degree;
+}
+
+struct PointVisual1
+{
+    id @0 :Field.PointId;
+    direction @1 :Physics.Degree;
+    distance @2 :Physics.Millimeter;
+}
+
+struct PointVisual2
+{
+    id @0 :Field.PointId;
+    direction @1 :Physics.Degree;
+}
+
+struct LineVisual1
+{
+    id @0 :Field.LineId;
+    direction @1 :Physics.Degree;
+    incidenceAngle @2 :Physics.Degree;
+    distance @3 :Physics.Millimeter;
+}
+
+struct LineVisual2
+{
+    id @0 :Field.LineId;
+    direction @1 :Physics.Degree;
+    incidenceAngle @2 :Physics.Degree;
+}
+
+struct Visual
 {
     time @0 :Physics.Nanoseconds;
     objectId :union
     {
-	player @1 :Entity.PlayerId;
-	ball @2 :Void;
-	boundaryPoint @3 :Field.BoundaryPointId;
-	boundaryLine @4 :Field.BoundaryLineId;
-	goal @5 :Field.GoalPointId;
-	goalBox @6 :Field.GoalBoxPointId;
-	penaltyBox @7 :Field.PenaltyBoxPointId;
-	penaltyArc @8 :Field.PenaltyArcPointId;
-	centreCircle @9 :Field.CentreCirclePointId;
+	player1 @1 :PlayerVisual1;
+	player2 @2 :PlayerVisual2;
+	player3 @3 :PlayerVisual3;
+	ball1 @4 :BallVisual1;
+	ball2 @5 :BallVisual2;
+	point1 @6 :PointVisual1;
+	point2 @7 :PointVisual2;
+	line1 @8 :LineVisual1;
+	line2 @9 :LineVisual2;
     }
 }
