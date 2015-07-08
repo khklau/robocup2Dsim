@@ -48,16 +48,3 @@ enum ParticipantType
 }
 
 struct Ball {}
-
-struct OnFieldEntity
-{
-    union
-    {
-	player @0 :Player;
-	ball @1 :Ball;
-	goal @2 :Field.Goal;
-	line @3 :Field.Line;
-	flag @4 :Field.Flag;
-	spot @5 :Field.Spot;
-    }
-}
