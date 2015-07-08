@@ -5,7 +5,7 @@ $Cxx.namespace("robocup2Dsim::core");
 
 using Day = UInt32;
 using Degree = Int16;
-using Joules = Uint16;
+using KiloJoule = Uint16;
 using MetersPerSecond = Float32;
 using Millimeter = Float32;
 using Nanoseconds = UInt64;
@@ -22,4 +22,18 @@ struct Position
 {
     x @0 :Float32;
     y @1 :Float32;
+}
+
+struct Line
+{
+    point1 @0 :Position;
+    point2 @1 :Position;
+}
+
+struct Rectangle
+{
+    topLeft @0 :Position;
+    topRight @1 :Position;
+    bottomLeft @2 :Position;
+    bottomRight @3 :Position;
 }

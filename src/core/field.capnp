@@ -5,14 +5,30 @@ $Cxx.namespace("robocup2Dsim::core");
 
 using Physics = import "/core/physics.capnp";
 
-enum BoundaryPointId
+enum Side
 {
-    leftTop @0;
-    leftBottom @1;
-    centreTop @2;
-    centreBottom @3;
-    rightTop @4;
-    rightBottom @5;
+    left @0;
+    right @1;
+}
+
+enum Aspect
+{
+    top @0;
+    bottom @1;
+}
+
+enum CornerFlagId
+{
+    topLeft @0;
+    topRight @1;
+    bottomLeft @2;
+    bottomRight @3;
+}
+
+struct CornerFlag
+{
+    id @0 :CornerFlagId;
+    position @1 :Physics.Position;
 }
 
 enum BoundaryLineId
@@ -23,47 +39,129 @@ enum BoundaryLineId
     bottom @3;
 }
 
-enum Side
+struct Boundary
+{
+    topLeft @0 :CornerFlag;
+    topRight @1 :CornerFlag;
+    bottomLeft @2 :CornerFlag;
+    bottomRight @3 :CornerFlag;
+}
+
+enum CentreLinePointId
+{
+    top @0;
+    bottom @1;
+}
+
+struct CentreLinePoint
+{
+    id @0 :CentreLinePointId;
+    position @1 :Physics.Position;
+}
+
+struct CentreCircle
+{
+    centre @0 :Physics.Position;
+    radius @1 :Physics.Millimeter;
+}
+
+struct GoalPostId
+{
+    side @0 :Side;
+    aspect @1 :Aspect;
+}
+
+struct GoalPost
+{
+    id @0 :GoalPostId;
+    position @1 :Physics.Position;
+}
+
+enum GoalLineId
 {
     left @0;
     right @1;
 }
 
-enum Aspect
+struct Goal
 {
-    top @0;
-    centre @1;
-    bottom @2;
+    id @0 :GoalLineId;
+    top @1 :GoalPost;
+    bottom @2 :GoalPost;
 }
 
-struct GoalPointId
+struct BoxCorner
 {
     side @0 :Side;
     aspect @1 :Aspect;
 }
 
-struct GoalBoxPointId
+struct GoalBoxCornerId
 {
     side @0 :Side;
-    aspect @1 :Aspect;
+    corner @1 :BoxCorner;
 }
 
-struct PenaltyBoxPointId
+struct GoalBoxCorner
 {
-    side @0 :Side;
-    aspect @1 :Aspect;
+    id @0 :GoalBoxCornerId;
+    position @1 :Physics.Position;
 }
 
-struct PenaltyArcPointId
+enum GoalBoxLineId
 {
-    side @0 :Side;
-    aspect @1 :Aspect;
+    left @0;
+    right @1;
+    top @2;
+    bottom @3;
 }
 
-struct CentreCirclePointId
+struct GoalBox
+{
+    topLeft @0 :GoalBoxCorner;
+    topRight @1 :GoalBoxCorner;
+    bottomLeft @2 :GoalBoxCorner;
+    bottomRight @3 :GoalBoxCorner;
+}
+
+struct PenaltyBoxCornerId
 {
     side @0 :Side;
-    aspect @1 :Aspect;
+    corner @1 :BoxCorner;
+}
+
+struct PenaltyBoxCorner
+{
+    id @0 :PenaltyBoxCornerId;
+    position @1 :Physics.Position;
+}
+
+enum PenaltyBoxLineId
+{
+    left @0;
+    right @1;
+    top @2;
+    bottom @3;
+}
+
+struct PenaltyBox
+{
+    topLeft @0 :PenaltyBoxCorner;
+    topRight @1 :PenaltyBoxCorner;
+    bottomLeft @2 :PenaltyBoxCorner;
+    bottomRight @3 :PenaltyBoxCorner;
+}
+
+struct PenaltyArcId
+{
+    side @0 :Side;
+}
+
+struct PenaltyArc
+{
+    id @0 :PenaltyArcId;
+    centre @1 :Physics.Position;
+    radius @2 :Physics.Millimeter;
 }
 
 enum Latitude
@@ -100,26 +198,33 @@ enum Longitude
 
 struct LongWallPointId
 {
-    enum Aspect
-    {
-	top @0;
-	bottom @1;
-    }
-    aspect @0 :LongWallPointId.Aspect;
+    aspect @0 :Aspect;
     point @1 :Longitude;
 }
 
-struct Goal
+struct LineId
 {
-    side @0 :Side;
+    union
+    {
+	boundary @0 :BoundaryLineId;
+	centreLine @1 :Void;
+	centreCircle @2 :Void;
+	goalLine @3 :GoalLineId;
+	goalBox @4 :GoalBoxLineId;
+	penaltyBox @5 :PenaltyBoxLineId;
+	penaltyArc @6 :PenaltyArcId;
+    }
 }
 
-struct Line
+struct PointId
 {
-    point1 @0 :Physics.Position;
-    point2 @1 :Physics.Position;
+    union
+    {
+	cornerFlag @0 :CornerFlagId;
+	centreSpot @1 :Void;
+	goalPost @2 :GoalPostId;
+	penaltySpot @3 :PenaltyArcId;
+	shortWallPoint @4 :ShortWallPointId;
+	longWallPoint @5 :LongWallPointId;
+    }
 }
-
-struct Flag {}
-
-struct Spot { }
