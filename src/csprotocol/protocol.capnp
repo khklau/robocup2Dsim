@@ -17,13 +17,13 @@ struct TransmissionHeader
     unusedD @5 :Bool;
     unusedE @6 :Bool;
     unusedF @7 :Bool;
-    channel @8 :Metadata.channelId;
+    channel @8 :Metadata.ChannelId;
     sequence @9 :Metadata.SequenceNumber;
 }
 
 struct ClientTransmission
 {
-    header @0 :TransmissionHeader
+    header @0 :TransmissionHeader;
     union
     {
 	init @1 :Command.InitRequest;
@@ -34,7 +34,7 @@ struct ClientTransmission
 
 struct ServerTransmission
 {
-    header @0 :TransmissionHeader
+    header @0 :TransmissionHeader;
     union
     {
 	unknownMsg @1 :Error.UnknownMsgError;
