@@ -10,7 +10,7 @@ struct ScoreQuery { }
 
 struct ScoreResult
 {
-    time @0 :Physics.Nanoseconds;
+    time @0 :Physics.NanoSecond;
     ourScore @1 :Rule.Score;
     theirScore @2 :Rule.Score;
 }
@@ -19,5 +19,21 @@ struct TimeQuery { }
 
 struct TimeResult
 {
-    time @0 :Physics.Nanoseconds;
+    time @0 :Physics.NanoSecond;
+}
+
+struct RegistrationQuery { }
+
+struct TeamRegistrationStatus
+{
+    teamName @0 :Text;
+    playerCount @1 :UInt8;
+}
+
+struct RegistrationResult
+{
+    startTime @0 :Physics.NanoSecond;
+    deadLine @1 :Physics.NanoSecond;
+    leftTeam @2 :TeamRegistrationStatus;
+    rightTeam @3 :TeamRegistrationStatus;
 }
