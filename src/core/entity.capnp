@@ -37,6 +37,12 @@ struct PlayerId
 struct Player
 {
     id @0 :PlayerId;
+    position @1 :Physics.Position;
+    stamina @2 :Physics.KiloJoule;
+    effort @3 :Physics.KiloJoule;
+    bodyDirection @4 :Physics.Degree;
+    headDirection @5 :Physics.Degree;
+    velocity @6 :Physics.MilliMetrePerSecond;
 }
 
 enum ParticipantType
@@ -47,4 +53,9 @@ enum ParticipantType
     trainer @3;
 }
 
-struct Ball {}
+struct Ball
+{
+    position @0 :Physics.Position;
+    direction @1 :Physics.Degree;
+    velocity @2 :Physics.MilliMetrePerSecond;
+}
