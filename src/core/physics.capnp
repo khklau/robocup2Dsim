@@ -5,10 +5,10 @@ $Cxx.namespace("robocup2Dsim::core");
 
 using Day = UInt32;
 using Degree = Int16;
-using KiloJoule = Uint16;
-using MetersPerSecond = Float32;
-using Millimeter = Float32;
-using Nanoseconds = UInt64;
+using KiloJoule = UInt16;
+using MilliMetrePerSecond = Float32;
+using MilliMetre = Float32;
+using NanoSecond = UInt64;
 using Newton = Int8;
 
 const minBodyDegree :Degree = -180;

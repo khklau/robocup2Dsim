@@ -62,7 +62,7 @@ struct CentreLinePoint
 struct CentreCircle
 {
     centre @0 :Physics.Position;
-    radius @1 :Physics.Millimeter;
+    radius @1 :Physics.MilliMetre;
 }
 
 struct GoalPostId
@@ -161,7 +161,7 @@ struct PenaltyArc
 {
     id @0 :PenaltyArcId;
     centre @1 :Physics.Position;
-    radius @2 :Physics.Millimeter;
+    radius @2 :Physics.MilliMetre;
 }
 
 enum Latitude
