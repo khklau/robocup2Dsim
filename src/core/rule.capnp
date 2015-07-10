@@ -3,7 +3,15 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("robocup2Dsim::core");
 
-using Score = UInt8;
+using Physics = import "/core/physics.capnp";
+
+using GoalCount = UInt8;
+
+struct Score
+{
+    ourScore @0 :GoalCount;
+    theirScore @1 :GoalCount;
+}
 
 enum PlayMode
 {
@@ -11,11 +19,19 @@ enum PlayMode
     timeOver @1;
     playOn @2;
     kickOff @3;
-    kickIn @4;
+    throwIn @4;
     freeKick @5;
     cornerKick @6;
     goalKick @7;
-    afterGoal @8;
-    dropBall @9;
-    offSide @10;
+    penaltyKick @8;
+    afterGoal @9;
+    dropBall @10;
+    offSide @11;
+    registration @12;
+}
+
+enum PlaySession
+{
+    regular1stHalf @0;
+    regular2ndHalf @1;
 }

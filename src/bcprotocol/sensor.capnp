@@ -6,23 +6,57 @@ $Cxx.namespace("robocup2Dsim::bcprotocol");
 using Entity = import "/core/entity.capnp";
 using Field = import "/core/field.capnp";
 using Physics = import "/core/physics.capnp";
+using Rule = import "/core/rule.capnp";
 
 struct Announcement
 {
-    time @0 :Physics.Nanoseconds;
+    time @0 :Physics.NanoSecond;
     direction@1 :Physics.Degree;
     message @2 :AnyPointer;
 }
 
 struct Instruction
 {
-    time @0 :Physics.Nanoseconds;
+    time @0 :Physics.NanoSecond;
     message @1 :AnyPointer;
+}
+
+struct KickOffPlan
+{
+    schedule @0 :Physics.NanoSecond;
+    session @1 :Rule.PlaySession;
+    kickingSide @2 :Field.Side;
+}
+
+struct FieldOpen
+{
+    side @0 :Field.Side;
+    position @1 :Physics.Position;
+    plan @2 :KickOffPlan;
+}
+
+struct TimeOver
+{
+    currentScore @0 :Rule.Score;
+    plan @1 :KickOffPlan;
+}
+
+struct GameOver
+{
+    finalScore @0 :Rule.Score;
 }
 
 struct Judgment
 {
-    time @0 :Physics.Nanoseconds;
+    time @0 :Physics.NanoSecond;
+    union
+    {
+	regTimeOut @1 :Void;
+	open @2 :FieldOpen;
+	kickOff @3 :Void;
+	timeOver @4 :TimeOver;
+	gameOver @5 :GameOver;
+    }
 }
 
 struct Communication
@@ -39,7 +73,7 @@ struct PlayerVisual1
 {
     id @0 :Entity.PlayerId;
     direction @1 :Physics.Degree;
-    distance @2 :Physics.Millimeter;
+    distance @2 :Physics.MilliMetre;
     body @3 :Physics.Degree;
     head @4 :Physics.Degree;
 }
@@ -48,7 +82,7 @@ struct PlayerVisual2
 {
     side @0 :Field.Side;
     direction @1 :Physics.Degree;
-    distance @2 :Physics.Millimeter;
+    distance @2 :Physics.MilliMetre;
 }
 
 struct PlayerVisual3
@@ -59,7 +93,7 @@ struct PlayerVisual3
 struct BallVisual1
 {
     direction @0 :Physics.Degree;
-    distance @1 :Physics.Millimeter;
+    distance @1 :Physics.MilliMetre;
 }
 
 struct BallVisual2
@@ -71,7 +105,7 @@ struct PointVisual1
 {
     id @0 :Field.PointId;
     direction @1 :Physics.Degree;
-    distance @2 :Physics.Millimeter;
+    distance @2 :Physics.MilliMetre;
 }
 
 struct PointVisual2
@@ -85,7 +119,7 @@ struct LineVisual1
     id @0 :Field.LineId;
     direction @1 :Physics.Degree;
     incidenceAngle @2 :Physics.Degree;
-    distance @3 :Physics.Millimeter;
+    distance @3 :Physics.MilliMetre;
 }
 
 struct LineVisual2
@@ -97,7 +131,7 @@ struct LineVisual2
 
 struct Visual
 {
-    time @0 :Physics.Nanoseconds;
+    time @0 :Physics.NanoSecond;
     objectId :union
     {
 	player1 @1 :PlayerVisual1;

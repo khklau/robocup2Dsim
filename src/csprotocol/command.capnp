@@ -4,7 +4,9 @@ using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("robocup2Dsim::bcprotocol");
 
 using Entity = import "/core/entity.capnp";
+using Field = import "/core/field.capnp";
 using Metadata = import "/core/metadata.capnp";
+using Physics = import "/core/physics.capnp";
 using Rule = import "/core/rule.capnp";
 
 struct VersionMismatchError { }
@@ -33,8 +35,7 @@ struct InitReply
 
 struct InitResult
 {
-    side @0 :Entity.Side;
-    playMode @1 :Rule.PlayMode;
+    regDeadLine @0 :Physics.NanoSecond;
 }
 
 struct InitError
@@ -66,7 +67,7 @@ struct ReconnectReply
 
 struct ReconnectResult
 {
-    side @0 :Entity.Side;
+    side @0 :Field.Side;
     playMode @1 :Rule.PlayMode;
 }
 
