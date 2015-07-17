@@ -29,7 +29,7 @@
 
 # Vim
 *.swp
-_
+
 # Waf
 /.lock-waf*
 /.waf*
