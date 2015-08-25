@@ -53,6 +53,3 @@ def build(buildCtx):
 	    use=['CAPNPROTO_STLIB'],
 	    install_path=buildCtx.env.component.install_tree.test,
 	    after=['stlib_robocup2Dsim_core'] + bcprotocolPublishTaskList)
-
-def install(installCtx):
-    installCtx.env.component = installCtx.env.product.getComponent(name(installCtx))

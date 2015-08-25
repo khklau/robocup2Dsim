@@ -17,6 +17,3 @@ def build(buildCtx):
     status = BuildStatus.init(buildCtx.path.abspath())
     buildCtx.recurse('src')
     status.setSuccess()
-
-def install(installCtx):
-    installCtx.recurse('src')

@@ -31,9 +31,3 @@ def build(buildCtx):
     buildCtx.recurse('core')
     buildCtx.recurse('bcprotocol')
     buildCtx.recurse('csprotocol')
-
-def install(installCtx):
-    installCtx.env.product = installCtx.env.solution.getProduct(NAME)
-    installCtx.recurse('core')
-    installCtx.recurse('bcprotocol')
-    installCtx.recurse('csprotocol')
