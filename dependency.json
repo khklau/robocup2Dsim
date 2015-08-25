@@ -4,6 +4,10 @@
     "dependencies" :
     [
 	{
+	    "product" : "turbo",
+	    "version" : "master"
+	},
+	{
 	    "product" : "capnproto",
 	    "version" : "0.5.2"
 	},
