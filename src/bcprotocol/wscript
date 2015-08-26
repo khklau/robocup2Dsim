@@ -51,5 +51,5 @@ def build(buildCtx):
 	    cxxflags=buildCtx.env.CXXFLAGS,
 	    linkflags=buildCtx.env.LDFLAGS,
 	    use=['CAPNPROTO_STLIB'],
-	    install_path=buildCtx.env.component.install_tree.test,
+	    install_path=buildCtx.env.component.install_tree.lib,
 	    after=['stlib_robocup2Dsim_core'] + bcprotocolPublishTaskList)
