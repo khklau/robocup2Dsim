@@ -45,11 +45,11 @@ def build(buildCtx):
     buildCtx.stlib(
 	    name='stlib_robocup2Dsim_bcprotocol',
 	    source=bcprotocolCxxNodeList,
-	    target='bcprotocol',
+	    target='robocup2Dsim_bcprotocol',
 	    includes=['.'] + buildCtx.env.component.include_path_list,
 	    libpath=buildCtx.env.component.lib_path_list,
 	    cxxflags=buildCtx.env.CXXFLAGS,
 	    linkflags=buildCtx.env.LDFLAGS,
-	    use=['CAPNPROTO_STLIB'],
+	    use=['CAPNPROTO_STLIB', 'stlib_robocup2Dsim_core'],
 	    install_path=buildCtx.env.component.install_tree.lib,
 	    after=['stlib_robocup2Dsim_core'] + bcprotocolPublishTaskList)

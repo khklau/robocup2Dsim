@@ -47,7 +47,7 @@ def build(buildCtx):
     buildCtx.stlib(
 	    name='stlib_robocup2Dsim_core',
 	    source=coreCxxNodeList,
-	    target='core',
+	    target='robocup2Dsim_core',
 	    includes=['.'] + buildCtx.env.component.include_path_list,
 	    libpath=buildCtx.env.component.lib_path_list,
 	    cxxflags=buildCtx.env.CXXFLAGS,
