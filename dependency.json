@@ -12,6 +12,14 @@
 	    "version" : "0.5.2"
 	},
 	{
+	    "product" : "asio",
+	    "version" : "1.10.6"
+	},
+	{
+	    "product" : "glog",
+	    "version" : "0.3.4"
+	},
+	{
 	    "product" : "gtest",
 	    "version" : "1.7.0"
 	},
