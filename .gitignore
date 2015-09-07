@@ -36,3 +36,9 @@
 /waf
 /build.status
 /build
+
+# Build output
+/bin
+/lib
+/include
+/share
