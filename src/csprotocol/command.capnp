@@ -35,7 +35,7 @@ struct InitReply
 
 struct InitResult
 {
-    regDeadLine @0 :Physics.NanoSecond;
+    playMode @0 :Rule.PlayMode;
 }
 
 struct InitError
@@ -47,38 +47,6 @@ struct InitError
 	teamFull @2 :TeamFullError;
 	uniformTaken @3 :UniformTakenError;
 	goalieTaken @4 :GoalieTakenError;
-    }
-}
-
-struct ReconnectRequest
-{
-    teamName @0 :Text;
-    uniform @1 :Entity.UniformNumber;
-}
-
-struct ReconnectReply
-{
-    union
-    {
-	result @0 :ReconnectResult;
-	error @1 :ReconnectError;
-    }
-}
-
-struct ReconnectResult
-{
-    side @0 :Field.Side;
-    playMode @1 :Rule.PlayMode;
-}
-
-struct ReconnectError
-{
-    union
-    {
-	noSuchTeam @0 :NoSuchTeamError;
-	teamFull @1 :TeamFullError;
-	uniformTaken @2 :UniformTakenError;
-	gameInPlayOn @3 :GameInPlayOnError;
     }
 }
 

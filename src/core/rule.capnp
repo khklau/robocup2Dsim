@@ -27,7 +27,7 @@ enum PlayMode
     afterGoal @9;
     dropBall @10;
     offSide @11;
-    registration @12;
+    onBench @12;
 }
 
 enum PlaySession

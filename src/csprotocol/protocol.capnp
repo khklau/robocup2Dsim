@@ -27,8 +27,7 @@ struct ClientTransmission
     union
     {
 	init @1 :Command.InitRequest;
-	reconnect @2 :Command.ReconnectRequest;
-	bye @3 :Command.ByeRequest;
+	bye @2 :Command.ByeRequest;
     }
 }
 
@@ -40,7 +39,6 @@ struct ServerTransmission
 	unknownMsg @1 :Error.UnknownMsgError;
 	malformedMsg @2 :Error.MalformedMsgError;
 	init @3 :Command.InitReply;
-	reconnect @4 :Command.ReconnectReply;
-	bye @5 :Command.ByeReply;
+	bye @4 :Command.ByeReply;
     }
 }
