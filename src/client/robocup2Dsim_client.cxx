@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <cstdint>
+#include <limits>
 #include <string>
 #include <vector>
 #include <kj/common.h>
@@ -14,9 +15,17 @@ namespace tpp = turbo::process::posix;
 
 struct config
 {
-    config() : port(0), bot_arg_count(0), bot_arg_offset(0) { }
+    config() :
+	    goalie(false),
+	    port(0),
+	    bot_arg_count(0),
+	    bot_arg_offset(0)
+    { }
+    bool goalie;
     std::string address;
-    int port;
+    uint16_t port;
+    std::string team;
+    uint8_t uniform;
     std::string bot_path;
     unsigned short bot_arg_count;
     unsigned short bot_arg_offset;
@@ -29,6 +38,13 @@ void parse_cmd_args(int argc, char* argv[], config& conf)
 	    context,
 	    "Robocup 2D Simulation Client v0.0",
 	    "Launches bot and connects to the server")
+	.addOption({'g', "goalie"}, [&] ()
+	{
+	    conf.goalie = true;
+	    ++conf.bot_arg_offset;
+	    return true;
+	},
+	"The bot is playing as the goalie.")
 	.expectArg("address", [&] (kj::StringPtr arg)
 	{
 	    conf.address = arg.cStr();
@@ -37,9 +53,47 @@ void parse_cmd_args(int argc, char* argv[], config& conf)
 	})
 	.expectArg("port", [&] (kj::StringPtr arg)
 	{
-	    conf.port = atoi(arg.cStr());
+	    int tmp = atoi(arg.cStr());
+	    if (std::numeric_limits<decltype(conf.port)>::min() <= tmp && 
+		    tmp <= std::numeric_limits<decltype(conf.port)>::max())
+	    {
+		conf.port = static_cast<decltype(conf.port)>(tmp);
+		++conf.bot_arg_offset;
+		return kj::MainBuilder::Validity(true);
+	    }
+	    else
+	    {
+		return kj::MainBuilder::Validity(kj::str(
+			"port number must be int the range ",
+			std::numeric_limits<decltype(conf.port)>::min(),
+			" to ",
+			std::numeric_limits<decltype(conf.port)>::max()));
+	    }
+	})
+	.expectArg("team", [&] (kj::StringPtr arg)
+	{
+	    conf.team = arg.cStr();
 	    ++conf.bot_arg_offset;
 	    return true;
+	})
+	.expectArg("uniform", [&] (kj::StringPtr arg)
+	{
+	    int tmp = atoi(arg.cStr());
+	    if (std::numeric_limits<decltype(conf.uniform)>::min() <= tmp && 
+		    tmp <= std::numeric_limits<decltype(conf.uniform)>::max())
+	    {
+		conf.uniform = static_cast<decltype(conf.uniform)>(tmp);
+		++conf.bot_arg_offset;
+		return kj::MainBuilder::Validity(true);
+	    }
+	    else
+	    {
+		return kj::MainBuilder::Validity(kj::str(
+			"uniform number must be in the range ",
+			std::numeric_limits<decltype(conf.uniform)>::min(),
+			" to ",
+			std::numeric_limits<decltype(conf.uniform)>::max()));
+	    }
 	})
 	.expectArg("bot_path", [&] (kj::StringPtr arg)
 	{
