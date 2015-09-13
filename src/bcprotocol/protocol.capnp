@@ -6,6 +6,7 @@ $Cxx.namespace("robocup2Dsim::bcprotocol");
 using Control = import "control.capnp";
 using Error = import "/core/error.capnp";
 using Info = import "info.capnp";
+using Sensor = import "sensor.capnp";
 
 struct BotTransmission
 {
@@ -29,5 +30,7 @@ struct ClientTransmission
 	malformedMsg @1 :Error.MalformedMsgError;
 	scoreResult @2 :Info.ScoreResult;
 	timeResult @3 :Info.TimeResult;
+	communication @4 :Sensor.Communication;
+	visual @5 :Sensor.Visual;
     }
 }
