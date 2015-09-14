@@ -3,6 +3,7 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("robocup2Dsim::bcprotocol");
 
+using Command = import "/core/command.capnp";
 using Control = import "control.capnp";
 using Error = import "/core/error.capnp";
 using Info = import "info.capnp";
@@ -32,5 +33,7 @@ struct ClientTransmission
 	timeResult @3 :Info.TimeResult;
 	communication @4 :Sensor.Communication;
 	visual @5 :Sensor.Visual;
+	init @6 :Command.PlayerInit;
+	finish @7 :Void;
     }
 }
