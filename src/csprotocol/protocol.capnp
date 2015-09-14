@@ -5,6 +5,7 @@ $Cxx.namespace("robocup2Dsim::csprotocol");
 
 using Error = import "/core/error.capnp";
 using Metadata = import "/core/metadata.capnp";
+using CoreCommand = import "/core/command.capnp";
 using Command = import "command.capnp";
 
 struct TransmissionHeader
@@ -26,7 +27,7 @@ struct ClientTransmission
     header @0 :TransmissionHeader;
     union
     {
-	init @1 :Command.InitRequest;
+	init @1 :CoreCommand.PlayerInit;
 	bye @2 :Command.ByeRequest;
     }
 }

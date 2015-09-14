@@ -16,14 +16,6 @@ struct UniformTakenError { }
 struct GoalieTakenError { }
 struct GameInPlayOnError { }
 
-struct InitRequest
-{
-    version @0 :Metadata.Version;
-    teamName @1 :Text;
-    uniform @2 :Entity.UniformNumber;
-    playerType @3 :Entity.PlayerType;
-}
-
 struct InitReply
 {
     union
