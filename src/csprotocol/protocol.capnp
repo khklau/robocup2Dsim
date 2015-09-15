@@ -28,7 +28,7 @@ struct ClientTransmission
     union
     {
 	init @1 :CoreCommand.PlayerInit;
-	bye @2 :Command.ByeRequest;
+	control @2 :Void;
     }
 }
 
@@ -40,6 +40,6 @@ struct ServerTransmission
 	unknownMsg @1 :Error.UnknownMsgError;
 	malformedMsg @2 :Error.MalformedMsgError;
 	init @3 :Command.InitReply;
-	bye @4 :Command.ByeReply;
+	abort @4 :Command.GameAborted;
     }
 }

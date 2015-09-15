@@ -42,14 +42,14 @@ struct InitError
     }
 }
 
-struct ByeRequest
+enum AbortReason
 {
-    teamName @0 :Text;
-    uniform @1 :Entity.UniformNumber;
+    registrationTimeOut @0;
+    otherTeamDisconnect @1;
 }
 
-struct ByeReply
+struct GameAborted
 {
-    teamName @0 :Text;
-    uniform @1 :Entity.UniformNumber;
+    reason @0 :AbortReason;
+    score @1 :Rule.Score;
 }

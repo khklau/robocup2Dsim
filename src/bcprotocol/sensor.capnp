@@ -51,11 +51,10 @@ struct Judgment
     time @0 :Physics.NanoSecond;
     union
     {
-	regTimeOut @1 :Void;
-	open @2 :FieldOpen;
-	kickOff @3 :Void;
-	timeOver @4 :TimeOver;
-	gameOver @5 :GameOver;
+	open @1 :FieldOpen;
+	kickOff @2 :Void;
+	timeOver @3 :TimeOver;
+	gameOver @4 :GameOver;
     }
 }
 
