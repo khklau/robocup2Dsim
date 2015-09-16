@@ -14,7 +14,6 @@ struct NoSuchTeamError { }
 struct TeamFullError { }
 struct UniformTakenError { }
 struct GoalieTakenError { }
-struct GameInPlayOnError { }
 
 struct InitReply
 {
@@ -48,7 +47,7 @@ enum AbortReason
     otherTeamDisconnect @1;
 }
 
-struct GameAborted
+struct MatchAborted
 {
     reason @0 :AbortReason;
     score @1 :Rule.Score;

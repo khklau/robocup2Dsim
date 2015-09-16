@@ -40,6 +40,6 @@ struct ServerTransmission
 	unknownMsg @1 :Error.UnknownMsgError;
 	malformedMsg @2 :Error.MalformedMsgError;
 	init @3 :Command.InitReply;
-	abort @4 :Command.GameAborted;
+	abort @4 :Command.MatchAborted;
     }
 }

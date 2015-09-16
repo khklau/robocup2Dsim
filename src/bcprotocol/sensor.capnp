@@ -41,7 +41,7 @@ struct TimeOver
     plan @1 :KickOffPlan;
 }
 
-struct GameOver
+struct MatchOver
 {
     finalScore @0 :Rule.Score;
 }
@@ -54,7 +54,7 @@ struct Judgment
 	open @1 :FieldOpen;
 	kickOff @2 :Void;
 	timeOver @3 :TimeOver;
-	gameOver @4 :GameOver;
+	matchOver @4 :MatchOver;
     }
 }
 
