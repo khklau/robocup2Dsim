@@ -33,7 +33,8 @@ struct ClientTransmission
 	timeResult @3 :Info.TimeResult;
 	communication @4 :Sensor.Communication;
 	visual @5 :Sensor.Visual;
-	init @6 :Command.PlayerInit;
-	finish @7 :Void;
+	registration @6 :Command.Registration;
+	aborted @7 :Command.MatchAborted;
+	over @8 :Command.MatchOver;
     }
 }

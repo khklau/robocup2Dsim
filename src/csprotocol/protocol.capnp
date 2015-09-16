@@ -5,7 +5,6 @@ $Cxx.namespace("robocup2Dsim::csprotocol");
 
 using Error = import "/core/error.capnp";
 using Metadata = import "/core/metadata.capnp";
-using CoreCommand = import "/core/command.capnp";
 using Command = import "command.capnp";
 
 struct TransmissionHeader
@@ -27,7 +26,7 @@ struct ClientTransmission
     header @0 :TransmissionHeader;
     union
     {
-	init @1 :CoreCommand.PlayerInit;
+	init @1 :Command.InitRequest;
 	control @2 :Void;
     }
 }
@@ -41,5 +40,6 @@ struct ServerTransmission
 	malformedMsg @2 :Error.MalformedMsgError;
 	init @3 :Command.InitReply;
 	abort @4 :Command.MatchAborted;
+	over @5 :Command.MatchOver;
     }
 }

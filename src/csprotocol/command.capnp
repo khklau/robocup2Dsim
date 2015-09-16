@@ -1,19 +1,25 @@
 @0xc7bd906a94321b78;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("robocup2Dsim::bcprotocol");
+$Cxx.namespace("robocup2Dsim::csprotocol");
 
 using Entity = import "/core/entity.capnp";
 using Field = import "/core/field.capnp";
 using Metadata = import "/core/metadata.capnp";
 using Physics = import "/core/physics.capnp";
 using Rule = import "/core/rule.capnp";
+using CoreCommand = import "/core/command.capnp";
 
 struct VersionMismatchError { }
 struct NoSuchTeamError { }
 struct TeamFullError { }
 struct UniformTakenError { }
 struct GoalieTakenError { }
+
+struct InitRequest
+{
+    registration @0 :CoreCommand.Registration;
+}
 
 struct InitReply
 {
@@ -39,16 +45,4 @@ struct InitError
 	uniformTaken @3 :UniformTakenError;
 	goalieTaken @4 :GoalieTakenError;
     }
-}
-
-enum AbortReason
-{
-    registrationTimeOut @0;
-    otherTeamDisconnect @1;
-}
-
-struct MatchAborted
-{
-    reason @0 :AbortReason;
-    score @1 :Rule.Score;
 }

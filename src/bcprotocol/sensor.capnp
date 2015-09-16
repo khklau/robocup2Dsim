@@ -41,11 +41,6 @@ struct TimeOver
     plan @1 :KickOffPlan;
 }
 
-struct MatchOver
-{
-    finalScore @0 :Rule.Score;
-}
-
 struct Judgment
 {
     time @0 :Physics.NanoSecond;
@@ -54,7 +49,6 @@ struct Judgment
 	open @1 :FieldOpen;
 	kickOff @2 :Void;
 	timeOver @3 :TimeOver;
-	matchOver @4 :MatchOver;
     }
 }
 

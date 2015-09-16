@@ -2296,15 +2296,16 @@ playing#</dia:string>
     </dia:object>
     <dia:object type="Standard - Text" version="1" id="O51">
       <dia:attribute name="obj_pos">
-        <dia:point val="13,7"/>
+        <dia:point val="12,7"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="13,6.405;17.4525,7.1525"/>
+        <dia:rectangle val="12,6.405;17.3525,7.9525"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#GameAborted#</dia:string>
+            <dia:string>#MatchAborted or
+MatchOver#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="sans" style="0" name="Helvetica"/>
@@ -2313,7 +2314,7 @@ playing#</dia:string>
             <dia:real val="0.80000000000000004"/>
           </dia:attribute>
           <dia:attribute name="pos">
-            <dia:point val="13,7"/>
+            <dia:point val="12,7"/>
           </dia:attribute>
           <dia:attribute name="color">
             <dia:color val="#000000"/>
