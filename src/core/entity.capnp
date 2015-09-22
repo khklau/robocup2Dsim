@@ -6,6 +6,8 @@ $Cxx.namespace("robocup2Dsim::core");
 using Field = import "field.capnp";
 using Physics = import "/core/physics.capnp";
 
+using TeamName = Text;
+
 enum PlayerType
 {
     outfield @0;

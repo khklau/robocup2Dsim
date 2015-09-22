@@ -3,6 +3,7 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("robocup2Dsim::bcprotocol");
 
+using Entity = import "/core/entity.capnp";
 using Physics = import "/core/physics.capnp";
 using Rule = import "/core/rule.capnp";
 
@@ -26,7 +27,7 @@ struct RegistrationQuery { }
 
 struct TeamRegistrationStatus
 {
-    teamName @0 :Text;
+    teamName @0 :Entity.TeamName;
     playerCount @1 :UInt8;
 }
 
