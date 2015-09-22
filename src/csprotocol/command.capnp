@@ -11,7 +11,7 @@ using Rule = import "/core/rule.capnp";
 using CoreCommand = import "/core/command.capnp";
 
 struct VersionMismatchError { }
-struct NoSuchTeamError { }
+struct TeamSlotTakenError { }
 struct TeamFullError { }
 struct UniformTakenError { }
 struct GoalieTakenError { }
@@ -25,14 +25,9 @@ struct InitReply
 {
     union
     {
-	result @0 :InitResult;
+	open @0 :CoreCommand.MatchOpen;
 	error @1 :InitError;
     }
-}
-
-struct InitResult
-{
-    playMode @0 :Rule.PlayMode;
 }
 
 struct InitError
@@ -40,7 +35,7 @@ struct InitError
     union
     {
 	versionMismatch @0 :VersionMismatchError;
-	noSuchTeam @1 :NoSuchTeamError;
+	teamTaken @1 :TeamSlotTakenError;
 	teamFull @2 :TeamFullError;
 	uniformTaken @3 :UniformTakenError;
 	goalieTaken @4 :GoalieTakenError;

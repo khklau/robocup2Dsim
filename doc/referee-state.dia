@@ -244,12 +244,12 @@
         <dia:point val="11,7"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="11,6.405;14.785,7.1525"/>
+        <dia:rectangle val="11,6.38631;14.6737,7.18987"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#client event#</dia:string>
+            <dia:string>#MatchOpen#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="sans" style="0" name="Helvetica"/>
@@ -445,12 +445,12 @@
         <dia:point val="6,7"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="6,6.405;9.49,7.1525"/>
+        <dia:rectangle val="6,6.38631;9.70869,7.18987"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#MatchOver#</dia:string>
+            <dia:string>#MatchClose#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="sans" style="0" name="Helvetica"/>
@@ -639,12 +639,12 @@
         <dia:point val="13,12"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="13,11.405;16.785,12.1525"/>
+        <dia:rectangle val="13,11.3863;18.3787,12.1899"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#client event#</dia:string>
+            <dia:string>#simulation event#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="sans" style="0" name="Helvetica"/>

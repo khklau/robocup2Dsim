@@ -10,12 +10,17 @@ using Rule = import "rule.capnp";
 struct Registration
 {
     version @0 :Metadata.Version;
-    teamName @1 :Text;
+    teamName @1 :Entity.TeamName;
     uniform @2 :Entity.UniformNumber;
     playerType @3 :Entity.PlayerType;
 }
 
-struct MatchOver
+struct MatchOpen
+{
+    playMode @0 :Rule.PlayMode;
+}
+
+struct MatchClose
 {
     finalScore @0 :Rule.Score;
 }
@@ -26,7 +31,7 @@ enum AbortReason
     otherTeamDisconnect @1;
 }
 
-struct MatchAborted
+struct MatchAbort
 {
     reason @0 :AbortReason;
     score @1 :Rule.Score;

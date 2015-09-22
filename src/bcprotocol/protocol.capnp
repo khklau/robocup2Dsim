@@ -34,7 +34,8 @@ struct ClientTransmission
 	communication @4 :Sensor.Communication;
 	visual @5 :Sensor.Visual;
 	registration @6 :Command.Registration;
-	aborted @7 :Command.MatchAborted;
-	over @8 :Command.MatchOver;
+	open @7 :Command.MatchOpen;
+	close @8 :Command.MatchClose;
+	abort @9 :Command.MatchAbort;
     }
 }

@@ -1119,7 +1119,7 @@ field_open#</dia:string>
           <dia:attribute name="string">
             <dia:string>#disconnect or
 MatchAborted or
-MatchOver#</dia:string>
+MatchClose#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="sans" style="0" name="Helvetica"/>
@@ -1514,7 +1514,7 @@ playing#</dia:string>
         <dia:point val="37,8"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="37,7.38631;41.5137,8.98988"/>
+        <dia:rectangle val="37,7.405;41.495,8.9525"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -1548,7 +1548,7 @@ MatchAborted#</dia:string>
         <dia:point val="36,18.6"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="5.5,12.55;36.5,18.65"/>
+        <dia:rectangle val="5.5,12.55;36,18.65"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
@@ -2133,7 +2133,7 @@ MatchAborted#</dia:string>
         <dia:point val="14,7"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="14,6.38631;18.5137,7.98988"/>
+        <dia:rectangle val="14,6.405;18.495,7.9525"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
