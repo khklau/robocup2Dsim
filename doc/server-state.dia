@@ -472,94 +472,6 @@ on_bench#</dia:string>
     </dia:object>
     <dia:object type="UML - Transition" version="2" id="O9">
       <dia:attribute name="obj_pos">
-        <dia:point val="18,14.6"/>
-      </dia:attribute>
-      <dia:attribute name="obj_bb">
-        <dia:rectangle val="15.95,14.1;18.5,17.05"/>
-      </dia:attribute>
-      <dia:attribute name="meta">
-        <dia:composite type="dict"/>
-      </dia:attribute>
-      <dia:attribute name="orth_points">
-        <dia:point val="18,14.6"/>
-        <dia:point val="18,17"/>
-        <dia:point val="16,17"/>
-        <dia:point val="16,14.6"/>
-        <dia:point val="18,14.6"/>
-      </dia:attribute>
-      <dia:attribute name="orth_orient">
-        <dia:enum val="1"/>
-        <dia:enum val="0"/>
-        <dia:enum val="1"/>
-        <dia:enum val="0"/>
-      </dia:attribute>
-      <dia:attribute name="orth_autoroute">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="text_colour">
-        <dia:color val="#000000"/>
-      </dia:attribute>
-      <dia:attribute name="line_colour">
-        <dia:color val="#000000"/>
-      </dia:attribute>
-      <dia:attribute name="trigger">
-        <dia:string>##</dia:string>
-      </dia:attribute>
-      <dia:attribute name="action">
-        <dia:string>##</dia:string>
-      </dia:attribute>
-      <dia:attribute name="guard">
-        <dia:string>##</dia:string>
-      </dia:attribute>
-      <dia:attribute name="trigger_text_pos">
-        <dia:point val="16.5,15.5"/>
-      </dia:attribute>
-      <dia:attribute name="guard_text_pos">
-        <dia:point val="16.5,16.5"/>
-      </dia:attribute>
-      <dia:attribute name="direction_inverted">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:connections>
-        <dia:connection handle="0" to="O15" connection="5"/>
-        <dia:connection handle="1" to="O15" connection="5"/>
-      </dia:connections>
-    </dia:object>
-    <dia:object type="Standard - Text" version="1" id="O10">
-      <dia:attribute name="obj_pos">
-        <dia:point val="12,18"/>
-      </dia:attribute>
-      <dia:attribute name="obj_bb">
-        <dia:rectangle val="12,17.405;18.385,18.1525"/>
-      </dia:attribute>
-      <dia:attribute name="text">
-        <dia:composite type="text">
-          <dia:attribute name="string">
-            <dia:string>#registration timeout#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="font">
-            <dia:font family="sans" style="0" name="Helvetica"/>
-          </dia:attribute>
-          <dia:attribute name="height">
-            <dia:real val="0.80000000000000004"/>
-          </dia:attribute>
-          <dia:attribute name="pos">
-            <dia:point val="12,18"/>
-          </dia:attribute>
-          <dia:attribute name="color">
-            <dia:color val="#000000"/>
-          </dia:attribute>
-          <dia:attribute name="alignment">
-            <dia:enum val="0"/>
-          </dia:attribute>
-        </dia:composite>
-      </dia:attribute>
-      <dia:attribute name="valign">
-        <dia:enum val="3"/>
-      </dia:attribute>
-    </dia:object>
-    <dia:object type="UML - Transition" version="2" id="O11">
-      <dia:attribute name="obj_pos">
         <dia:point val="18,12"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
@@ -607,11 +519,11 @@ on_bench#</dia:string>
         <dia:boolean val="false"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O15" connection="0"/>
-        <dia:connection handle="1" to="O18" connection="5"/>
+        <dia:connection handle="0" to="O13" connection="0"/>
+        <dia:connection handle="1" to="O16" connection="5"/>
       </dia:connections>
     </dia:object>
-    <dia:object type="Standard - Text" version="1" id="O12">
+    <dia:object type="Standard - Text" version="1" id="O10">
       <dia:attribute name="obj_pos">
         <dia:point val="15,9"/>
       </dia:attribute>
@@ -644,7 +556,7 @@ on_bench#</dia:string>
         <dia:enum val="3"/>
       </dia:attribute>
     </dia:object>
-    <dia:object type="UML - Transition" version="2" id="O13">
+    <dia:object type="UML - Transition" version="2" id="O11">
       <dia:attribute name="obj_pos">
         <dia:point val="8,12"/>
       </dia:attribute>
@@ -701,7 +613,7 @@ on_bench#</dia:string>
         <dia:connection handle="1" to="O4" connection="0"/>
       </dia:connections>
     </dia:object>
-    <dia:object type="Standard - Text" version="1" id="O14">
+    <dia:object type="Standard - Text" version="1" id="O12">
       <dia:attribute name="obj_pos">
         <dia:point val="4,13"/>
       </dia:attribute>
@@ -734,7 +646,7 @@ on_bench#</dia:string>
         <dia:enum val="3"/>
       </dia:attribute>
     </dia:object>
-    <dia:object type="UML - State" version="0" id="O15">
+    <dia:object type="UML - State" version="0" id="O13">
       <dia:attribute name="obj_pos">
         <dia:point val="18,12"/>
       </dia:attribute>
@@ -792,7 +704,7 @@ on_bench#</dia:string>
         <dia:string>##</dia:string>
       </dia:attribute>
     </dia:object>
-    <dia:object type="UML - Transition" version="2" id="O16">
+    <dia:object type="UML - Transition" version="2" id="O14">
       <dia:attribute name="obj_pos">
         <dia:point val="13.125,12"/>
       </dia:attribute>
@@ -842,10 +754,10 @@ on_bench#</dia:string>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O4" connection="2"/>
-        <dia:connection handle="1" to="O15" connection="0"/>
+        <dia:connection handle="1" to="O13" connection="0"/>
       </dia:connections>
     </dia:object>
-    <dia:object type="Standard - Text" version="1" id="O17">
+    <dia:object type="Standard - Text" version="1" id="O15">
       <dia:attribute name="obj_pos">
         <dia:point val="14,12"/>
       </dia:attribute>
@@ -878,7 +790,7 @@ on_bench#</dia:string>
         <dia:enum val="3"/>
       </dia:attribute>
     </dia:object>
-    <dia:object type="UML - State" version="0" id="O18">
+    <dia:object type="UML - State" version="0" id="O16">
       <dia:attribute name="obj_pos">
         <dia:point val="18,4"/>
       </dia:attribute>
@@ -936,7 +848,7 @@ idle#</dia:string>
         <dia:string>##</dia:string>
       </dia:attribute>
     </dia:object>
-    <dia:object type="UML - Transition" version="2" id="O19">
+    <dia:object type="UML - Transition" version="2" id="O17">
       <dia:attribute name="obj_pos">
         <dia:point val="13.125,4"/>
       </dia:attribute>
@@ -986,10 +898,10 @@ idle#</dia:string>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O1" connection="2"/>
-        <dia:connection handle="1" to="O18" connection="0"/>
+        <dia:connection handle="1" to="O16" connection="0"/>
       </dia:connections>
     </dia:object>
-    <dia:object type="Standard - Text" version="1" id="O20">
+    <dia:object type="Standard - Text" version="1" id="O18">
       <dia:attribute name="obj_pos">
         <dia:point val="14,4.6"/>
       </dia:attribute>
@@ -1022,7 +934,7 @@ idle#</dia:string>
         <dia:enum val="3"/>
       </dia:attribute>
     </dia:object>
-    <dia:object type="UML - Transition" version="2" id="O21">
+    <dia:object type="UML - Transition" version="2" id="O19">
       <dia:attribute name="obj_pos">
         <dia:point val="18,6.6"/>
       </dia:attribute>
@@ -1071,11 +983,11 @@ idle#</dia:string>
         <dia:boolean val="false"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O18" connection="5"/>
+        <dia:connection handle="0" to="O16" connection="5"/>
         <dia:connection handle="1" to="O1" connection="7"/>
       </dia:connections>
     </dia:object>
-    <dia:object type="Standard - Text" version="1" id="O22">
+    <dia:object type="Standard - Text" version="1" id="O20">
       <dia:attribute name="obj_pos">
         <dia:point val="14.25,6.35"/>
       </dia:attribute>
@@ -1109,7 +1021,7 @@ terminate#</dia:string>
         <dia:enum val="3"/>
       </dia:attribute>
     </dia:object>
-    <dia:object type="UML - State" version="0" id="O23">
+    <dia:object type="UML - State" version="0" id="O21">
       <dia:attribute name="obj_pos">
         <dia:point val="29,20"/>
       </dia:attribute>
@@ -1171,7 +1083,7 @@ playing
         <dia:string>##</dia:string>
       </dia:attribute>
     </dia:object>
-    <dia:object type="UML - Transition" version="2" id="O24">
+    <dia:object type="UML - Transition" version="2" id="O22">
       <dia:attribute name="obj_pos">
         <dia:point val="23.685,13.3"/>
       </dia:attribute>
@@ -1220,11 +1132,11 @@ playing
         <dia:boolean val="false"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O15" connection="4"/>
-        <dia:connection handle="1" to="O23" connection="0"/>
+        <dia:connection handle="0" to="O13" connection="4"/>
+        <dia:connection handle="1" to="O21" connection="0"/>
       </dia:connections>
     </dia:object>
-    <dia:object type="Standard - Text" version="1" id="O25">
+    <dia:object type="Standard - Text" version="1" id="O23">
       <dia:attribute name="obj_pos">
         <dia:point val="25,13"/>
       </dia:attribute>
@@ -1257,7 +1169,7 @@ playing
         <dia:enum val="3"/>
       </dia:attribute>
     </dia:object>
-    <dia:object type="UML - Transition" version="2" id="O26">
+    <dia:object type="UML - Transition" version="2" id="O24">
       <dia:attribute name="obj_pos">
         <dia:point val="20.8425,6.6"/>
       </dia:attribute>
@@ -1306,11 +1218,11 @@ playing
         <dia:boolean val="false"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O18" connection="6"/>
-        <dia:connection handle="1" to="O15" connection="1"/>
+        <dia:connection handle="0" to="O16" connection="6"/>
+        <dia:connection handle="1" to="O13" connection="1"/>
       </dia:connections>
     </dia:object>
-    <dia:object type="Standard - Text" version="1" id="O27">
+    <dia:object type="Standard - Text" version="1" id="O25">
       <dia:attribute name="obj_pos">
         <dia:point val="20,10"/>
       </dia:attribute>
@@ -1343,7 +1255,7 @@ playing
         <dia:enum val="3"/>
       </dia:attribute>
     </dia:object>
-    <dia:object type="UML - Transition" version="2" id="O28">
+    <dia:object type="UML - Transition" version="2" id="O26">
       <dia:attribute name="obj_pos">
         <dia:point val="18,13.3"/>
       </dia:attribute>
@@ -1392,11 +1304,11 @@ playing
         <dia:boolean val="false"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O15" connection="3"/>
+        <dia:connection handle="0" to="O13" connection="3"/>
         <dia:connection handle="1" to="O4" connection="4"/>
       </dia:connections>
     </dia:object>
-    <dia:object type="Standard - Text" version="1" id="O29">
+    <dia:object type="Standard - Text" version="1" id="O27">
       <dia:attribute name="obj_pos">
         <dia:point val="15,14"/>
       </dia:attribute>
@@ -1429,69 +1341,12 @@ playing
         <dia:enum val="3"/>
       </dia:attribute>
     </dia:object>
-    <dia:object type="UML - Transition" version="2" id="O30">
+    <dia:object type="Standard - Text" version="1" id="O28">
       <dia:attribute name="obj_pos">
-        <dia:point val="20.8425,14.6"/>
+        <dia:point val="16,18"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="20.3425,13.7;23.05,17.05"/>
-      </dia:attribute>
-      <dia:attribute name="meta">
-        <dia:composite type="dict"/>
-      </dia:attribute>
-      <dia:attribute name="orth_points">
-        <dia:point val="20.8425,14.6"/>
-        <dia:point val="20.8425,14.6"/>
-        <dia:point val="23,14.6"/>
-        <dia:point val="23,17"/>
-        <dia:point val="20.8425,17"/>
-        <dia:point val="20.8425,14.6"/>
-      </dia:attribute>
-      <dia:attribute name="orth_orient">
-        <dia:enum val="1"/>
-        <dia:enum val="0"/>
-        <dia:enum val="1"/>
-        <dia:enum val="0"/>
-        <dia:enum val="1"/>
-      </dia:attribute>
-      <dia:attribute name="orth_autoroute">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="text_colour">
-        <dia:color val="#000000"/>
-      </dia:attribute>
-      <dia:attribute name="line_colour">
-        <dia:color val="#000000"/>
-      </dia:attribute>
-      <dia:attribute name="trigger">
-        <dia:string>##</dia:string>
-      </dia:attribute>
-      <dia:attribute name="action">
-        <dia:string>##</dia:string>
-      </dia:attribute>
-      <dia:attribute name="guard">
-        <dia:string>##</dia:string>
-      </dia:attribute>
-      <dia:attribute name="trigger_text_pos">
-        <dia:point val="22.5,14.3"/>
-      </dia:attribute>
-      <dia:attribute name="guard_text_pos">
-        <dia:point val="22.5,15.3"/>
-      </dia:attribute>
-      <dia:attribute name="direction_inverted">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:connections>
-        <dia:connection handle="0" to="O15" connection="6"/>
-        <dia:connection handle="1" to="O15" connection="6"/>
-      </dia:connections>
-    </dia:object>
-    <dia:object type="Standard - Text" version="1" id="O31">
-      <dia:attribute name="obj_pos">
-        <dia:point val="20,18"/>
-      </dia:attribute>
-      <dia:attribute name="obj_bb">
-        <dia:rectangle val="20,17.405;23.4675,18.1525"/>
+        <dia:rectangle val="16,17.405;19.4675,18.1525"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -1505,7 +1360,7 @@ playing
             <dia:real val="0.80000000000000004"/>
           </dia:attribute>
           <dia:attribute name="pos">
-            <dia:point val="20,18"/>
+            <dia:point val="16,18"/>
           </dia:attribute>
           <dia:attribute name="color">
             <dia:color val="#000000"/>
@@ -1519,7 +1374,7 @@ playing
         <dia:enum val="3"/>
       </dia:attribute>
     </dia:object>
-    <dia:object type="UML - Transition" version="2" id="O32">
+    <dia:object type="UML - Transition" version="2" id="O29">
       <dia:attribute name="obj_pos">
         <dia:point val="23.685,14.6"/>
       </dia:attribute>
@@ -1570,11 +1425,11 @@ playing
         <dia:boolean val="false"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O15" connection="7"/>
-        <dia:connection handle="1" to="O15" connection="7"/>
+        <dia:connection handle="0" to="O13" connection="7"/>
+        <dia:connection handle="1" to="O13" connection="7"/>
       </dia:connections>
     </dia:object>
-    <dia:object type="Standard - Text" version="1" id="O33">
+    <dia:object type="Standard - Text" version="1" id="O30">
       <dia:attribute name="obj_pos">
         <dia:point val="24,18"/>
       </dia:attribute>
@@ -1607,7 +1462,7 @@ playing
         <dia:enum val="3"/>
       </dia:attribute>
     </dia:object>
-    <dia:object type="UML - State" version="0" id="O34">
+    <dia:object type="UML - State" version="0" id="O31">
       <dia:attribute name="obj_pos">
         <dia:point val="8,20"/>
       </dia:attribute>
@@ -1665,7 +1520,7 @@ playing#</dia:string>
         <dia:string>##</dia:string>
       </dia:attribute>
     </dia:object>
-    <dia:object type="UML - Transition" version="2" id="O35">
+    <dia:object type="UML - Transition" version="2" id="O32">
       <dia:attribute name="obj_pos">
         <dia:point val="29,22.9"/>
       </dia:attribute>
@@ -1714,11 +1569,11 @@ playing#</dia:string>
         <dia:boolean val="false"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O23" connection="3"/>
-        <dia:connection handle="1" to="O34" connection="7"/>
+        <dia:connection handle="0" to="O21" connection="3"/>
+        <dia:connection handle="1" to="O31" connection="7"/>
       </dia:connections>
     </dia:object>
-    <dia:object type="Standard - Text" version="1" id="O36">
+    <dia:object type="Standard - Text" version="1" id="O33">
       <dia:attribute name="obj_pos">
         <dia:point val="22,22"/>
       </dia:attribute>
@@ -1751,7 +1606,7 @@ playing#</dia:string>
         <dia:enum val="3"/>
       </dia:attribute>
     </dia:object>
-    <dia:object type="UML - Transition" version="2" id="O37">
+    <dia:object type="UML - Transition" version="2" id="O34">
       <dia:attribute name="obj_pos">
         <dia:point val="13.125,20"/>
       </dia:attribute>
@@ -1800,11 +1655,11 @@ playing#</dia:string>
         <dia:boolean val="false"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O34" connection="2"/>
-        <dia:connection handle="1" to="O23" connection="0"/>
+        <dia:connection handle="0" to="O31" connection="2"/>
+        <dia:connection handle="1" to="O21" connection="0"/>
       </dia:connections>
     </dia:object>
-    <dia:object type="Standard - Text" version="1" id="O38">
+    <dia:object type="Standard - Text" version="1" id="O35">
       <dia:attribute name="obj_pos">
         <dia:point val="19,20"/>
       </dia:attribute>
@@ -1837,7 +1692,7 @@ playing#</dia:string>
         <dia:enum val="3"/>
       </dia:attribute>
     </dia:object>
-    <dia:object type="UML - Transition" version="2" id="O39">
+    <dia:object type="UML - Transition" version="2" id="O36">
       <dia:attribute name="obj_pos">
         <dia:point val="34.685,20"/>
       </dia:attribute>
@@ -1888,11 +1743,11 @@ playing#</dia:string>
         <dia:boolean val="false"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O23" connection="2"/>
-        <dia:connection handle="1" to="O23" connection="2"/>
+        <dia:connection handle="0" to="O21" connection="2"/>
+        <dia:connection handle="1" to="O21" connection="2"/>
       </dia:connections>
     </dia:object>
-    <dia:object type="Standard - Text" version="1" id="O40">
+    <dia:object type="Standard - Text" version="1" id="O37">
       <dia:attribute name="obj_pos">
         <dia:point val="34,18"/>
       </dia:attribute>
@@ -1925,7 +1780,7 @@ playing#</dia:string>
         <dia:enum val="3"/>
       </dia:attribute>
     </dia:object>
-    <dia:object type="UML - Transition" version="2" id="O41">
+    <dia:object type="UML - Transition" version="2" id="O38">
       <dia:attribute name="obj_pos">
         <dia:point val="31.8425,20"/>
       </dia:attribute>
@@ -1972,11 +1827,11 @@ playing#</dia:string>
         <dia:boolean val="false"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O23" connection="1"/>
-        <dia:connection handle="1" to="O18" connection="4"/>
+        <dia:connection handle="0" to="O21" connection="1"/>
+        <dia:connection handle="1" to="O16" connection="4"/>
       </dia:connections>
     </dia:object>
-    <dia:object type="Standard - Text" version="1" id="O42">
+    <dia:object type="Standard - Text" version="1" id="O39">
       <dia:attribute name="obj_pos">
         <dia:point val="29,11"/>
       </dia:attribute>
@@ -2010,7 +1865,7 @@ MatchClose#</dia:string>
         <dia:enum val="3"/>
       </dia:attribute>
     </dia:object>
-    <dia:object type="Standard - Text" version="1" id="O43">
+    <dia:object type="Standard - Text" version="1" id="O40">
       <dia:attribute name="obj_pos">
         <dia:point val="23,27"/>
       </dia:attribute>
@@ -2043,17 +1898,18 @@ MatchClose#</dia:string>
         <dia:enum val="3"/>
       </dia:attribute>
     </dia:object>
-    <dia:object type="Standard - Text" version="1" id="O44">
+    <dia:object type="Standard - Text" version="1" id="O41">
       <dia:attribute name="obj_pos">
         <dia:point val="37,27"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="37,26.405;39.3075,27.1525"/>
+        <dia:rectangle val="37,26.3863;42.0562,27.9899"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#Control#</dia:string>
+            <dia:string>#Control or
+Communication#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="sans" style="0" name="Helvetica"/>
@@ -2076,7 +1932,7 @@ MatchClose#</dia:string>
         <dia:enum val="3"/>
       </dia:attribute>
     </dia:object>
-    <dia:object type="Standard - Text" version="1" id="O45">
+    <dia:object type="Standard - Text" version="1" id="O42">
       <dia:attribute name="obj_pos">
         <dia:point val="30,29"/>
       </dia:attribute>
@@ -2109,7 +1965,7 @@ MatchClose#</dia:string>
         <dia:enum val="3"/>
       </dia:attribute>
     </dia:object>
-    <dia:object type="UML - Transition" version="2" id="O46">
+    <dia:object type="UML - Transition" version="2" id="O43">
       <dia:attribute name="obj_pos">
         <dia:point val="23.685,6.6"/>
       </dia:attribute>
@@ -2160,11 +2016,11 @@ MatchClose#</dia:string>
         <dia:boolean val="false"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O18" connection="7"/>
-        <dia:connection handle="1" to="O18" connection="7"/>
+        <dia:connection handle="0" to="O16" connection="7"/>
+        <dia:connection handle="1" to="O16" connection="7"/>
       </dia:connections>
     </dia:object>
-    <dia:object type="Standard - Text" version="1" id="O47">
+    <dia:object type="Standard - Text" version="1" id="O44">
       <dia:attribute name="obj_pos">
         <dia:point val="25,8"/>
       </dia:attribute>
@@ -2197,7 +2053,7 @@ MatchClose#</dia:string>
         <dia:enum val="3"/>
       </dia:attribute>
     </dia:object>
-    <dia:object type="UML - Transition" version="2" id="O48">
+    <dia:object type="UML - Transition" version="2" id="O45">
       <dia:attribute name="obj_pos">
         <dia:point val="10.5625,6.6"/>
       </dia:attribute>
@@ -2254,7 +2110,7 @@ MatchClose#</dia:string>
         <dia:connection handle="1" to="O1" connection="6"/>
       </dia:connections>
     </dia:object>
-    <dia:object type="Standard - Text" version="1" id="O49">
+    <dia:object type="Standard - Text" version="1" id="O46">
       <dia:attribute name="obj_pos">
         <dia:point val="9,8"/>
       </dia:attribute>
@@ -2287,7 +2143,7 @@ MatchClose#</dia:string>
         <dia:enum val="3"/>
       </dia:attribute>
     </dia:object>
-    <dia:object type="UML - Transition" version="2" id="O50">
+    <dia:object type="UML - Transition" version="2" id="O47">
       <dia:attribute name="obj_pos">
         <dia:point val="23.685,4"/>
       </dia:attribute>
@@ -2338,11 +2194,11 @@ MatchClose#</dia:string>
         <dia:boolean val="false"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O18" connection="2"/>
-        <dia:connection handle="1" to="O18" connection="2"/>
+        <dia:connection handle="0" to="O16" connection="2"/>
+        <dia:connection handle="1" to="O16" connection="2"/>
       </dia:connections>
     </dia:object>
-    <dia:object type="Standard - Text" version="1" id="O51">
+    <dia:object type="Standard - Text" version="1" id="O48">
       <dia:attribute name="obj_pos">
         <dia:point val="26,3"/>
       </dia:attribute>
@@ -2375,7 +2231,7 @@ MatchClose#</dia:string>
         <dia:enum val="3"/>
       </dia:attribute>
     </dia:object>
-    <dia:object type="UML - State Term" version="0" id="O52">
+    <dia:object type="UML - State Term" version="0" id="O49">
       <dia:attribute name="obj_pos">
         <dia:point val="2,5"/>
       </dia:attribute>
@@ -2404,7 +2260,7 @@ MatchClose#</dia:string>
         <dia:boolean val="true"/>
       </dia:attribute>
     </dia:object>
-    <dia:object type="UML - Transition" version="2" id="O53">
+    <dia:object type="UML - Transition" version="2" id="O50">
       <dia:attribute name="obj_pos">
         <dia:point val="8,5.3"/>
       </dia:attribute>
@@ -2454,10 +2310,10 @@ MatchClose#</dia:string>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O1" connection="3"/>
-        <dia:connection handle="1" to="O52" connection="4"/>
+        <dia:connection handle="1" to="O49" connection="4"/>
       </dia:connections>
     </dia:object>
-    <dia:object type="Standard - Text" version="1" id="O54">
+    <dia:object type="Standard - Text" version="1" id="O51">
       <dia:attribute name="obj_pos">
         <dia:point val="4,5"/>
       </dia:attribute>
@@ -2490,7 +2346,7 @@ MatchClose#</dia:string>
         <dia:enum val="3"/>
       </dia:attribute>
     </dia:object>
-    <dia:object type="Standard - Text" version="1" id="O55">
+    <dia:object type="Standard - Text" version="1" id="O52">
       <dia:attribute name="obj_pos">
         <dia:point val="35.4,22.7"/>
       </dia:attribute>
@@ -2523,7 +2379,7 @@ MatchClose#</dia:string>
         <dia:enum val="3"/>
       </dia:attribute>
     </dia:object>
-    <dia:object type="UML - Transition" version="2" id="O56">
+    <dia:object type="UML - Transition" version="2" id="O53">
       <dia:attribute name="obj_pos">
         <dia:point val="34.685,22.9"/>
       </dia:attribute>
@@ -2574,11 +2430,11 @@ MatchClose#</dia:string>
         <dia:boolean val="false"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O23" connection="4"/>
-        <dia:connection handle="1" to="O23" connection="4"/>
+        <dia:connection handle="0" to="O21" connection="4"/>
+        <dia:connection handle="1" to="O21" connection="4"/>
       </dia:connections>
     </dia:object>
-    <dia:object type="UML - Transition" version="2" id="O57">
+    <dia:object type="UML - Transition" version="2" id="O54">
       <dia:attribute name="obj_pos">
         <dia:point val="34.685,25.8"/>
       </dia:attribute>
@@ -2629,11 +2485,11 @@ MatchClose#</dia:string>
         <dia:boolean val="false"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O23" connection="7"/>
-        <dia:connection handle="1" to="O23" connection="7"/>
+        <dia:connection handle="0" to="O21" connection="7"/>
+        <dia:connection handle="1" to="O21" connection="7"/>
       </dia:connections>
     </dia:object>
-    <dia:object type="UML - Transition" version="2" id="O58">
+    <dia:object type="UML - Transition" version="2" id="O55">
       <dia:attribute name="obj_pos">
         <dia:point val="31.8425,25.8"/>
       </dia:attribute>
@@ -2684,11 +2540,11 @@ MatchClose#</dia:string>
         <dia:boolean val="false"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O23" connection="6"/>
-        <dia:connection handle="1" to="O23" connection="6"/>
+        <dia:connection handle="0" to="O21" connection="6"/>
+        <dia:connection handle="1" to="O21" connection="6"/>
       </dia:connections>
     </dia:object>
-    <dia:object type="UML - Transition" version="2" id="O59">
+    <dia:object type="UML - Transition" version="2" id="O56">
       <dia:attribute name="obj_pos">
         <dia:point val="29,25.8"/>
       </dia:attribute>
@@ -2739,8 +2595,63 @@ MatchClose#</dia:string>
         <dia:boolean val="false"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O23" connection="5"/>
-        <dia:connection handle="1" to="O23" connection="5"/>
+        <dia:connection handle="0" to="O21" connection="5"/>
+        <dia:connection handle="1" to="O21" connection="5"/>
+      </dia:connections>
+    </dia:object>
+    <dia:object type="UML - Transition" version="2" id="O57">
+      <dia:attribute name="obj_pos">
+        <dia:point val="18,14.6"/>
+      </dia:attribute>
+      <dia:attribute name="obj_bb">
+        <dia:rectangle val="15.95,14.1;18.5,17.05"/>
+      </dia:attribute>
+      <dia:attribute name="meta">
+        <dia:composite type="dict"/>
+      </dia:attribute>
+      <dia:attribute name="orth_points">
+        <dia:point val="18,14.6"/>
+        <dia:point val="18,17"/>
+        <dia:point val="16,17"/>
+        <dia:point val="16,14.6"/>
+        <dia:point val="18,14.6"/>
+      </dia:attribute>
+      <dia:attribute name="orth_orient">
+        <dia:enum val="1"/>
+        <dia:enum val="0"/>
+        <dia:enum val="1"/>
+        <dia:enum val="0"/>
+      </dia:attribute>
+      <dia:attribute name="orth_autoroute">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="text_colour">
+        <dia:color val="#000000"/>
+      </dia:attribute>
+      <dia:attribute name="line_colour">
+        <dia:color val="#000000"/>
+      </dia:attribute>
+      <dia:attribute name="trigger">
+        <dia:string>##</dia:string>
+      </dia:attribute>
+      <dia:attribute name="action">
+        <dia:string>##</dia:string>
+      </dia:attribute>
+      <dia:attribute name="guard">
+        <dia:string>##</dia:string>
+      </dia:attribute>
+      <dia:attribute name="trigger_text_pos">
+        <dia:point val="17.5,16.5"/>
+      </dia:attribute>
+      <dia:attribute name="guard_text_pos">
+        <dia:point val="16.5,16.5"/>
+      </dia:attribute>
+      <dia:attribute name="direction_inverted">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O13" connection="5"/>
+        <dia:connection handle="1" to="O13" connection="5"/>
       </dia:connections>
     </dia:object>
   </dia:layer>
