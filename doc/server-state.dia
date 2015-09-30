@@ -115,7 +115,7 @@
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#ffff9c"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -259,7 +259,7 @@ idle#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#add8e6"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -669,7 +669,7 @@ on_bench#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#dea9ff"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -813,7 +813,7 @@ on_bench#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#ffdd73"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -1044,7 +1044,7 @@ terminate#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#90ee90"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -1485,7 +1485,7 @@ playing
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#ffc0cb"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -1903,7 +1903,7 @@ MatchClose#</dia:string>
         <dia:point val="37,27"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="37,26.3863;42.0562,27.9899"/>
+        <dia:rectangle val="37,26.405;42.0375,27.9525"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
