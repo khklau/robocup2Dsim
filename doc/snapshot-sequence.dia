@@ -385,7 +385,7 @@
         <dia:real val="1.4000000000000004"/>
       </dia:attribute>
       <dia:attribute name="rbot">
-        <dia:real val="18.399999999999999"/>
+        <dia:real val="20.399999999999999"/>
       </dia:attribute>
       <dia:attribute name="draw_focus">
         <dia:boolean val="true"/>
@@ -394,16 +394,16 @@
         <dia:boolean val="false"/>
       </dia:attribute>
       <dia:attribute name="cpl_northwest">
-        <dia:int val="16"/>
+        <dia:int val="18"/>
       </dia:attribute>
       <dia:attribute name="cpl_southwest">
-        <dia:int val="16"/>
+        <dia:int val="18"/>
       </dia:attribute>
       <dia:attribute name="cpl_northeast">
-        <dia:int val="16"/>
+        <dia:int val="18"/>
       </dia:attribute>
       <dia:attribute name="cpl_southeast">
-        <dia:int val="16"/>
+        <dia:int val="18"/>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O4" connection="6"/>
@@ -411,16 +411,16 @@
     </dia:object>
     <dia:object type="UML - Message" version="0" id="O6">
       <dia:attribute name="obj_pos">
-        <dia:point val="12.0137,22"/>
+        <dia:point val="12.0137,24"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="9.36815,4.90329;12.6456,22.0555"/>
+        <dia:rectangle val="9.36815,4.90812;12.6456,24.055"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
-        <dia:point val="12.0137,22"/>
+        <dia:point val="12.0137,24"/>
         <dia:point val="10,5"/>
       </dia:attribute>
       <dia:attribute name="text_colour">
@@ -436,7 +436,7 @@
         <dia:enum val="6"/>
       </dia:attribute>
       <dia:attribute name="text_pos">
-        <dia:point val="11.0069,14"/>
+        <dia:point val="11.0069,15"/>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O5" connection="4"/>
@@ -505,48 +505,15 @@
         <dia:point val="18.2406,7.65"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O5" connection="42"/>
+        <dia:connection handle="0" to="O5" connection="46"/>
       </dia:connections>
     </dia:object>
     <dia:object type="UML - Message" version="0" id="O9">
       <dia:attribute name="obj_pos">
-        <dia:point val="12.7137,11"/>
-      </dia:attribute>
-      <dia:attribute name="obj_bb">
-        <dia:rectangle val="12.6479,10.9342;19.6844,12.3865"/>
-      </dia:attribute>
-      <dia:attribute name="meta">
-        <dia:composite type="dict"/>
-      </dia:attribute>
-      <dia:attribute name="conn_endpoints">
-        <dia:point val="12.7137,11"/>
-        <dia:point val="15,12"/>
-      </dia:attribute>
-      <dia:attribute name="text_colour">
-        <dia:color val="#000000"/>
-      </dia:attribute>
-      <dia:attribute name="line_colour">
-        <dia:color val="#000000"/>
-      </dia:attribute>
-      <dia:attribute name="text">
-        <dia:string>#calculate_view#</dia:string>
-      </dia:attribute>
-      <dia:attribute name="type">
-        <dia:enum val="6"/>
-      </dia:attribute>
-      <dia:attribute name="text_pos">
-        <dia:point val="17.3406,11.7"/>
-      </dia:attribute>
-      <dia:connections>
-        <dia:connection handle="0" to="O5" connection="50"/>
-      </dia:connections>
-    </dia:object>
-    <dia:object type="UML - Message" version="0" id="O10">
-      <dia:attribute name="obj_pos">
         <dia:point val="12.7137,13"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="12.6479,12.9342;26.9894,14.3865"/>
+        <dia:rectangle val="12.6479,12.9342;19.6844,14.3865"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
@@ -562,24 +529,24 @@
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="text">
-        <dia:string>#compare_snapshot(previous, current)#</dia:string>
+        <dia:string>#calculate_view#</dia:string>
       </dia:attribute>
       <dia:attribute name="type">
         <dia:enum val="6"/>
       </dia:attribute>
       <dia:attribute name="text_pos">
-        <dia:point val="20.9906,13.65"/>
+        <dia:point val="17.3406,13.7"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O5" connection="54"/>
+        <dia:connection handle="0" to="O5" connection="58"/>
       </dia:connections>
     </dia:object>
-    <dia:object type="UML - Message" version="0" id="O11">
+    <dia:object type="UML - Message" version="0" id="O10">
       <dia:attribute name="obj_pos">
         <dia:point val="12.7137,15"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="12.6479,14.9342;20.0343,16.3865"/>
+        <dia:rectangle val="12.6479,14.9342;26.9894,16.3865"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
@@ -595,24 +562,24 @@
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="text">
-        <dia:string>#bit_pack(delta)#</dia:string>
+        <dia:string>#compare_snapshot(previous, current)#</dia:string>
       </dia:attribute>
       <dia:attribute name="type">
         <dia:enum val="6"/>
       </dia:attribute>
       <dia:attribute name="text_pos">
-        <dia:point val="17.6406,15.7"/>
+        <dia:point val="20.9906,15.65"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O5" connection="57"/>
+        <dia:connection handle="0" to="O5" connection="61"/>
       </dia:connections>
     </dia:object>
-    <dia:object type="UML - Message" version="0" id="O12">
+    <dia:object type="UML - Message" version="0" id="O11">
       <dia:attribute name="obj_pos">
         <dia:point val="12.7137,17"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="12.6479,16.9342;20.2418,18.3865"/>
+        <dia:rectangle val="12.6479,16.9342;20.0343,18.3865"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
@@ -628,7 +595,7 @@
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="text">
-        <dia:string>#compress(delta)#</dia:string>
+        <dia:string>#bit_pack(delta)#</dia:string>
       </dia:attribute>
       <dia:attribute name="type">
         <dia:enum val="6"/>
@@ -637,7 +604,40 @@
         <dia:point val="17.6406,17.7"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O5" connection="61"/>
+        <dia:connection handle="0" to="O5" connection="65"/>
+      </dia:connections>
+    </dia:object>
+    <dia:object type="UML - Message" version="0" id="O12">
+      <dia:attribute name="obj_pos">
+        <dia:point val="12.7137,19"/>
+      </dia:attribute>
+      <dia:attribute name="obj_bb">
+        <dia:rectangle val="12.6479,18.9342;20.2418,20.3865"/>
+      </dia:attribute>
+      <dia:attribute name="meta">
+        <dia:composite type="dict"/>
+      </dia:attribute>
+      <dia:attribute name="conn_endpoints">
+        <dia:point val="12.7137,19"/>
+        <dia:point val="15,20"/>
+      </dia:attribute>
+      <dia:attribute name="text_colour">
+        <dia:color val="#000000"/>
+      </dia:attribute>
+      <dia:attribute name="line_colour">
+        <dia:color val="#000000"/>
+      </dia:attribute>
+      <dia:attribute name="text">
+        <dia:string>#compress(delta)#</dia:string>
+      </dia:attribute>
+      <dia:attribute name="type">
+        <dia:enum val="6"/>
+      </dia:attribute>
+      <dia:attribute name="text_pos">
+        <dia:point val="17.6406,19.7"/>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O5" connection="69"/>
       </dia:connections>
     </dia:object>
     <dia:object type="UML - Object" version="0" id="O13">
@@ -845,10 +845,10 @@
         <dia:color val="#ffc0cb"/>
       </dia:attribute>
       <dia:attribute name="rtop">
-        <dia:real val="15.399999999999999"/>
+        <dia:real val="17.399999999999999"/>
       </dia:attribute>
       <dia:attribute name="rbot">
-        <dia:real val="20.399999999999999"/>
+        <dia:real val="22.399999999999999"/>
       </dia:attribute>
       <dia:attribute name="draw_focus">
         <dia:boolean val="true"/>
@@ -874,17 +874,17 @@
     </dia:object>
     <dia:object type="UML - Message" version="0" id="O16">
       <dia:attribute name="obj_pos">
-        <dia:point val="12.7137,19"/>
+        <dia:point val="12.7137,21"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="12.6637,18.6;20.9325,19.7"/>
+        <dia:rectangle val="12.6637,20.6;20.9325,21.7"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
-        <dia:point val="12.7137,19"/>
-        <dia:point val="20.8825,19"/>
+        <dia:point val="12.7137,21"/>
+        <dia:point val="20.8825,21"/>
       </dia:attribute>
       <dia:attribute name="text_colour">
         <dia:color val="#000000"/>
@@ -899,52 +899,19 @@
         <dia:enum val="0"/>
       </dia:attribute>
       <dia:attribute name="text_pos">
-        <dia:point val="16.7981,19.5"/>
+        <dia:point val="16.7981,21.5"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O5" connection="65"/>
+        <dia:connection handle="0" to="O5" connection="73"/>
         <dia:connection handle="1" to="O15" connection="0"/>
       </dia:connections>
     </dia:object>
     <dia:object type="UML - Message" version="0" id="O17">
       <dia:attribute name="obj_pos">
-        <dia:point val="21.5825,19"/>
-      </dia:attribute>
-      <dia:attribute name="obj_bb">
-        <dia:rectangle val="21.5128,18.9303;30.6975,20.3557"/>
-      </dia:attribute>
-      <dia:attribute name="meta">
-        <dia:composite type="dict"/>
-      </dia:attribute>
-      <dia:attribute name="conn_endpoints">
-        <dia:point val="21.5825,19"/>
-        <dia:point val="23,20"/>
-      </dia:attribute>
-      <dia:attribute name="text_colour">
-        <dia:color val="#000000"/>
-      </dia:attribute>
-      <dia:attribute name="line_colour">
-        <dia:color val="#000000"/>
-      </dia:attribute>
-      <dia:attribute name="text">
-        <dia:string>#increment(client_clock)#</dia:string>
-      </dia:attribute>
-      <dia:attribute name="type">
-        <dia:enum val="6"/>
-      </dia:attribute>
-      <dia:attribute name="text_pos">
-        <dia:point val="26.96,19.7"/>
-      </dia:attribute>
-      <dia:connections>
-        <dia:connection handle="0" to="O15" connection="1"/>
-      </dia:connections>
-    </dia:object>
-    <dia:object type="UML - Message" version="0" id="O18">
-      <dia:attribute name="obj_pos">
         <dia:point val="21.5825,21"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="21.5128,20.9303;32.665,22.3557"/>
+        <dia:rectangle val="21.5128,20.9303;30.6975,22.3557"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
@@ -960,24 +927,24 @@
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="text">
-        <dia:string>#max(msg_clock, client_clock)#</dia:string>
+        <dia:string>#increment(client_clock)#</dia:string>
       </dia:attribute>
       <dia:attribute name="type">
         <dia:enum val="6"/>
       </dia:attribute>
       <dia:attribute name="text_pos">
-        <dia:point val="27.99,21.65"/>
+        <dia:point val="26.96,21.7"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O15" connection="18"/>
+        <dia:connection handle="0" to="O15" connection="1"/>
       </dia:connections>
     </dia:object>
-    <dia:object type="UML - Message" version="0" id="O19">
+    <dia:object type="UML - Message" version="0" id="O18">
       <dia:attribute name="obj_pos">
         <dia:point val="21.5825,23"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="15.4463,22.9303;26.4338,25.05"/>
+        <dia:rectangle val="21.5128,22.9303;32.665,24.3557"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
@@ -993,13 +960,46 @@
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="text">
+        <dia:string>#max(msg_clock, client_clock)#</dia:string>
+      </dia:attribute>
+      <dia:attribute name="type">
+        <dia:enum val="6"/>
+      </dia:attribute>
+      <dia:attribute name="text_pos">
+        <dia:point val="27.99,23.65"/>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O15" connection="18"/>
+      </dia:connections>
+    </dia:object>
+    <dia:object type="UML - Message" version="0" id="O19">
+      <dia:attribute name="obj_pos">
+        <dia:point val="21.5825,25"/>
+      </dia:attribute>
+      <dia:attribute name="obj_bb">
+        <dia:rectangle val="15.4463,24.9303;26.4338,27.05"/>
+      </dia:attribute>
+      <dia:attribute name="meta">
+        <dia:composite type="dict"/>
+      </dia:attribute>
+      <dia:attribute name="conn_endpoints">
+        <dia:point val="21.5825,25"/>
+        <dia:point val="23,26"/>
+      </dia:attribute>
+      <dia:attribute name="text_colour">
+        <dia:color val="#000000"/>
+      </dia:attribute>
+      <dia:attribute name="line_colour">
+        <dia:color val="#000000"/>
+      </dia:attribute>
+      <dia:attribute name="text">
         <dia:string>#push Delta(frame, adjusted_clock)#</dia:string>
       </dia:attribute>
       <dia:attribute name="type">
         <dia:enum val="6"/>
       </dia:attribute>
       <dia:attribute name="text_pos">
-        <dia:point val="20.94,24.85"/>
+        <dia:point val="20.94,26.85"/>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O15" connection="21"/>
@@ -1010,14 +1010,14 @@
         <dia:point val="29.5475,3.6"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="29.1475,3.575;29.9475,35.825"/>
+        <dia:rectangle val="29.1475,3.575;29.9475,36.525"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
         <dia:point val="29.5475,3.6"/>
-        <dia:point val="29.5475,35.8"/>
+        <dia:point val="29.5475,36.5"/>
       </dia:attribute>
       <dia:attribute name="line_colour">
         <dia:color val="#000000"/>
@@ -1026,10 +1026,10 @@
         <dia:color val="#ffc0cb"/>
       </dia:attribute>
       <dia:attribute name="rtop">
-        <dia:real val="19.399999999999999"/>
+        <dia:real val="20.399999999999999"/>
       </dia:attribute>
       <dia:attribute name="rbot">
-        <dia:real val="30.399999999999999"/>
+        <dia:real val="31.399999999999999"/>
       </dia:attribute>
       <dia:attribute name="draw_focus">
         <dia:boolean val="true"/>
@@ -1088,17 +1088,17 @@
     </dia:object>
     <dia:object type="UML - Message" version="0" id="O22">
       <dia:attribute name="obj_pos">
-        <dia:point val="29.8975,24"/>
+        <dia:point val="29.8975,25"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="29.8309,23.9334;44.7788,25.3827"/>
+        <dia:rectangle val="29.8309,24.9334;44.7788,26.3827"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
-        <dia:point val="29.8975,24"/>
-        <dia:point val="32,25"/>
+        <dia:point val="29.8975,25"/>
+        <dia:point val="32,26"/>
       </dia:attribute>
       <dia:attribute name="text_colour">
         <dia:color val="#000000"/>
@@ -1113,7 +1113,7 @@
         <dia:enum val="6"/>
       </dia:attribute>
       <dia:attribute name="text_pos">
-        <dia:point val="38.46,24.65"/>
+        <dia:point val="38.46,25.65"/>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O20" connection="28"/>
@@ -1121,17 +1121,17 @@
     </dia:object>
     <dia:object type="UML - Message" version="0" id="O23">
       <dia:attribute name="obj_pos">
-        <dia:point val="29.8975,26"/>
+        <dia:point val="29.8975,27"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="29.8309,25.9334;40.3662,27.3827"/>
+        <dia:rectangle val="29.8309,26.9334;40.3662,28.3827"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
-        <dia:point val="29.8975,26"/>
-        <dia:point val="32,27"/>
+        <dia:point val="29.8975,27"/>
+        <dia:point val="32,28"/>
       </dia:attribute>
       <dia:attribute name="text_colour">
         <dia:color val="#000000"/>
@@ -1146,7 +1146,7 @@
         <dia:enum val="6"/>
       </dia:attribute>
       <dia:attribute name="text_pos">
-        <dia:point val="36.26,26.7"/>
+        <dia:point val="36.26,27.7"/>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O20" connection="32"/>
@@ -1154,17 +1154,17 @@
     </dia:object>
     <dia:object type="UML - Message" version="0" id="O24">
       <dia:attribute name="obj_pos">
-        <dia:point val="29.8975,28"/>
+        <dia:point val="29.8975,29"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="29.8309,27.9334;38.06,29.3827"/>
+        <dia:rectangle val="29.8309,28.9334;38.06,30.3827"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
-        <dia:point val="29.8975,28"/>
-        <dia:point val="32,29"/>
+        <dia:point val="29.8975,29"/>
+        <dia:point val="32,30"/>
       </dia:attribute>
       <dia:attribute name="text_colour">
         <dia:color val="#000000"/>
@@ -1179,7 +1179,7 @@
         <dia:enum val="6"/>
       </dia:attribute>
       <dia:attribute name="text_pos">
-        <dia:point val="35.11,28.65"/>
+        <dia:point val="35.11,29.65"/>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O20" connection="36"/>
@@ -1187,17 +1187,17 @@
     </dia:object>
     <dia:object type="UML - Message" version="0" id="O25">
       <dia:attribute name="obj_pos">
-        <dia:point val="29.8975,30"/>
+        <dia:point val="29.8975,31"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="29.8309,29.9334;41.8069,31.3827"/>
+        <dia:rectangle val="29.8309,30.9334;41.8069,32.3827"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
-        <dia:point val="29.8975,30"/>
-        <dia:point val="32,31"/>
+        <dia:point val="29.8975,31"/>
+        <dia:point val="32,32"/>
       </dia:attribute>
       <dia:attribute name="text_colour">
         <dia:color val="#000000"/>
@@ -1212,7 +1212,7 @@
         <dia:enum val="6"/>
       </dia:attribute>
       <dia:attribute name="text_pos">
-        <dia:point val="37.0057,30.7"/>
+        <dia:point val="37.0057,31.7"/>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O20" connection="39"/>
@@ -1253,17 +1253,17 @@
     </dia:object>
     <dia:object type="UML - Message" version="0" id="O27">
       <dia:attribute name="obj_pos">
-        <dia:point val="29.8975,32"/>
+        <dia:point val="29.8975,33"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="29.8309,31.9334;41.1131,33.3827"/>
+        <dia:rectangle val="29.8309,32.9334;41.1131,34.3827"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
-        <dia:point val="29.8975,32"/>
-        <dia:point val="32,33"/>
+        <dia:point val="29.8975,33"/>
+        <dia:point val="32,34"/>
       </dia:attribute>
       <dia:attribute name="text_colour">
         <dia:color val="#000000"/>
@@ -1278,7 +1278,7 @@
         <dia:enum val="6"/>
       </dia:attribute>
       <dia:attribute name="text_pos">
-        <dia:point val="36.6406,32.65"/>
+        <dia:point val="36.6406,33.65"/>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O20" connection="43"/>
@@ -1286,17 +1286,17 @@
     </dia:object>
     <dia:object type="UML - Message" version="0" id="O28">
       <dia:attribute name="obj_pos">
-        <dia:point val="29.1975,34"/>
+        <dia:point val="29.1975,35"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="26.46,22.8726;29.7375,34.0588"/>
+        <dia:rectangle val="26.46,23.8726;29.7375,35.0588"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
-        <dia:point val="29.1975,34"/>
-        <dia:point val="27,23"/>
+        <dia:point val="29.1975,35"/>
+        <dia:point val="27,24"/>
       </dia:attribute>
       <dia:attribute name="text_colour">
         <dia:color val="#000000"/>
@@ -1311,7 +1311,7 @@
         <dia:enum val="6"/>
       </dia:attribute>
       <dia:attribute name="text_pos">
-        <dia:point val="28.0988,29"/>
+        <dia:point val="28.0988,30"/>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O20" connection="4"/>
@@ -1606,17 +1606,17 @@
     </dia:object>
     <dia:object type="UML - Message" version="0" id="O35">
       <dia:attribute name="obj_pos">
-        <dia:point val="12.7137,20"/>
+        <dia:point val="12.7137,22"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="12.6479,19.9342;19.8138,22.05"/>
+        <dia:rectangle val="12.6479,21.9342;19.8138,24.05"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
-        <dia:point val="12.7137,20"/>
-        <dia:point val="15,21"/>
+        <dia:point val="12.7137,22"/>
+        <dia:point val="15,23"/>
       </dia:attribute>
       <dia:attribute name="text_colour">
         <dia:color val="#000000"/>
@@ -1631,10 +1631,10 @@
         <dia:enum val="6"/>
       </dia:attribute>
       <dia:attribute name="text_pos">
-        <dia:point val="16.3,21.85"/>
+        <dia:point val="16.3,23.85"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O5" connection="67"/>
+        <dia:connection handle="0" to="O5" connection="75"/>
       </dia:connections>
     </dia:object>
     <dia:object type="UML - Message" version="0" id="O36">
@@ -1667,7 +1667,40 @@
         <dia:point val="20.35,9.7"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O5" connection="46"/>
+        <dia:connection handle="0" to="O5" connection="50"/>
+      </dia:connections>
+    </dia:object>
+    <dia:object type="UML - Message" version="0" id="O37">
+      <dia:attribute name="obj_pos">
+        <dia:point val="12.7137,11"/>
+      </dia:attribute>
+      <dia:attribute name="obj_bb">
+        <dia:rectangle val="12.6479,10.9342;22.3888,12.3865"/>
+      </dia:attribute>
+      <dia:attribute name="meta">
+        <dia:composite type="dict"/>
+      </dia:attribute>
+      <dia:attribute name="conn_endpoints">
+        <dia:point val="12.7137,11"/>
+        <dia:point val="15,12"/>
+      </dia:attribute>
+      <dia:attribute name="text_colour">
+        <dia:color val="#000000"/>
+      </dia:attribute>
+      <dia:attribute name="line_colour">
+        <dia:color val="#000000"/>
+      </dia:attribute>
+      <dia:attribute name="text">
+        <dia:string>#append all Control ack#</dia:string>
+      </dia:attribute>
+      <dia:attribute name="type">
+        <dia:enum val="6"/>
+      </dia:attribute>
+      <dia:attribute name="text_pos">
+        <dia:point val="18.8,11.65"/>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O5" connection="54"/>
       </dia:connections>
     </dia:object>
   </dia:layer>
