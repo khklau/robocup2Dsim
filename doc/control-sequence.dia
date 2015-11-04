@@ -2639,7 +2639,7 @@
         <dia:point val="20.3175,10"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="20.249,9.93147;28.1862,11.3694"/>
+        <dia:rectangle val="20.249,9.93147;32.525,11.3694"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
@@ -2655,13 +2655,13 @@
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="text">
-        <dia:string>#pop all Control ack#</dia:string>
+        <dia:string>#pop all Control &amp; Judgement ack#</dia:string>
       </dia:attribute>
       <dia:attribute name="type">
         <dia:enum val="6"/>
       </dia:attribute>
       <dia:attribute name="text_pos">
-        <dia:point val="25.2,10.75"/>
+        <dia:point val="27.35,10.65"/>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O44" connection="1"/>
@@ -2738,7 +2738,7 @@
         <dia:point val="20.3175,22"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="20.249,21.9315;28.1862,23.3694"/>
+        <dia:rectangle val="20.249,21.2;30.875,23.3694"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
@@ -2754,13 +2754,13 @@
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="text">
-        <dia:string>#pop all Control ack#</dia:string>
+        <dia:string>#pop all Control &amp; Judgement ack#</dia:string>
       </dia:attribute>
       <dia:attribute name="type">
         <dia:enum val="6"/>
       </dia:attribute>
       <dia:attribute name="text_pos">
-        <dia:point val="25.2,22.75"/>
+        <dia:point val="25.7,21.8"/>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O51" connection="1"/>
