@@ -10,28 +10,12 @@
 #include <glog/logging.h>
 #include <turbo/ipc/posix/pipe.hpp>
 #include <turbo/process/posix/spawn.hpp>
+#include "config.hpp"
 
 namespace tpp = turbo::process::posix;
+namespace rc = robocup2dsim::client;
 
-struct config
-{
-    config() :
-	    goalie(false),
-	    port(0),
-	    bot_arg_count(0),
-	    bot_arg_offset(0)
-    { }
-    bool goalie;
-    std::string address;
-    uint16_t port;
-    std::string team;
-    uint8_t uniform;
-    std::string bot_path;
-    unsigned short bot_arg_count;
-    unsigned short bot_arg_offset;
-};
-
-void parse_cmd_args(int argc, char* argv[], config& conf)
+void parse_cmd_args(int argc, char* argv[], rc::config& conf)
 {
     kj::TopLevelProcessContext context(argv[0]);
     kj::MainFunc parse = kj::MainBuilder(
@@ -117,7 +101,7 @@ void parse_cmd_args(int argc, char* argv[], config& conf)
 
 int main(int argc, char* argv[])
 {
-    config conf;
+    rc::config conf;
     parse_cmd_args(argc, argv, conf);
     tpp::child&& bot = tpp::spawn(conf.bot_path.c_str(), &argv[conf.bot_arg_offset], {}, 2 << 16);
     google::InitGoogleLogging(argv[0]);
