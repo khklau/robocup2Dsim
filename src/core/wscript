@@ -33,7 +33,7 @@ def build(buildCtx):
 		name=compileTask,
 		source=[capnpNode],
 		target=[cxxNode, hNode],
-		includes=['.', buildCtx.srcnode.find_node('src').abspath()])
+		includes=[buildCtx.path.get_src().abspath(), buildCtx.srcnode.find_node('src').abspath()])
 	publishTask='publish_%s.h' % capnpFile
 	buildCtx(
 		name=publishTask,

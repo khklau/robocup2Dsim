@@ -28,7 +28,7 @@ def build(buildCtx):
 		name=compileTask,
 		source=[capnpNode],
 		target=[cxxNode, hNode],
-		includes=['.', buildCtx.srcnode.find_node('src').abspath()])
+		includes=[buildCtx.path.get_src().abspath(), buildCtx.srcnode.find_node('src').abspath()])
 	publishTask='publish_%s.h' % capnpFile
 	buildCtx(
 		name=publishTask,
@@ -44,7 +44,7 @@ def build(buildCtx):
 	    name='stlib_robocup2Dsim_csprotocol',
 	    source=csprotocolCxxNodeList,
 	    target='robocup2Dsim_csprotocol',
-	    includes=['.', os.path.join(buildCtx.path.get_bld().abspath(), os.pardir, 'core'), buildCtx.bldnode.abspath()] + buildCtx.env.component.include_path_list,
+	    includes=[buildCtx.path.get_src().abspath(), os.path.join(buildCtx.path.get_bld().abspath(), os.pardir, 'core'), buildCtx.bldnode.abspath()] + buildCtx.env.component.include_path_list,
 	    libpath=buildCtx.env.component.lib_path_list,
 	    cxxflags=buildCtx.env.CXXFLAGS,
 	    linkflags=buildCtx.env.LDFLAGS,
