@@ -8,6 +8,10 @@
 	    "version" : "master"
 	},
 	{
+	    "product" : "beam",
+	    "version" : "master"
+	},
+	{
 	    "product" : "capnproto",
 	    "version" : "0.5.2"
 	},
