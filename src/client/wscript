@@ -12,17 +12,19 @@ def build(buildCtx):
     buildCtx.env.component = buildCtx.env.product.getComponent(name(buildCtx))
     buildCtx.program(
 	    name='exe_robocup2Dsim_client',
-	    source=[buildCtx.path.find_node('robocup2Dsim_client.cxx')] + 
+	    source=[buildCtx.path.find_node('main.cxx'),
+		    buildCtx.path.find_node('state_machine.cxx'),
+		    buildCtx.path.find_node('bot_receiver.cxx')] + 
 		    [buildCtx.root.find_node(lib) for lib in buildCtx.env['GLOG_STLIB_PATH']] +
 		    [buildCtx.root.find_node(lib) for lib in buildCtx.env['ASIO_STLIB_PATH']] +
 		    [buildCtx.root.find_node(lib) for lib in buildCtx.env['TURBO_STLIB_PATH']],
 	    target=os.path.join(buildCtx.env.component.build_tree.binPathFromBuild(buildCtx), 'robocup2Dsim_client'),
 	    defines=['ASIO_STANDALONE', 'ASIO_SEPARATE_COMPILATION'],
-	    includes=['.'] + buildCtx.env.component.include_path_list,
+	    includes=[buildCtx.path.get_src().abspath()] + buildCtx.env.component.include_path_list,
 	    cxxflags=buildCtx.env.CXXFLAGS,
 	    linkflags=buildCtx.env.LDFLAGS,
-	    use=['GLOG_SHLIB', 'ASIO_STLIB', 'TURBO_STLIB', 'stlib_robocup2Dsim_core', 'stlib_robocup2Dsim_bcprotocol', 'stlib_robocup2Dsim_csprotocol'],
-	    libpath=['.'] + buildCtx.env.component.lib_path_list,
+	    use=['GLOG_STLIB', 'ASIO_STLIB', 'TURBO_STLIB', 'stlib_robocup2Dsim_core', 'stlib_robocup2Dsim_bcprotocol', 'stlib_robocup2Dsim_csprotocol'],
+	    libpath=[buildCtx.path.get_bld().abspath()] + buildCtx.env.component.lib_path_list,
 	    rpath=buildCtx.env.component.rpath_list,
 	    install_path=buildCtx.env.component.install_tree.bin,
 	    after=['stlib_robocup2Dsim_core', 'stlib_robocup2Dsim_bcprotocol', 'stlib_robocup2Dsim_csprotocol'])

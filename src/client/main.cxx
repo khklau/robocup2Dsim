@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <limits>
 #include <string>
+#include <utility>
 #include <vector>
 #include <kj/common.h>
 #include <kj/debug.h>
@@ -11,9 +12,10 @@
 #include <turbo/ipc/posix/pipe.hpp>
 #include <turbo/process/posix/spawn.hpp>
 #include "config.hpp"
+#include "state_machine.hpp"
 
 namespace tpp = turbo::process::posix;
-namespace rc = robocup2dsim::client;
+namespace rc = robocup2Dsim::client;
 
 void parse_cmd_args(int argc, char* argv[], rc::config& conf)
 {
@@ -108,5 +110,6 @@ int main(int argc, char* argv[])
     FLAGS_logtostderr = true;
     FLAGS_minloglevel = (kj::_::Debug::shouldLog(kj::_::Debug::Severity::INFO)) ? 0 : 1;
     google::InstallFailureSignalHandler();
+    rc::state_machine machine(conf, std::move(bot));
     return 0;
 }
