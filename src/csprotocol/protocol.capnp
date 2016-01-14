@@ -1,4 +1,4 @@
-@0xca7b62e1bed2bc72;
+@0xabe13ea5f0adf862;
 
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("robocup2Dsim::csprotocol");
