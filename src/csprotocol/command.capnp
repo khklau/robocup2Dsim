@@ -3,12 +3,12 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("robocup2Dsim::csprotocol");
 
-using Entity = import "/core/entity.capnp";
-using Field = import "/core/field.capnp";
-using Metadata = import "/core/metadata.capnp";
-using Physics = import "/core/physics.capnp";
-using Rule = import "/core/rule.capnp";
-using CoreCommand = import "/core/command.capnp";
+using Entity = import "/common/entity.capnp";
+using Field = import "/common/field.capnp";
+using Metadata = import "/common/metadata.capnp";
+using Physics = import "/common/physics.capnp";
+using Rule = import "/common/rule.capnp";
+using CommonCommand = import "/common/command.capnp";
 
 struct VersionMismatchError { }
 struct TeamSlotTakenError { }
@@ -18,14 +18,14 @@ struct GoalieTakenError { }
 
 struct InitRequest
 {
-    registration @0 :CoreCommand.Registration;
+    registration @0 :CommonCommand.Registration;
 }
 
 struct InitReply
 {
     union
     {
-	open @0 :CoreCommand.MatchOpen;
+	open @0 :CommonCommand.MatchOpen;
 	error @1 :InitError;
     }
 }

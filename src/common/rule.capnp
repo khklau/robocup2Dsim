@@ -1,9 +1,9 @@
 @0xe713bdb71d3436cd;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("robocup2Dsim::core");
+$Cxx.namespace("robocup2Dsim::common");
 
-using Physics = import "/core/physics.capnp";
+using Physics = import "/common/physics.capnp";
 
 using GoalCount = UInt8;
 

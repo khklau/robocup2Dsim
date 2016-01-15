@@ -1,9 +1,9 @@
 @0xb65c1fbcbbf67993;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("robocup2Dsim::core");
+$Cxx.namespace("robocup2Dsim::common");
 
-using Physics = import "/core/physics.capnp";
+using Physics = import "/common/physics.capnp";
 
 enum Side
 {

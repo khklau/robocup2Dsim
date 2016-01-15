@@ -3,10 +3,10 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("robocup2Dsim::csprotocol");
 
-using Error = import "/core/error.capnp";
-using Metadata = import "/core/metadata.capnp";
+using Error = import "/common/error.capnp";
+using Metadata = import "/common/metadata.capnp";
 using Command = import "command.capnp";
-using CoreCommand = import "/core/command.capnp";
+using CommonCommand = import "/common/command.capnp";
 
 struct TransmissionHeader
 {
@@ -40,7 +40,7 @@ struct ServerTransmission
 	unknownMsg @1 :Error.UnknownMsgError;
 	malformedMsg @2 :Error.MalformedMsgError;
 	init @3 :Command.InitReply;
-	close @4 :CoreCommand.MatchClose;
-	abort @5 :CoreCommand.MatchAbort;
+	close @4 :CommonCommand.MatchClose;
+	abort @5 :CommonCommand.MatchAbort;
     }
 }

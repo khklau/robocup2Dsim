@@ -3,9 +3,9 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("robocup2Dsim::bcprotocol");
 
-using Command = import "/core/command.capnp";
+using Command = import "/common/command.capnp";
 using Control = import "control.capnp";
-using Error = import "/core/error.capnp";
+using Error = import "/common/error.capnp";
 using Info = import "info.capnp";
 using Sensor = import "sensor.capnp";
 

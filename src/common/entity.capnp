@@ -1,10 +1,10 @@
 @0xc98f2d65bc9a57fc;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("robocup2Dsim::core");
+$Cxx.namespace("robocup2Dsim::common");
 
 using Field = import "field.capnp";
-using Physics = import "/core/physics.capnp";
+using Physics = import "/common/physics.capnp";
 
 using TeamName = Text;
 

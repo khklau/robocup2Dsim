@@ -1,7 +1,7 @@
 @0xc6f85ffb87e200e2;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("robocup2Dsim::core");
+$Cxx.namespace("robocup2Dsim::common");
 
 using Entity = import "entity.capnp";
 using Metadata = import "metadata.capnp";

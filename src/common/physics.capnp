@@ -1,7 +1,7 @@
 @0x90cf51a28ca78630;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("robocup2Dsim::core");
+$Cxx.namespace("robocup2Dsim::common");
 
 using Day = UInt32;
 using Degree = Int16;

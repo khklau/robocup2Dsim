@@ -3,10 +3,10 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("robocup2Dsim::bcprotocol");
 
-using Entity = import "/core/entity.capnp";
-using Field = import "/core/field.capnp";
-using Physics = import "/core/physics.capnp";
-using Rule = import "/core/rule.capnp";
+using Entity = import "/common/entity.capnp";
+using Field = import "/common/field.capnp";
+using Physics = import "/common/physics.capnp";
+using Rule = import "/common/rule.capnp";
 
 struct Announcement
 {
