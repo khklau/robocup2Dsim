@@ -8,6 +8,7 @@
 #include <turbo/process/posix/spawn.hpp>
 #include "config.hpp"
 #include "bot_receiver.hpp"
+#include "bot_sender.hpp"
 #include "specification.hpp"
 
 namespace robocup2Dsim {
@@ -34,6 +35,7 @@ private:
     server_in_queue_type server_in_;
     server_out_queue_type server_out_;
     bot_receiver botrec_;
+    bot_sender botsend_;
 };
 
 } // namespace client

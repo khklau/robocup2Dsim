@@ -8,12 +8,13 @@ namespace client {
 state_machine::state_machine(const config& config, turbo::process::posix::child&& bot) :
 	config_(config),
 	bot_(std::move(bot)),
-	state_(state::nobot_unregistered),
+	state_(state::withbot_unregistered),
 	bot_in_(config_.bot_msg_queue_length),
 	bot_out_(config_.bot_msg_queue_length),
 	server_in_(config_.server_msg_queue_length),
 	server_out_(config_.server_msg_queue_length),
-	botrec_(std::move(bot.out), bot_out_.get_producer())
+	botrec_(std::move(bot.out), bot_out_.get_producer()),
+	botsend_(std::move(bot.in))
 { }
 
 } // namespace client
