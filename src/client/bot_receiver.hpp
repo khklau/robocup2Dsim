@@ -29,7 +29,7 @@ private:
     bot_receiver& operator=(const bot_receiver& other) = delete;
     void run();
     void receive(const asio::error_code& error, std::size_t bytes_received);
-    turbo::ipc::posix::pipe::front&& bot_stdout_;
+    turbo::ipc::posix::pipe::front bot_stdout_;
     bot_out_queue_type::producer& producer_;
     std::thread* thread_;
     asio::io_service service_;
