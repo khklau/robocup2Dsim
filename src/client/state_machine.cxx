@@ -9,11 +9,12 @@ state_machine::state_machine(const config& config, turbo::process::posix::child&
 	config_(config),
 	bot_(std::move(bot)),
 	state_(state::withbot_unregistered),
-	bot_in_(config_.bot_msg_queue_length),
-	bot_out_(config_.bot_msg_queue_length),
-	server_in_(config_.server_msg_queue_length),
-	server_out_(config_.server_msg_queue_length),
-	botrec_(std::move(bot.out), bot_out_.get_producer()),
+	bot_trans_queue_(config_.bot_msg_queue_length),
+	client_status_queue_(config_.server_msg_queue_length),
+	client_trans_queue_(config_.server_msg_queue_length),
+	server_status_queue_(config_.server_msg_queue_length),
+	server_trans_queue_(config_.server_msg_queue_length),
+	botrec_(std::move(bot.out), bot_trans_queue_.get_producer()),
 	botsend_(std::move(bot.in))
 { }
 

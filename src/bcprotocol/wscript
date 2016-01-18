@@ -11,6 +11,9 @@ bcprotocolCapnpFiles=[
 	'protocol.capnp',
 	'sensor.capnp']
 
+publicHeaders = [
+    'protocol.hpp']
+
 def configure(confCtx):
     confCtx.env.component = Component.fromContext(confCtx, name(confCtx), confCtx.env.product)
     confCtx.env.product.addComponent(confCtx.env.component)
@@ -42,6 +45,16 @@ def build(buildCtx):
 	bcprotocolHNodeList.append(hNode)
 	bcprotocolCapnpTaskList.append(compileTask)
 	bcprotocolPublishTaskList.append(publishTask)
+    publishTaskList=[]
+    for header in publicHeaders:
+	publishTask='publish_%s' % header
+	buildCtx(
+		name=publishTask,
+		rule='cp ${SRC} ${TGT}',
+		source=header,
+		target=os.path.join(buildCtx.env.component.build_tree.includePathFromBuild(buildCtx), header),
+		after=bcprotocolPublishTaskList,
+		install_path=os.path.join(buildCtx.env.component.install_tree.include, os.path.dirname(header)))
     buildCtx.stlib(
 	    name='stlib_robocup2Dsim_bcprotocol',
 	    source=bcprotocolCxxNodeList,

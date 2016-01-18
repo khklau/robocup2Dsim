@@ -8,39 +8,34 @@ using Metadata = import "/common/metadata.capnp";
 using Command = import "command.capnp";
 using CommonCommand = import "/common/command.capnp";
 
-struct TransmissionHeader
+struct ClientStatus
 {
-    wantReliable @0 :Bool;
-    wantOrdering @1 :Bool;
-    unusedA @2 :Bool;
-    unusedB @3 :Bool;
-    unusedC @4 :Bool;
-    unusedD @5 :Bool;
-    unusedE @6 :Bool;
-    unusedF @7 :Bool;
-    channel @8 :Metadata.ChannelId;
-    sequence @9 :Metadata.SequenceNumber;
+    state @0 :AnyPointer;
 }
 
-struct ClientTransmission
+struct ClientTransaction
 {
-    header @0 :TransmissionHeader;
     union
     {
-	init @1 :Command.InitRequest;
-	control @2 :Void;
+	init @0 :Command.InitRequest;
+	control @1 :Void;
     }
 }
 
-struct ServerTransmission
+struct ServerStatus
 {
-    header @0 :TransmissionHeader;
+    snapshot @0 :AnyPointer;
+}
+
+struct ServerTransaction
+{
     union
     {
-	unknownMsg @1 :Error.UnknownMsgError;
-	malformedMsg @2 :Error.MalformedMsgError;
-	init @3 :Command.InitReply;
-	close @4 :CommonCommand.MatchClose;
-	abort @5 :CommonCommand.MatchAbort;
+	unknownMsg @0 :Error.UnknownMsgError;
+	malformedMsg @1 :Error.MalformedMsgError;
+	init @2 :Command.InitReply;
+	close @3 :CommonCommand.MatchClose;
+	abort @4 :CommonCommand.MatchAbort;
+	judgement @5 :Void;
     }
 }

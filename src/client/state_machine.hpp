@@ -2,10 +2,10 @@
 #define ROBOCUP2DSIM_CLIENT_STATE_MACHINE_HPP
 
 #include <asio/io_service.hpp>
-#include <beam/message/capnproto.hpp>
-#include <turbo/container/spsc_ring_queue.hpp>
 #include <turbo/ipc/posix/signal_notifier.hpp>
 #include <turbo/process/posix/spawn.hpp>
+#include <robocup2Dsim/bcprotocol/protocol.hpp>
+#include <robocup2Dsim/csprotocol/protocol.hpp>
 #include "config.hpp"
 #include "bot_receiver.hpp"
 #include "bot_sender.hpp"
@@ -30,10 +30,11 @@ private:
     const config& config_;
     turbo::process::posix::child&& bot_;
     state state_;
-    bot_in_queue_type bot_in_;
-    bot_out_queue_type bot_out_;
-    server_in_queue_type server_in_;
-    server_out_queue_type server_out_;
+    robocup2Dsim::bcprotocol::bot_trans_queue_type bot_trans_queue_;
+    robocup2Dsim::csprotocol::client_status_queue_type client_status_queue_;
+    robocup2Dsim::csprotocol::client_trans_queue_type client_trans_queue_;
+    robocup2Dsim::csprotocol::server_status_queue_type server_status_queue_;
+    robocup2Dsim::csprotocol::server_trans_queue_type server_trans_queue_;
     bot_receiver botrec_;
     bot_sender botsend_;
 };
