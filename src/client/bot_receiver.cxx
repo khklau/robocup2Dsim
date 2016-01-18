@@ -13,7 +13,7 @@ namespace tip = turbo::ipc::posix;
 namespace robocup2Dsim {
 namespace client {
 
-bot_receiver::bot_receiver(tip::pipe::front&& bot_stdout, bot_out_queue_type::producer& producer) :
+bot_receiver::bot_receiver(tip::pipe::front&& bot_stdout, rbc::bot_trans_queue_type::producer& producer) :
 	bot_stdout_(std::move(bot_stdout)),
 	producer_(producer),
 	thread_(nullptr),
@@ -73,14 +73,14 @@ void bot_receiver::run()
 
 void bot_receiver::receive(const asio::error_code& error, std::size_t bytes_received)
 {
-    bot_out_queue_type::producer::result result = bot_out_queue_type::producer::result::success;
+    rbc::bot_trans_queue_type::producer::result result = rbc::bot_trans_queue_type::producer::result::success;
     // More than 1 message may be available, so we need to consume all of them
     while (!error.value() && bytes_received > 0 && bot_stdout_.available() > 0)
     {
 	kj::FdInputStream input(bot_stdout_.get_handle());
 	std::unique_ptr<bme::capnproto<rbc::BotTransmission>> message(new bme::capnproto<rbc::BotTransmission>(input));
 	result = producer_.try_enqueue_move(std::move(message));
-	if (TURBO_UNLIKELY(result != bot_out_queue_type::producer::result::success))
+	if (TURBO_UNLIKELY(result != rbc::bot_trans_queue_type::producer::result::success))
 	{
 	    LOG(WARNING) << "bot processing queue is full: message dropped!";
 	}

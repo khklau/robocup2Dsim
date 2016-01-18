@@ -10,6 +10,7 @@
 #include <turbo/container/spsc_ring_queue.hpp>
 #include <turbo/ipc/posix/pipe.hpp>
 #include <robocup2Dsim/bcprotocol/protocol.capnp.h>
+#include <robocup2Dsim/bcprotocol/protocol.hpp>
 #include "specification.hpp"
 
 namespace robocup2Dsim {
@@ -18,7 +19,7 @@ namespace client {
 class bot_receiver
 {
 public:
-    bot_receiver(turbo::ipc::posix::pipe::front&& bot_stdout, bot_out_queue_type::producer& producer);
+    bot_receiver(turbo::ipc::posix::pipe::front&& bot_stdout, robocup2Dsim::bcprotocol::bot_trans_queue_type::producer& producer);
     ~bot_receiver();
     bool running() const { return thread_ != nullptr; }
     void reset();
@@ -30,7 +31,7 @@ private:
     void run();
     void receive(const asio::error_code& error, std::size_t bytes_received);
     turbo::ipc::posix::pipe::front bot_stdout_;
-    bot_out_queue_type::producer& producer_;
+    robocup2Dsim::bcprotocol::bot_trans_queue_type::producer& producer_;
     std::thread* thread_;
     asio::io_service service_;
     asio::posix::stream_descriptor stream_;

@@ -12,9 +12,6 @@
 namespace robocup2Dsim {
 namespace client {
 
-typedef turbo::container::spsc_ring_queue<std::unique_ptr<beam::message::capnproto<robocup2Dsim::bcprotocol::ClientTransmission>>> bot_in_queue_type;
-typedef turbo::container::spsc_ring_queue<std::unique_ptr<beam::message::capnproto<robocup2Dsim::bcprotocol::BotTransmission>>> bot_out_queue_type;
-
 enum class state : uint8_t
 {
     nobot_unregistered,
