@@ -2507,7 +2507,7 @@
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="text">
-        <dia:string>#Heartbeat(clock)#</dia:string>
+        <dia:string>#Status(clock)#</dia:string>
       </dia:attribute>
       <dia:attribute name="type">
         <dia:enum val="0"/>

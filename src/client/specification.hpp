@@ -52,7 +52,7 @@ public:
     withbot_unregistered match_aborted(withbot_playing);
     withbot_unregistered match_over(withbot_playing);
     withbot_playing sensor_timedout(withbot_playing);
-    withbot_playing heartbeat_timedout(withbot_playing);
+    withbot_playing status_timedout(withbot_playing);
     withbot_playing received_control(withbot_playing);
     withbot_playing received_communication(withbot_playing);
     withbot_playing received_judgement(withbot_playing);
