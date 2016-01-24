@@ -26,6 +26,7 @@ public:
     void start();
     void stop();
 private:
+    bot_receiver() = delete;
     bot_receiver(const bot_receiver& other) = delete;
     bot_receiver& operator=(const bot_receiver& other) = delete;
     void run();
