@@ -10,7 +10,7 @@ using CommonCommand = import "/common/command.capnp";
 
 struct ClientStatus
 {
-    state @0 :AnyPointer;
+    status @0 :AnyPointer;
 }
 
 struct ClientTransaction
