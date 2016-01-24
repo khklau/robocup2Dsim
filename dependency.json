@@ -12,12 +12,16 @@
 	    "version" : "master"
 	},
 	{
+	    "product" : "asio",
+	    "version" : "1.10.6"
+	},
+	{
 	    "product" : "capnproto",
 	    "version" : "0.5.2"
 	},
 	{
-	    "product" : "asio",
-	    "version" : "1.10.6"
+	    "product" : "enet",
+	    "version" : "1.3.13"
 	},
 	{
 	    "product" : "glog",
