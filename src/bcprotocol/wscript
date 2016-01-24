@@ -63,6 +63,6 @@ def build(buildCtx):
 	    libpath=buildCtx.env.component.lib_path_list,
 	    cxxflags=buildCtx.env.CXXFLAGS,
 	    linkflags=buildCtx.env.LDFLAGS,
-	    use=['CAPNPROTO_STLIB', 'stlib_robocup2Dsim_core'],
+	    use=['CAPNPROTO_STLIB', 'stlib_robocup2Dsim_common'],
 	    install_path=buildCtx.env.component.install_tree.lib,
-	    after=['stlib_robocup2Dsim_core'] + bcprotocolPublishTaskList)
+	    after=['stlib_robocup2Dsim_common'] + bcprotocolPublishTaskList)
