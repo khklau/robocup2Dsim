@@ -11,7 +11,7 @@ namespace client {
 class bot_sender
 {
 public:
-    bot_sender(turbo::ipc::posix::pipe::back&& bot_stdin);
+    explicit bot_sender(turbo::ipc::posix::pipe::back&& bot_stdin);
     void send(beam::message::capnproto<robocup2Dsim::bcprotocol::ClientTransmission>& message);
 private:
     bot_sender() = delete;
