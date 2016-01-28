@@ -5,7 +5,6 @@
 #include <beam/queue/unordered_mixed.hxx>
 #include <glog/logging.h>
 #include <turbo/container/spsc_ring_queue.hxx>
-#include <turbo/toolset/extension.hpp>
 
 namespace bii4 = beam::internet::ipv4;
 namespace bme = beam::message;
@@ -20,7 +19,8 @@ server_receiver::server_receiver(rcs::server_status_queue_type::producer& status
 	trans_producer_(trans_producer),
 	thread_(nullptr),
 	service_(),
-	receiver_(service_, { 1U, config.server_wait_amount, config.download_bytes_per_sec, config.upload_bytes_per_sec })
+	strand_(service_),
+	receiver_(strand_, { 1U, config.server_wait_amount, config.download_bytes_per_sec, config.upload_bytes_per_sec })
 {
     CHECK(receiver_.bind({ 0U, config.port }) == decltype(receiver_)::bind_result::success) << "Failed to bind to port " << config.port;
 }
@@ -79,6 +79,12 @@ void server_receiver::run()
 	},
 	[&](const bii4::address&, const bqc::port&)
 	{
+	    std::unique_ptr<bme::capnproto<rcs::ServerTransaction>> message(new bme::capnproto<rcs::ServerTransaction>());
+	    message->get_builder().setBye();
+	    if (trans_producer_.try_enqueue_move(std::move(message)) != rcs::server_trans_queue_type::producer::result::success)
+	    {
+		LOG(WARNING) << "server transaction queue is full; dropping disconnect error";
+	    }
 	    stop();
 	},
 	[&](std::unique_ptr<bme::capnproto<rcs::ServerStatus>> message)

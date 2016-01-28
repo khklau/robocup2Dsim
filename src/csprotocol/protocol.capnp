@@ -37,5 +37,6 @@ struct ServerTransaction
 	close @3 :CommonCommand.MatchClose;
 	abort @4 :CommonCommand.MatchAbort;
 	judgement @5 :Void;
+	bye @6 :Void;
     }
 }

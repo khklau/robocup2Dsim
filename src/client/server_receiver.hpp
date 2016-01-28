@@ -1,7 +1,6 @@
 #ifndef ROBOCUP2DSIM_CLIENT_SERVER_RECEIVER_HPP
 #define ROBOCUP2DSIM_CLIENT_SERVER_RECEIVER_HPP
 
-#include <memory>
 #include <thread>
 #include <asio/io_service.hpp>
 #include <beam/message/capnproto.hpp>
@@ -34,6 +33,7 @@ private:
     robocup2Dsim::csprotocol::server_trans_queue_type::producer& trans_producer_;
     std::thread* thread_;
     asio::io_service service_;
+    asio::io_service::strand strand_;
     beam::queue::unordered_mixed::receiver<robocup2Dsim::csprotocol::ServerStatus, robocup2Dsim::csprotocol::ServerTransaction> receiver_;
 };
 
