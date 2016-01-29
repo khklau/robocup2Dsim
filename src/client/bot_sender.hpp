@@ -12,7 +12,7 @@ class bot_sender
 {
 public:
     explicit bot_sender(turbo::ipc::posix::pipe::back&& bot_stdin);
-    void send(beam::message::capnproto<robocup2Dsim::bcprotocol::ClientTransmission>& message);
+    void send(beam::message::capnproto<robocup2Dsim::bcprotocol::BotInput>& message);
 private:
     bot_sender() = delete;
     bot_sender(const bot_sender&) = delete;

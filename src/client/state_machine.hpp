@@ -31,13 +31,14 @@ private:
     const config& config_;
     turbo::process::posix::child&& bot_;
     state state_;
-    std::unique_ptr<robocup2Dsim::bcprotocol::bot_trans_queue_type> bot_trans_queue_;
+    std::unique_ptr<robocup2Dsim::bcprotocol::bot_input_queue_type> bot_input_queue_;
+    std::unique_ptr<robocup2Dsim::bcprotocol::bot_output_queue_type> bot_output_queue_;
     std::unique_ptr<robocup2Dsim::csprotocol::client_status_queue_type> client_status_queue_;
     std::unique_ptr<robocup2Dsim::csprotocol::client_trans_queue_type> client_trans_queue_;
     std::unique_ptr<robocup2Dsim::csprotocol::server_status_queue_type> server_status_queue_;
     std::unique_ptr<robocup2Dsim::csprotocol::server_trans_queue_type> server_trans_queue_;
-    bot_receiver botrec_;
     bot_sender botsend_;
+    bot_receiver botrec_;
 };
 
 } // namespace client

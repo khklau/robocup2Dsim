@@ -9,7 +9,7 @@ using Error = import "/common/error.capnp";
 using Info = import "info.capnp";
 using Sensor = import "sensor.capnp";
 
-struct BotTransmission
+struct BotOutput
 {
     union
     {
@@ -23,7 +23,7 @@ struct BotTransmission
     }
 }
 
-struct ClientTransmission
+struct BotInput
 {
     union
     {

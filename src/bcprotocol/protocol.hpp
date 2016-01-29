@@ -9,8 +9,8 @@
 namespace robocup2Dsim {
 namespace bcprotocol {
 
-typedef turbo::container::spsc_ring_queue<std::unique_ptr<beam::message::capnproto<robocup2Dsim::bcprotocol::ClientTransmission>>> client_trans_queue_type;
-typedef turbo::container::spsc_ring_queue<std::unique_ptr<beam::message::capnproto<robocup2Dsim::bcprotocol::BotTransmission>>> bot_trans_queue_type;
+typedef turbo::container::spsc_ring_queue<std::unique_ptr<beam::message::capnproto<robocup2Dsim::bcprotocol::BotInput>>> bot_input_queue_type;
+typedef turbo::container::spsc_ring_queue<std::unique_ptr<beam::message::capnproto<robocup2Dsim::bcprotocol::BotOutput>>> bot_output_queue_type;
 
 } // namespace bcprotocol
 } // namespace robocup2Dsim
