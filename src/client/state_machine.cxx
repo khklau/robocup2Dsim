@@ -9,12 +9,12 @@ state_machine::state_machine(const config& config, turbo::process::posix::child&
 	config_(config),
 	bot_(std::move(bot)),
 	state_(state::withbot_unregistered),
-	bot_trans_queue_(config_.bot_msg_queue_length),
-	client_status_queue_(config_.server_msg_queue_length),
-	client_trans_queue_(config_.server_msg_queue_length),
-	server_status_queue_(config_.server_msg_queue_length),
-	server_trans_queue_(config_.server_msg_queue_length),
-	botrec_(std::move(bot.out), bot_trans_queue_.get_producer()),
+	bot_trans_queue_(new robocup2Dsim::bcprotocol::bot_trans_queue_type(config_.bot_msg_queue_length)),
+	client_status_queue_(new robocup2Dsim::csprotocol::client_status_queue_type(config_.server_msg_queue_length)),
+	client_trans_queue_(new robocup2Dsim::csprotocol::client_trans_queue_type(config_.server_msg_queue_length)),
+	server_status_queue_(new robocup2Dsim::csprotocol::server_status_queue_type(config_.server_msg_queue_length)),
+	server_trans_queue_(new robocup2Dsim::csprotocol::server_trans_queue_type(config_.server_msg_queue_length)),
+	botrec_(std::move(bot.out), bot_trans_queue_->get_producer()),
 	botsend_(std::move(bot.in))
 { }
 

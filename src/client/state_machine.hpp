@@ -1,6 +1,7 @@
 #ifndef ROBOCUP2DSIM_CLIENT_STATE_MACHINE_HPP
 #define ROBOCUP2DSIM_CLIENT_STATE_MACHINE_HPP
 
+#include <memory>
 #include <asio/io_service.hpp>
 #include <turbo/ipc/posix/signal_notifier.hpp>
 #include <turbo/process/posix/spawn.hpp>
@@ -30,11 +31,11 @@ private:
     const config& config_;
     turbo::process::posix::child&& bot_;
     state state_;
-    robocup2Dsim::bcprotocol::bot_trans_queue_type bot_trans_queue_;
-    robocup2Dsim::csprotocol::client_status_queue_type client_status_queue_;
-    robocup2Dsim::csprotocol::client_trans_queue_type client_trans_queue_;
-    robocup2Dsim::csprotocol::server_status_queue_type server_status_queue_;
-    robocup2Dsim::csprotocol::server_trans_queue_type server_trans_queue_;
+    std::unique_ptr<robocup2Dsim::bcprotocol::bot_trans_queue_type> bot_trans_queue_;
+    std::unique_ptr<robocup2Dsim::csprotocol::client_status_queue_type> client_status_queue_;
+    std::unique_ptr<robocup2Dsim::csprotocol::client_trans_queue_type> client_trans_queue_;
+    std::unique_ptr<robocup2Dsim::csprotocol::server_status_queue_type> server_status_queue_;
+    std::unique_ptr<robocup2Dsim::csprotocol::server_trans_queue_type> server_trans_queue_;
     bot_receiver botrec_;
     bot_sender botsend_;
 };
