@@ -14,6 +14,7 @@ def build(buildCtx):
 	    name='exe_robocup2Dsim_client',
 	    source=[buildCtx.path.find_node('main.cxx'),
 		    buildCtx.path.find_node('state_machine.cxx'),
+		    buildCtx.path.find_node('server_io.cxx'),
 		    buildCtx.path.find_node('server_receiver.cxx'),
 		    buildCtx.path.find_node('server_sender.cxx'),
 		    buildCtx.path.find_node('bot_receiver.cxx'),
