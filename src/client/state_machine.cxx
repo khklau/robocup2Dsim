@@ -16,7 +16,13 @@ state_machine::state_machine(const config& config, turbo::process::posix::child&
 	server_status_queue_(new robocup2Dsim::csprotocol::server_status_queue_type(config_.server_msg_queue_length)),
 	server_trans_queue_(new robocup2Dsim::csprotocol::server_trans_queue_type(config_.server_msg_queue_length)),
 	botsend_(std::move(bot.in)),
-	botrec_(std::move(bot.out), bot_output_queue_->get_producer())
+	botrec_(std::move(bot.out), bot_output_queue_->get_producer()),
+	server_io_(
+		server_status_queue_->get_producer(),
+		server_trans_queue_->get_producer(),
+		client_status_queue_->get_consumer(),
+		client_trans_queue_->get_consumer(),
+		config)
 { }
 
 } // namespace client

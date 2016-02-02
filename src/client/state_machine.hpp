@@ -10,6 +10,7 @@
 #include "config.hpp"
 #include "bot_receiver.hpp"
 #include "bot_sender.hpp"
+#include "server_io.hpp"
 #include "specification.hpp"
 
 namespace robocup2Dsim {
@@ -39,6 +40,7 @@ private:
     std::unique_ptr<robocup2Dsim::csprotocol::server_trans_queue_type> server_trans_queue_;
     bot_sender botsend_;
     bot_receiver botrec_;
+    server_io server_io_;
 };
 
 } // namespace client
