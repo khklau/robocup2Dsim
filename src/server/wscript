@@ -13,6 +13,7 @@ def build(buildCtx):
     buildCtx.program(
 	    name='exe_robocup2Dsim_server',
 	    source=[buildCtx.path.find_node('main.cxx'),
+		    buildCtx.path.find_node('ref_receiver.cxx'),
 		    buildCtx.path.find_node('ref_sender.cxx')] +
 		    [buildCtx.root.find_node(lib) for lib in buildCtx.env['ASIO_STLIB_PATH']] +
 		    [buildCtx.root.find_node(lib) for lib in buildCtx.env['BEAM_STLIB_PATH']] +
