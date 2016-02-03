@@ -1,0 +1,32 @@
+import os
+from waflib.extras.layout import Product, Component
+
+def name(context):
+    return os.path.basename(str(context.path))
+
+def configure(confCtx):
+    confCtx.env.component = Component.fromContext(confCtx, name(confCtx), confCtx.env.product)
+    confCtx.env.product.addComponent(confCtx.env.component)
+
+def build(buildCtx):
+    buildCtx.env.component = buildCtx.env.product.getComponent(name(buildCtx))
+    buildCtx.program(
+	    name='exe_robocup2Dsim_server',
+	    source=[buildCtx.path.find_node('main.cxx'),
+		    buildCtx.path.find_node('ref_sender.cxx')] +
+		    [buildCtx.root.find_node(lib) for lib in buildCtx.env['ASIO_STLIB_PATH']] +
+		    [buildCtx.root.find_node(lib) for lib in buildCtx.env['BEAM_STLIB_PATH']] +
+		    [buildCtx.root.find_node(lib) for lib in buildCtx.env['CAPNPROTO_STLIB_PATH']] +
+		    [buildCtx.root.find_node(lib) for lib in buildCtx.env['ENET_STLIB_PATH']] +
+		    [buildCtx.root.find_node(lib) for lib in buildCtx.env['GLOG_STLIB_PATH']] +
+		    [buildCtx.root.find_node(lib) for lib in buildCtx.env['TURBO_STLIB_PATH']],
+	    target=os.path.join(buildCtx.env.component.build_tree.binPathFromBuild(buildCtx), 'robocup2Dsim_server'),
+	    defines=['ASIO_STANDALONE', 'ASIO_SEPARATE_COMPILATION'],
+	    includes=[buildCtx.path.get_src().abspath()] + buildCtx.env.component.include_path_list,
+	    cxxflags=buildCtx.env.CXXFLAGS,
+	    linkflags=buildCtx.env.LDFLAGS,
+	    use=['ASIO_STLIB', 'BEAM_STLIB', 'CAPNPROTO_STLIB', 'ENET_STLIB', 'GLOG_STLIB', 'TURBO_STLIB', 'shlib_robocup2Dsim_common', 'shlib_robocup2Dsim_srprotocol', 'shlib_robocup2Dsim_csprotocol'],
+	    libpath=[buildCtx.path.get_bld().abspath()] + buildCtx.env.component.lib_path_list,
+	    rpath=buildCtx.env.component.rpath_list,
+	    install_path=buildCtx.env.component.install_tree.bin,
+	    after=['shlib_robocup2Dsim_common', 'shlib_robocup2Dsim_srprotocol', 'shlib_robocup2Dsim_csprotocol'])

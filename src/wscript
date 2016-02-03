@@ -52,11 +52,15 @@ def configure(confCtx):
     confCtx.recurse('common')
     confCtx.recurse('bcprotocol')
     confCtx.recurse('csprotocol')
+    confCtx.recurse('srprotocol')
     confCtx.recurse('client')
+    confCtx.recurse('server')
 
 def build(buildCtx):
     buildCtx.env.product = buildCtx.env.solution.getProduct(NAME)
     buildCtx.recurse('common')
     buildCtx.recurse('bcprotocol')
     buildCtx.recurse('csprotocol')
+    buildCtx.recurse('srprotocol')
     buildCtx.recurse('client')
+    buildCtx.recurse('server')
