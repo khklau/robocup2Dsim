@@ -8,6 +8,8 @@ using Metadata = import "/common/metadata.capnp";
 using Command = import "command.capnp";
 using CommonCommand = import "/common/command.capnp";
 
+using RecipientId = UInt64;
+
 struct ClientStatus
 {
     status @0 :AnyPointer;
@@ -19,24 +21,27 @@ struct ClientTransaction
     {
 	init @0 :Command.InitRequest;
 	control @1 :Void;
+	bye @2 :Void;
     }
 }
 
 struct ServerStatus
 {
-    snapshot @0 :AnyPointer;
+    recipient @0 :RecipientId;
+    snapshot @1 :AnyPointer;
 }
 
 struct ServerTransaction
 {
+    recipient @0 :RecipientId;
     union
     {
-	unknownMsg @0 :Error.UnknownMsgError;
-	malformedMsg @1 :Error.MalformedMsgError;
-	init @2 :Command.InitReply;
-	close @3 :CommonCommand.MatchClose;
-	abort @4 :CommonCommand.MatchAbort;
-	judgement @5 :Void;
-	bye @6 :Void;
+	unknownMsg @1 :Error.UnknownMsgError;
+	malformedMsg @2 :Error.MalformedMsgError;
+	init @3 :Command.InitReply;
+	close @4 :CommonCommand.MatchClose;
+	abort @5 :CommonCommand.MatchAbort;
+	judgement @6 :Void;
+	bye @7 :Void;
     }
 }
