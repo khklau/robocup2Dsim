@@ -2,12 +2,11 @@
 #define ROBOCUP2DSIM_CLIENT_SERVER_IO_HPP
 
 #include <thread>
-#include <asio/high_resolution_timer.hpp>
 #include <asio/io_service.hpp>
 #include <asio/strand.hpp>
+#include <beam/duplex/unordered_mixed.hpp>
 #include <beam/internet/ipv4.hpp>
 #include <beam/message/capnproto.hpp>
-#include <beam/duplex/unordered_mixed.hpp>
 #include <robocup2Dsim/csprotocol/protocol.capnp.h>
 #include <robocup2Dsim/csprotocol/protocol.hpp>
 #include "config.hpp"
@@ -47,7 +46,7 @@ private:
     std::thread* thread_;
     asio::io_service service_;
     asio::io_service::strand strand_;
-    beam::duplex::unordered_mixed::initiator<in_connection_type, out_connection_type> initiator_ ;
+    beam::duplex::unordered_mixed::initiator<in_connection_type, out_connection_type> initiator_;
     in_connection_type::event_handlers receive_handlers_;
 };
 
