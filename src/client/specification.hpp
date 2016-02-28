@@ -21,44 +21,38 @@ enum class state : uint8_t
     withbot_playing
 };
 
-template <state val>
-struct state_type
+template <class enum_value>
+struct handle
 {
-    static const state value = val;
+    static const state value = enum_value;
 };
 
-typedef state_type<state::nobot_unregistered> nobot_unregistered;
-typedef state_type<state::nobot_unregistered> nobot_unregistered;
-typedef state_type<state::nobot_onbench> nobot_onbench;
-typedef state_type<state::withbot_unregistered> withbot_unregistered;
-typedef state_type<state::withbot_onbench> withbot_onbench;
-typedef state_type<state::withbot_playing> withbot_playing;
-
+template <class impl>
 class client_specification
 {
 public:
-    withbot_unregistered spawned(nobot_unregistered);
-    nobot_unregistered bot_terminated(withbot_unregistered);
-    withbot_unregistered received_control(withbot_unregistered);
-    withbot_unregistered received_communication(withbot_unregistered);
-    withbot_onbench registered(withbot_unregistered);
-    withbot_unregistered disconnected(withbot_onbench);
-    withbot_unregistered match_aborted(withbot_onbench);
-    withbot_playing field_opened(withbot_onbench);
-    withbot_onbench received_control(withbot_onbench);
-    withbot_onbench received_communication(withbot_onbench);
-    nobot_onbench bot_terminated(withbot_onbench);
-    withbot_unregistered disconnected(withbot_playing);
-    withbot_unregistered match_aborted(withbot_playing);
-    withbot_unregistered match_over(withbot_playing);
-    withbot_playing sensor_timedout(withbot_playing);
-    withbot_playing status_timedout(withbot_playing);
-    withbot_playing received_control(withbot_playing);
-    withbot_playing received_communication(withbot_playing);
-    withbot_playing received_judgement(withbot_playing);
-    withbot_playing received_snapshot(withbot_playing);
-    nobot_onbench bot_terminated(withbot_playing);
-    nobot_unregistered disconnected(nobot_onbench);
+    handle<state::withbot_unregistered> spawned(handle<state::nobot_unregistered>);
+    handle<state::nobot_unregistered> bot_terminated(handle<state::withbot_unregistered>);
+    handle<state::withbot_unregistered> received_control(handle<state::withbot_unregistered>);
+    handle<state::withbot_unregistered> received_communication(handle<state::withbot_unregistered>);
+    handle<state::withbot_onbench> registered(handle<state::withbot_unregistered>);
+    handle<state::withbot_unregistered> disconnected(handle<state::withbot_onbench>);
+    handle<state::withbot_unregistered> match_aborted(handle<state::withbot_onbench>);
+    handle<state::withbot_playing> field_opened(handle<state::withbot_onbench>);
+    handle<state::withbot_onbench> received_control(handle<state::withbot_onbench>);
+    handle<state::withbot_onbench> received_communication(handle<state::withbot_onbench>);
+    handle<state::nobot_onbench> bot_terminated(handle<state::withbot_onbench>);
+    handle<state::withbot_unregistered> disconnected(handle<state::withbot_playing>);
+    handle<state::withbot_unregistered> match_aborted(handle<state::withbot_playing>);
+    handle<state::withbot_unregistered> match_over(handle<state::withbot_playing>);
+    handle<state::withbot_playing> sensor_timedout(handle<state::withbot_playing>);
+    handle<state::withbot_playing> status_timedout(handle<state::withbot_playing>);
+    handle<state::withbot_playing> received_control(handle<state::withbot_playing>);
+    handle<state::withbot_playing> received_communication(handle<state::withbot_playing>);
+    handle<state::withbot_playing> received_judgement(handle<state::withbot_playing>);
+    handle<state::withbot_playing> received_snapshot(handle<state::withbot_playing>);
+    handle<state::nobot_onbench> bot_terminated(handle<state::withbot_playing>);
+    handle<state::nobot_unregistered> disconnected(handle<state::nobot_onbench>);
 };
 
 } // namespace client
