@@ -8,8 +8,7 @@
 #include <robocup2Dsim/bcprotocol/protocol.hpp>
 #include <robocup2Dsim/csprotocol/protocol.hpp>
 #include "config.hpp"
-#include "bot_receiver.hpp"
-#include "bot_sender.hpp"
+#include "bot_io.hpp"
 #include "server_io.hpp"
 #include "specification.hpp"
 
@@ -38,8 +37,7 @@ private:
     std::unique_ptr<robocup2Dsim::csprotocol::client_trans_queue_type> client_trans_queue_;
     std::unique_ptr<robocup2Dsim::csprotocol::server_status_queue_type> server_status_queue_;
     std::unique_ptr<robocup2Dsim::csprotocol::server_trans_queue_type> server_trans_queue_;
-    bot_sender botsend_;
-    bot_receiver botrec_;
+    bot_io bot_io_;
     server_io server_io_;
 };
 
