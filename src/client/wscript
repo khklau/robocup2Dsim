@@ -15,8 +15,7 @@ def build(buildCtx):
 	    source=[buildCtx.path.find_node('main.cxx'),
 		    buildCtx.path.find_node('state_machine.cxx'),
 		    buildCtx.path.find_node('server_io.cxx'),
-		    buildCtx.path.find_node('bot_receiver.cxx'),
-		    buildCtx.path.find_node('bot_sender.cxx')] +
+		    buildCtx.path.find_node('bot_io.cxx')] +
 		    [buildCtx.root.find_node(lib) for lib in buildCtx.env['ASIO_STLIB_PATH']] +
 		    [buildCtx.root.find_node(lib) for lib in buildCtx.env['BEAM_STLIB_PATH']] +
 		    [buildCtx.root.find_node(lib) for lib in buildCtx.env['CAPNPROTO_STLIB_PATH']] +
