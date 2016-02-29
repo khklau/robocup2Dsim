@@ -21,7 +21,7 @@ enum class state : uint8_t
     withbot_playing
 };
 
-template <class enum_value>
+template <state enum_value>
 struct handle
 {
     static const state value = enum_value;
