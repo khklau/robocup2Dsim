@@ -1069,25 +1069,27 @@ playing#</dia:string>
     </dia:object>
     <dia:object type="UML - Transition" version="2" id="O20">
       <dia:attribute name="obj_pos">
-        <dia:point val="26,20.3"/>
+        <dia:point val="26,19"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="7.54,14.55;26.05,21.2"/>
+        <dia:rectangle val="7.54,14.55;26,19.9"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
       </dia:attribute>
       <dia:attribute name="orth_points">
-        <dia:point val="26,20.3"/>
-        <dia:point val="8.04,20.3"/>
+        <dia:point val="26,19"/>
+        <dia:point val="26,19"/>
+        <dia:point val="8.04,19"/>
         <dia:point val="8.04,14.6"/>
       </dia:attribute>
       <dia:attribute name="orth_orient">
+        <dia:enum val="1"/>
         <dia:enum val="0"/>
         <dia:enum val="1"/>
       </dia:attribute>
       <dia:attribute name="orth_autoroute">
-        <dia:boolean val="true"/>
+        <dia:boolean val="false"/>
       </dia:attribute>
       <dia:attribute name="text_colour">
         <dia:color val="#000000"/>
@@ -1105,16 +1107,16 @@ playing#</dia:string>
         <dia:string>##</dia:string>
       </dia:attribute>
       <dia:attribute name="trigger_text_pos">
-        <dia:point val="16.6,21"/>
+        <dia:point val="16.6,19.7"/>
       </dia:attribute>
       <dia:attribute name="guard_text_pos">
-        <dia:point val="16.52,19.8"/>
+        <dia:point val="16.52,18.5"/>
       </dia:attribute>
       <dia:attribute name="direction_inverted">
         <dia:boolean val="false"/>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O12" connection="3"/>
+        <dia:connection handle="0" to="O12" connection="0"/>
         <dia:connection handle="1" to="O8" connection="6"/>
       </dia:connections>
     </dia:object>
@@ -1444,6 +1446,63 @@ playing#</dia:string>
       <dia:connections>
         <dia:connection handle="0" to="O12" connection="4"/>
         <dia:connection handle="1" to="O12" connection="4"/>
+      </dia:connections>
+    </dia:object>
+    <dia:object type="UML - Transition" version="2" id="O27">
+      <dia:attribute name="obj_pos">
+        <dia:point val="26,20.3"/>
+      </dia:attribute>
+      <dia:attribute name="obj_bb">
+        <dia:rectangle val="18.1487,19.8;26.05,21.2"/>
+      </dia:attribute>
+      <dia:attribute name="meta">
+        <dia:composite type="dict"/>
+      </dia:attribute>
+      <dia:attribute name="orth_points">
+        <dia:point val="26,20.3"/>
+        <dia:point val="24,20.3"/>
+        <dia:point val="24,21"/>
+        <dia:point val="26,21"/>
+        <dia:point val="26,20.3"/>
+        <dia:point val="26,20.3"/>
+      </dia:attribute>
+      <dia:attribute name="orth_orient">
+        <dia:enum val="0"/>
+        <dia:enum val="1"/>
+        <dia:enum val="0"/>
+        <dia:enum val="1"/>
+        <dia:enum val="0"/>
+      </dia:attribute>
+      <dia:attribute name="orth_autoroute">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="text_colour">
+        <dia:color val="#000000"/>
+      </dia:attribute>
+      <dia:attribute name="line_colour">
+        <dia:color val="#000000"/>
+      </dia:attribute>
+      <dia:attribute name="trigger">
+        <dia:string>#Simulation timout#</dia:string>
+      </dia:attribute>
+      <dia:attribute name="action">
+        <dia:string>##</dia:string>
+      </dia:attribute>
+      <dia:attribute name="guard">
+        <dia:string>##</dia:string>
+      </dia:attribute>
+      <dia:attribute name="trigger_text_pos">
+        <dia:point val="21,21"/>
+      </dia:attribute>
+      <dia:attribute name="guard_text_pos">
+        <dia:point val="24.5,20.5"/>
+      </dia:attribute>
+      <dia:attribute name="direction_inverted">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O12" connection="3"/>
+        <dia:connection handle="1" to="O12" connection="3"/>
       </dia:connections>
     </dia:object>
   </dia:layer>
