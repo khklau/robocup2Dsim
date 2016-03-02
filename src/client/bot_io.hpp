@@ -11,7 +11,6 @@
 #include <turbo/ipc/posix/pipe.hpp>
 #include <robocup2Dsim/bcprotocol/protocol.capnp.h>
 #include <robocup2Dsim/bcprotocol/protocol.hpp>
-#include "specification.hpp"
 
 namespace robocup2Dsim {
 namespace client {
