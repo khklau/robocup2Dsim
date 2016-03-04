@@ -4,14 +4,22 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <beam/message/capnproto.hxx>
 #include <kj/common.h>
 #include <kj/debug.h>
 #include <kj/main.h>
 #include <kj/string.h>
 #include <glog/logging.h>
+#include <robocup2Dsim/bcprotocol/protocol.hpp>
+#include <robocup2Dsim/csprotocol/protocol.hpp>
+#include <turbo/container/spsc_ring_queue.hxx>
 #include <turbo/ipc/posix/pipe.hpp>
 #include <turbo/process/posix/spawn.hpp>
+#include "bot_io.hpp"
 #include "config.hpp"
+#include "engine.hpp"
+#include "engine.hxx"
+#include "server_io.hpp"
 #include "state_machine.hpp"
 
 namespace tpp = turbo::process::posix;
@@ -101,6 +109,39 @@ void parse_cmd_args(int argc, char* argv[], rc::config& conf)
     parse(argv[0], params);
 }
 
+class client
+{
+public:
+    client(const rc::config&& config, turbo::process::posix::child&& bot);
+private:
+    const rc::config config_;
+    rc::handle<rc::state::withbot_unregistered> handle_;
+    turbo::process::posix::child&& bot_;
+    rc::bot_io bot_io_;
+    rc::server_io server_io_;
+};
+
+client::client(const rc::config&& config, turbo::process::posix::child&& bot) :
+	config_(std::move(config)),
+	handle_
+	{
+	    std::move(std::unique_ptr<robocup2Dsim::bcprotocol::bot_input_queue_type>(new robocup2Dsim::bcprotocol::bot_input_queue_type(config_.bot_msg_queue_length))),
+	    std::move(std::unique_ptr<robocup2Dsim::bcprotocol::bot_output_queue_type>(new robocup2Dsim::bcprotocol::bot_output_queue_type(config_.bot_msg_queue_length))),
+	    std::move(std::unique_ptr<robocup2Dsim::csprotocol::client_status_queue_type>(new robocup2Dsim::csprotocol::client_status_queue_type(config_.server_msg_queue_length))),
+	    std::move(std::unique_ptr<robocup2Dsim::csprotocol::client_trans_queue_type>(new robocup2Dsim::csprotocol::client_trans_queue_type(config_.server_msg_queue_length))),
+	    std::move(std::unique_ptr<robocup2Dsim::csprotocol::server_status_queue_type>(new robocup2Dsim::csprotocol::server_status_queue_type(config_.server_msg_queue_length))),
+	    std::move(std::unique_ptr<robocup2Dsim::csprotocol::server_trans_queue_type>(new robocup2Dsim::csprotocol::server_trans_queue_type(config_.server_msg_queue_length)))
+	},
+        bot_(std::move(bot)),
+	bot_io_(std::move(bot_.in), std::move(bot_.out), handle_.bot_input_queue->get_consumer(), handle_.bot_output_queue->get_producer()),
+	server_io_(
+		handle_.server_status_queue->get_producer(),
+		handle_.server_trans_queue->get_producer(),
+		handle_.client_status_queue->get_consumer(),
+		handle_.client_trans_queue->get_consumer(),
+		config_)
+{ }
+
 int main(int argc, char* argv[])
 {
     rc::config conf;
@@ -110,6 +151,6 @@ int main(int argc, char* argv[])
     FLAGS_logtostderr = true;
     FLAGS_minloglevel = (kj::_::Debug::shouldLog(kj::_::Debug::Severity::INFO)) ? 0 : 1;
     google::InstallFailureSignalHandler();
-    rc::state_machine machine(conf, std::move(bot));
+    client cl(std::move(conf), std::move(bot));
     return 0;
 }
