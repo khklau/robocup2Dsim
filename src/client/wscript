@@ -27,8 +27,8 @@ def build(buildCtx):
 	    includes=[buildCtx.path.get_src().abspath()] + buildCtx.env.component.include_path_list,
 	    cxxflags=buildCtx.env.CXXFLAGS,
 	    linkflags=buildCtx.env.LDFLAGS,
-	    use=['ASIO_STLIB', 'BEAM_STLIB', 'CAPNPROTO_STLIB', 'ENET_STLIB', 'GLOG_STLIB', 'TURBO_STLIB', 'shlib_robocup2Dsim_common', 'shlib_robocup2Dsim_bcprotocol', 'shlib_robocup2Dsim_csprotocol'],
+	    use=['ASIO_STLIB', 'BEAM_STLIB', 'CAPNPROTO_STLIB', 'ENET_STLIB', 'GLOG_STLIB', 'TURBO_STLIB', 'stlib_robocup2Dsim_common', 'stlib_robocup2Dsim_bcprotocol', 'stlib_robocup2Dsim_csprotocol'],
 	    libpath=[buildCtx.path.get_bld().abspath()] + buildCtx.env.component.lib_path_list,
 	    rpath=buildCtx.env.component.rpath_list,
 	    install_path=buildCtx.env.component.install_tree.bin,
-	    after=['shlib_robocup2Dsim_common', 'shlib_robocup2Dsim_bcprotocol', 'shlib_robocup2Dsim_csprotocol'])
+	    after=['stlib_robocup2Dsim_common', 'stlib_robocup2Dsim_bcprotocol', 'stlib_robocup2Dsim_csprotocol'])
