@@ -14,14 +14,15 @@
 #include <robocup2Dsim/csprotocol/protocol.hpp>
 #include <turbo/container/spsc_ring_queue.hxx>
 #include <turbo/ipc/posix/pipe.hpp>
+#include <turbo/ipc/posix/signal_notifier.hpp>
 #include <turbo/process/posix/spawn.hpp>
 #include "bot_io.hpp"
 #include "config.hpp"
 #include "engine.hpp"
 #include "engine.hxx"
 #include "server_io.hpp"
-#include "state_machine.hpp"
 
+namespace tip = turbo::ipc::posix;
 namespace tpp = turbo::process::posix;
 namespace rc = robocup2Dsim::client;
 
@@ -113,9 +114,11 @@ class client
 {
 public:
     client(const rc::config&& config, turbo::process::posix::child&& bot);
+    void run();
 private:
     const rc::config config_;
     rc::handle<rc::state::withbot_unregistered> handle_;
+    tip::signal_notifier notifier_;
     turbo::process::posix::child&& bot_;
     rc::bot_io bot_io_;
     rc::server_io server_io_;
@@ -132,6 +135,7 @@ client::client(const rc::config&& config, turbo::process::posix::child&& bot) :
 	    std::move(std::unique_ptr<robocup2Dsim::csprotocol::server_status_queue_type>(new robocup2Dsim::csprotocol::server_status_queue_type(config_.server_msg_queue_length))),
 	    std::move(std::unique_ptr<robocup2Dsim::csprotocol::server_trans_queue_type>(new robocup2Dsim::csprotocol::server_trans_queue_type(config_.server_msg_queue_length)))
 	},
+	notifier_(),
         bot_(std::move(bot)),
 	bot_io_(std::move(bot_.in), std::move(bot_.out), handle_.bot_input_queue->get_consumer(), handle_.bot_output_queue->get_producer()),
 	server_io_(
@@ -140,7 +144,13 @@ client::client(const rc::config&& config, turbo::process::posix::child&& bot) :
 		handle_.client_status_queue->get_consumer(),
 		handle_.client_trans_queue->get_consumer(),
 		config_)
-{ }
+{
+    // TODO: setup SIGCHLD handling
+}
+
+void client::run()
+{
+}
 
 int main(int argc, char* argv[])
 {
@@ -152,5 +162,6 @@ int main(int argc, char* argv[])
     FLAGS_minloglevel = (kj::_::Debug::shouldLog(kj::_::Debug::Severity::INFO)) ? 0 : 1;
     google::InstallFailureSignalHandler();
     client cl(std::move(conf), std::move(bot));
+    cl.run();
     return 0;
 }
