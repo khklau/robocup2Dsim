@@ -137,7 +137,7 @@ client::client(const rc::config&& config, turbo::process::posix::child&& bot) :
 	},
 	notifier_(),
         bot_(std::move(bot)),
-	bot_io_(std::move(bot_.in), std::move(bot_.out), handle_.bot_input_queue->get_consumer(), handle_.bot_output_queue->get_producer()),
+	bot_io_(bot_.in, bot_.out, handle_.bot_input_queue->get_consumer(), handle_.bot_output_queue->get_producer()),
 	server_io_(
 		handle_.server_status_queue->get_producer(),
 		handle_.server_trans_queue->get_producer(),

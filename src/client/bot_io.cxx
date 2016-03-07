@@ -14,13 +14,13 @@ namespace robocup2Dsim {
 namespace client {
 
 bot_io::bot_io(
-	tip::pipe::back&& bot_stdin,
-	tip::pipe::front&& bot_stdout,
+	tip::pipe::back& bot_stdin,
+	tip::pipe::front& bot_stdout,
 	rbc::bot_input_queue_type::consumer& consumer,
 	rbc::bot_output_queue_type::producer& producer)
     :
-	bot_stdin_(std::move(bot_stdin)),
-	bot_stdout_(std::move(bot_stdout)),
+	bot_stdin_(bot_stdin),
+	bot_stdout_(bot_stdout),
 	consumer_(consumer),
 	producer_(producer),
 	thread_(nullptr),

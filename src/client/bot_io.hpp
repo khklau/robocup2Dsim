@@ -19,8 +19,8 @@ class bot_io
 {
 public:
     bot_io(
-	    turbo::ipc::posix::pipe::back&& bot_stdin,
-	    turbo::ipc::posix::pipe::front&& bot_stdout,
+	    turbo::ipc::posix::pipe::back& bot_stdin,
+	    turbo::ipc::posix::pipe::front& bot_stdout,
 	    robocup2Dsim::bcprotocol::bot_input_queue_type::consumer& consumer,
 	    robocup2Dsim::bcprotocol::bot_output_queue_type::producer& producer);
     ~bot_io();
@@ -34,8 +34,8 @@ private:
     void run();
     void send();
     void receive(const asio::error_code& error, std::size_t bytes_received);
-    turbo::ipc::posix::pipe::back bot_stdin_;
-    turbo::ipc::posix::pipe::front bot_stdout_;
+    turbo::ipc::posix::pipe::back& bot_stdin_;
+    turbo::ipc::posix::pipe::front& bot_stdout_;
     robocup2Dsim::bcprotocol::bot_input_queue_type::consumer& consumer_;
     robocup2Dsim::bcprotocol::bot_output_queue_type::producer& producer_;
     std::thread* thread_;
