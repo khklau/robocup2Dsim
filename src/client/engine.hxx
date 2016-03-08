@@ -7,6 +7,7 @@
 
 namespace robocup2Dsim {
 namespace client {
+namespace engine {
 
 template <state state_value>
 handle<state_value>::handle(
@@ -19,16 +20,32 @@ handle<state_value>::handle(
     :
 	basic_handle
 	{
-	    std::move(bot_in),
-	    std::move(bot_out),
-	    std::move(client_status),
-	    std::move(client_trans),
-	    std::move(server_status),
-	    std::move(server_trans),
+	    std::move(bot_input_queue),
+	    std::move(bot_output_queue),
+	    std::move(client_status_queue),
+	    std::move(client_trans_queue),
+	    std::move(server_status_queue),
+	    std::move(server_trans_queue),
 	    state_value
 	}
 { }
 
+template <state state_value>
+template <state other_value>
+handle<state_value>::handle(handle<other_value>&& other) :
+	basic_handle
+	{
+	    std::move(other.bot_input_queue),
+	    std::move(other.bot_output_queue),
+	    std::move(other.client_status_queue),
+	    std::move(other.client_trans_queue),
+	    std::move(other.server_status_queue),
+	    std::move(other.server_trans_queue),
+	    other_value
+	}
+{ }
+
+} // namespace engine
 } // namespace client
 } // namespace robocup2Dsim
 
