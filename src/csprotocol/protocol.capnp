@@ -19,7 +19,7 @@ struct ClientTransaction
 {
     union
     {
-	init @0 :Command.InitRequest;
+	registration @0 :Command.RegistrationRequest;
 	control @1 :Void;
 	bye @2 :Void;
     }
@@ -38,10 +38,11 @@ struct ServerTransaction
     {
 	unknownMsg @1 :Error.UnknownMsgError;
 	malformedMsg @2 :Error.MalformedMsgError;
-	init @3 :Command.InitReply;
-	close @4 :CommonCommand.MatchClose;
-	abort @5 :CommonCommand.MatchAbort;
-	judgement @6 :Void;
-	bye @7 :Void;
+	regSuccess @3 :Void;
+	regError @4 :Command.RegistrationError;
+	close @5 :CommonCommand.MatchClose;
+	abort @6 :CommonCommand.MatchAbort;
+	judgement @7 :Void;
+	bye @8 :Void;
     }
 }

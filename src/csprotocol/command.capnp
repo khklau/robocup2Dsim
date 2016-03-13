@@ -16,21 +16,12 @@ struct TeamFullError { }
 struct UniformTakenError { }
 struct GoalieTakenError { }
 
-struct InitRequest
+struct RegistrationRequest
 {
-    registration @0 :CommonCommand.Registration;
+    details @0 :CommonCommand.Registration;
 }
 
-struct InitReply
-{
-    union
-    {
-	open @0 :CommonCommand.MatchOpen;
-	error @1 :InitError;
-    }
-}
-
-struct InitError
+struct RegistrationError
 {
     union
     {
