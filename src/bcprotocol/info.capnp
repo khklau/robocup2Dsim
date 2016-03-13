@@ -38,3 +38,21 @@ struct RegistrationResult
     leftTeam @2 :TeamRegistrationStatus;
     rightTeam @3 :TeamRegistrationStatus;
 }
+
+struct QueryRequest
+{
+    union
+    {
+	score @0 :ScoreQuery;
+	time @1 :TimeQuery;
+    }
+}
+
+struct QueryResult
+{
+    union
+    {
+	score @0 :ScoreResult;
+	time @1 :TimeResult;
+    }
+}

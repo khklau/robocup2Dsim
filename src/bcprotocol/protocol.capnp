@@ -13,13 +13,8 @@ struct BotOutput
 {
     union
     {
-	catch @0 :Control.CatchAction;
-	dash @1 :Control.DashAction;
-	kick @2 :Control.KickAction;
-	turnBody @3 :Control.TurnBodyAction;
-	turnHead @4 :Control.TurnHeadAction;
-	scoreQuery @5 :Info.ScoreQuery;
-	timeQuery @6 :Info.TimeQuery;
+	control @0 :Control.Control;
+	query @1 :Info.QueryRequest;
     }
 }
 
@@ -34,7 +29,7 @@ struct BotInput
 	communication @4 :Sensor.Communication;
 	visual @5 :Sensor.Visual;
 	registration @6 :Command.Registration;
-	open @7 :Command.MatchOpen;
+	status @7 :Command.MatchStatus;
 	close @8 :Command.MatchClose;
 	abort @9 :Command.MatchAbort;
     }

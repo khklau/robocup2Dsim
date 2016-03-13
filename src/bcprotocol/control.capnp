@@ -30,3 +30,15 @@ struct TurnHeadAction
 {
     direction @0 :Physics.Degree;
 }
+
+struct Control
+{
+    union
+    {
+	catch @0 :CatchAction;
+	dash @1 :DashAction;
+	kick @2 :KickAction;
+	turnBody @3 :TurnBodyAction;
+	turnHead @4 :TurnHeadAction;
+    }
+}
