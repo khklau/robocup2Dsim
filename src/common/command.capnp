@@ -5,6 +5,7 @@ $Cxx.namespace("robocup2Dsim::common");
 
 using Entity = import "entity.capnp";
 using Metadata = import "metadata.capnp";
+using Physics = import "physics.capnp";
 using Rule = import "rule.capnp";
 
 struct Registration
@@ -15,9 +16,11 @@ struct Registration
     playerType @3 :Entity.PlayerType;
 }
 
-struct MatchOpen
+struct MatchStatus
 {
     playMode @0 :Rule.PlayMode;
+    score @1 :Rule.Score;
+    gameTime @2 :Physics.NanoSecond;
 }
 
 struct MatchClose
