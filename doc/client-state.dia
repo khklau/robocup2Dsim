@@ -935,7 +935,7 @@ playing#</dia:string>
         <dia:point val="30.425,21.6"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="29.925,21.1;40.2025,24.05"/>
+        <dia:rectangle val="29.925,21.1;44.6562,24.05"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
@@ -963,7 +963,7 @@ playing#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="trigger">
-        <dia:string>#Control or Communication#</dia:string>
+        <dia:string>#Control or Communication or Query#</dia:string>
       </dia:attribute>
       <dia:attribute name="action">
         <dia:string>##</dia:string>
@@ -972,7 +972,7 @@ playing#</dia:string>
         <dia:string>##</dia:string>
       </dia:attribute>
       <dia:attribute name="trigger_text_pos">
-        <dia:point val="36,23"/>
+        <dia:point val="38.95,22.85"/>
       </dia:attribute>
       <dia:attribute name="guard_text_pos">
         <dia:point val="32.5,22.3"/>
@@ -1180,7 +1180,7 @@ playing#</dia:string>
         <dia:point val="21.0675,4"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="20.5675,0.9;30.2025,4.5"/>
+        <dia:rectangle val="20.5675,0.9;28.8125,4.5"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
@@ -1208,7 +1208,7 @@ playing#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="trigger">
-        <dia:string>#Control or Communication#</dia:string>
+        <dia:string>#Registration Error#</dia:string>
       </dia:attribute>
       <dia:attribute name="action">
         <dia:string>##</dia:string>
@@ -1235,7 +1235,7 @@ playing#</dia:string>
         <dia:point val="16,14.6"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="11.3475,14.1;19.7525,18.1"/>
+        <dia:rectangle val="13.95,14.1;16.5,17.95"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
@@ -1263,7 +1263,7 @@ playing#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="trigger">
-        <dia:string>#Control or Communication#</dia:string>
+        <dia:string>#Query#</dia:string>
       </dia:attribute>
       <dia:attribute name="action">
         <dia:string>##</dia:string>
@@ -1272,7 +1272,7 @@ playing#</dia:string>
         <dia:string>##</dia:string>
       </dia:attribute>
       <dia:attribute name="trigger_text_pos">
-        <dia:point val="15.55,17.9"/>
+        <dia:point val="14.95,17.75"/>
       </dia:attribute>
       <dia:attribute name="guard_text_pos">
         <dia:point val="14.5,16.5"/>
@@ -1503,63 +1503,6 @@ playing#</dia:string>
       <dia:connections>
         <dia:connection handle="0" to="O12" connection="3"/>
         <dia:connection handle="1" to="O12" connection="3"/>
-      </dia:connections>
-    </dia:object>
-    <dia:object type="UML - Transition" version="2" id="O28">
-      <dia:attribute name="obj_pos">
-        <dia:point val="18.5338,4"/>
-      </dia:attribute>
-      <dia:attribute name="obj_bb">
-        <dia:rectangle val="12.7375,1.75;20.05,4.05"/>
-      </dia:attribute>
-      <dia:attribute name="meta">
-        <dia:composite type="dict"/>
-      </dia:attribute>
-      <dia:attribute name="orth_points">
-        <dia:point val="18.5338,4"/>
-        <dia:point val="18.5338,2"/>
-        <dia:point val="20,2"/>
-        <dia:point val="20,4"/>
-        <dia:point val="18.5338,4"/>
-        <dia:point val="18.5338,4"/>
-      </dia:attribute>
-      <dia:attribute name="orth_orient">
-        <dia:enum val="1"/>
-        <dia:enum val="0"/>
-        <dia:enum val="1"/>
-        <dia:enum val="0"/>
-        <dia:enum val="1"/>
-      </dia:attribute>
-      <dia:attribute name="orth_autoroute">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="text_colour">
-        <dia:color val="#000000"/>
-      </dia:attribute>
-      <dia:attribute name="line_colour">
-        <dia:color val="#000000"/>
-      </dia:attribute>
-      <dia:attribute name="trigger">
-        <dia:string>#Registration Error#</dia:string>
-      </dia:attribute>
-      <dia:attribute name="action">
-        <dia:string>##</dia:string>
-      </dia:attribute>
-      <dia:attribute name="guard">
-        <dia:string>##</dia:string>
-      </dia:attribute>
-      <dia:attribute name="trigger_text_pos">
-        <dia:point val="15.55,2.35"/>
-      </dia:attribute>
-      <dia:attribute name="guard_text_pos">
-        <dia:point val="19.5,2.5"/>
-      </dia:attribute>
-      <dia:attribute name="direction_inverted">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:connections>
-        <dia:connection handle="0" to="O2" connection="1"/>
-        <dia:connection handle="1" to="O2" connection="1"/>
       </dia:connections>
     </dia:object>
   </dia:layer>
