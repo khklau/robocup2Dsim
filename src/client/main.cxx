@@ -22,11 +22,14 @@
 #include "engine.hxx"
 #include "server_io.hpp"
 
+namespace bme = beam::message;
 namespace tip = turbo::ipc::posix;
 namespace tpp = turbo::process::posix;
-namespace rc = robocup2Dsim::client;
+namespace rbc = robocup2Dsim::bcprotocol;
+namespace rcl = robocup2Dsim::client;
+namespace rcs = robocup2Dsim::csprotocol;
 
-void parse_cmd_args(int argc, char* argv[], rc::config& conf)
+void parse_cmd_args(int argc, char* argv[], rcl::config& conf)
 {
     kj::TopLevelProcessContext context(argv[0]);
     kj::MainFunc parse = kj::MainBuilder(
@@ -113,30 +116,31 @@ void parse_cmd_args(int argc, char* argv[], rc::config& conf)
 class client
 {
 public:
-    client(const rc::config&& config, turbo::process::posix::child&& bot);
+    client(const rcl::config&& config, tpp::child&& bot);
     void run();
 private:
-    const rc::config config_;
-    rc::handle<rc::state::withbot_unregistered> handle_;
+    const rcl::config config_;
+    rcl::engine::basic_handle handle_;
     tip::signal_notifier notifier_;
-    turbo::process::posix::child&& bot_;
-    rc::bot_io bot_io_;
-    rc::server_io server_io_;
+    tpp::child&& bot_;
+    rcl::bot_io bot_io_;
+    rcl::server_io server_io_;
 };
 
-client::client(const rc::config&& config, turbo::process::posix::child&& bot) :
+client::client(const rcl::config&& config, tpp::child&& bot) :
 	config_(std::move(config)),
 	handle_
 	{
-	    std::move(std::unique_ptr<robocup2Dsim::bcprotocol::bot_input_queue_type>(new robocup2Dsim::bcprotocol::bot_input_queue_type(config_.bot_msg_queue_length))),
-	    std::move(std::unique_ptr<robocup2Dsim::bcprotocol::bot_output_queue_type>(new robocup2Dsim::bcprotocol::bot_output_queue_type(config_.bot_msg_queue_length))),
-	    std::move(std::unique_ptr<robocup2Dsim::csprotocol::client_status_queue_type>(new robocup2Dsim::csprotocol::client_status_queue_type(config_.server_msg_queue_length))),
-	    std::move(std::unique_ptr<robocup2Dsim::csprotocol::client_trans_queue_type>(new robocup2Dsim::csprotocol::client_trans_queue_type(config_.server_msg_queue_length))),
-	    std::move(std::unique_ptr<robocup2Dsim::csprotocol::server_status_queue_type>(new robocup2Dsim::csprotocol::server_status_queue_type(config_.server_msg_queue_length))),
-	    std::move(std::unique_ptr<robocup2Dsim::csprotocol::server_trans_queue_type>(new robocup2Dsim::csprotocol::server_trans_queue_type(config_.server_msg_queue_length)))
+	    std::move(std::unique_ptr<rbc::bot_input_queue_type>(new rbc::bot_input_queue_type(config_.bot_msg_queue_length))),
+	    std::move(std::unique_ptr<rbc::bot_output_queue_type>(new rbc::bot_output_queue_type(config_.bot_msg_queue_length))),
+	    std::move(std::unique_ptr<rcs::client_status_queue_type>(new rcs::client_status_queue_type(config_.server_msg_queue_length))),
+	    std::move(std::unique_ptr<rcs::client_trans_queue_type>(new rcs::client_trans_queue_type(config_.server_msg_queue_length))),
+	    std::move(std::unique_ptr<rcs::server_status_queue_type>(new rcs::server_status_queue_type(config_.server_msg_queue_length))),
+	    std::move(std::unique_ptr<rcs::server_trans_queue_type>(new rcs::server_trans_queue_type(config_.server_msg_queue_length))),
+	    rcl::engine::state::withbot_unregistered
 	},
 	notifier_(),
-        bot_(std::move(bot)),
+	bot_(std::move(bot)),
 	bot_io_(bot_.in, bot_.out, handle_.bot_input_queue->get_consumer(), handle_.bot_output_queue->get_producer()),
 	server_io_(
 		handle_.server_status_queue->get_producer(),
@@ -150,11 +154,41 @@ client::client(const rc::config&& config, turbo::process::posix::child&& bot) :
 
 void client::run()
 {
+    std::unique_ptr<bme::capnproto<rbc::BotOutput>> bot_output;
+    std::unique_ptr<bme::capnproto<rcs::ServerTransaction>> server_trans;
+    bool should_run = true;
+    while (should_run)
+    {
+	if (handle_.bot_output_queue->get_consumer().try_dequeue_move(bot_output) == rbc::bot_output_queue_type::consumer::result::success)
+	{
+	    if (handle_.engine_state == rcl::engine::state::withbot_playing && bot_output->get_reader().isControl())
+	    {
+		handle_ = std::move(rcl::engine::up_cast(rcl::engine::received_control(
+			rcl::engine::down_cast<rcl::engine::state::withbot_playing>(std::move(handle_)),
+			bot_output->get_reader().getControl())));
+	    }
+	}
+	if (handle_.server_trans_queue->get_consumer().try_dequeue_move(server_trans) == rcs::server_trans_queue_type::consumer::result::success)
+	{
+	    if (handle_.engine_state == rcl::engine::state::withbot_unregistered && server_trans->get_reader().isRegSuccess())
+	    {
+		handle_ = std::move(rcl::engine::up_cast(rcl::engine::registration_succeeded(
+			rcl::engine::down_cast<rcl::engine::state::withbot_unregistered>(std::move(handle_)))));
+	    }
+	    else if (handle_.engine_state == rcl::engine::state::withbot_unregistered && server_trans->get_reader().isRegError())
+	    {
+		handle_ = std::move(rcl::engine::up_cast(rcl::engine::registration_failed(
+			rcl::engine::down_cast<rcl::engine::state::withbot_playing>(std::move(handle_)),
+			server_trans->get_reader().getRegError())));
+	    }
+	}
+
+    }
 }
 
 int main(int argc, char* argv[])
 {
-    rc::config conf;
+    rcl::config conf;
     parse_cmd_args(argc, argv, conf);
     tpp::child&& bot = tpp::spawn(conf.bot_path.c_str(), &argv[conf.bot_arg_offset], {}, 2 << 16);
     google::InitGoogleLogging(argv[0]);

@@ -1,6 +1,9 @@
 #include "engine.hpp"
 #include "engine.hxx"
 
+namespace rbc = robocup2Dsim::bcprotocol;
+namespace rcs = robocup2Dsim::csprotocol;
+
 namespace robocup2Dsim {
 namespace client {
 namespace engine {
@@ -58,15 +61,21 @@ handle<state::nobot_unregistered>&& bot_terminated(handle<state::withbot_unregis
     return std::move(output);
 }
 
-handle<state::withbot_unregistered>&& received_botoutput(handle<state::withbot_unregistered>&& input, const robocup2Dsim::bcprotocol::BotOutput::Reader& reader)
+handle<state::withbot_unregistered>&& received_control(handle<state::withbot_unregistered>&& input, const rbc::Control::Reader& reader)
 {
     handle<state::withbot_unregistered> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withbot_onbench>&& registered(handle<state::withbot_unregistered>&& input)
+handle<state::withbot_onbench>&& registration_succeeded(handle<state::withbot_unregistered>&& input)
 {
     handle<state::withbot_onbench> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::withbot_unregistered>&& registration_failed(handle<state::withbot_unregistered>&& input, const rcs::RegistrationError::Reader& reader)
+{
+    handle<state::withbot_unregistered> output(std::move(input));
     return std::move(output);
 }
 
@@ -88,7 +97,7 @@ handle<state::withbot_playing>&& field_opened(handle<state::withbot_onbench>&& i
     return std::move(output);
 }
 
-handle<state::withbot_onbench>&& received_botoutput(handle<state::withbot_onbench>&& input, const robocup2Dsim::bcprotocol::BotOutput::Reader& reader)
+handle<state::withbot_onbench>&& received_control(handle<state::withbot_onbench>&& input, const robocup2Dsim::bcprotocol::Control::Reader& reader)
 {
     handle<state::withbot_onbench> output(std::move(input));
     return std::move(output);
@@ -136,7 +145,7 @@ handle<state::withbot_playing>&& status_timedout(handle<state::withbot_playing>&
     return std::move(output);
 }
 
-handle<state::withbot_playing>&& received_botoutput(handle<state::withbot_playing>&& input, const robocup2Dsim::bcprotocol::BotOutput::Reader& reader)
+handle<state::withbot_playing>&& received_control(handle<state::withbot_playing>&& input, const robocup2Dsim::bcprotocol::Control::Reader& reader)
 {
     handle<state::withbot_playing> output(std::move(input));
     return std::move(output);

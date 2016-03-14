@@ -91,12 +91,13 @@ inline handle<state_value>&& down_cast(basic_handle&& from)
 
 handle<state::withbot_unregistered>&& spawned(handle<state::nobot_unregistered>&&);
 handle<state::nobot_unregistered>&& bot_terminated(handle<state::withbot_unregistered>&&);
-handle<state::withbot_unregistered>&& received_botoutput(handle<state::withbot_unregistered>&&, const robocup2Dsim::bcprotocol::BotOutput::Reader&);
-handle<state::withbot_onbench>&& registered(handle<state::withbot_unregistered>&&);
+handle<state::withbot_unregistered>&& received_control(handle<state::withbot_unregistered>&&, const robocup2Dsim::bcprotocol::Control::Reader&);
+handle<state::withbot_onbench>&& registration_succeeded(handle<state::withbot_unregistered>&&);
+handle<state::withbot_unregistered>&& registration_failed(handle<state::withbot_unregistered>&&, const robocup2Dsim::csprotocol::RegistrationError::Reader&);
 handle<state::withbot_unregistered>&& disconnected(handle<state::withbot_onbench>&&);
 handle<state::withbot_unregistered>&& match_aborted(handle<state::withbot_onbench>&&);
 handle<state::withbot_playing>&& field_opened(handle<state::withbot_onbench>&&);
-handle<state::withbot_onbench>&& received_botoutput(handle<state::withbot_onbench>&&, const robocup2Dsim::bcprotocol::BotOutput::Reader&);
+handle<state::withbot_onbench>&& received_control(handle<state::withbot_onbench>&&, const robocup2Dsim::bcprotocol::Control::Reader&);
 handle<state::nobot_onbench>&& bot_terminated(handle<state::withbot_onbench>&&);
 handle<state::withbot_unregistered>&& disconnected(handle<state::withbot_playing>&&);
 handle<state::withbot_unregistered>&& match_aborted(handle<state::withbot_playing>&&);
@@ -104,7 +105,7 @@ handle<state::withbot_unregistered>&& match_over(handle<state::withbot_playing>&
 handle<state::withbot_playing>&& simulation_timedout(handle<state::withbot_playing>&&);
 handle<state::withbot_playing>&& sensor_timedout(handle<state::withbot_playing>&&);
 handle<state::withbot_playing>&& status_timedout(handle<state::withbot_playing>&&);
-handle<state::withbot_playing>&& received_botoutput(handle<state::withbot_playing>&&, const robocup2Dsim::bcprotocol::BotOutput::Reader&);
+handle<state::withbot_playing>&& received_control(handle<state::withbot_playing>&&, const robocup2Dsim::bcprotocol::Control::Reader&);
 handle<state::withbot_playing>&& received_judgement(handle<state::withbot_playing>&&);
 handle<state::withbot_playing>&& received_snapshot(handle<state::withbot_playing>&&);
 handle<state::nobot_onbench>&& bot_terminated(handle<state::withbot_playing>&&);
