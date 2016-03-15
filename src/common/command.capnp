@@ -22,20 +22,3 @@ struct MatchStatus
     score @1 :Rule.Score;
     gameTime @2 :Physics.NanoSecond;
 }
-
-struct MatchClose
-{
-    finalScore @0 :Rule.Score;
-}
-
-enum AbortReason
-{
-    registrationTimeOut @0;
-    otherTeamDisconnect @1;
-}
-
-struct MatchAbort
-{
-    reason @0 :AbortReason;
-    score @1 :Rule.Score;
-}

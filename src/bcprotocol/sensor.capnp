@@ -21,44 +21,12 @@ struct Instruction
     message @1 :AnyPointer;
 }
 
-struct KickOffPlan
-{
-    schedule @0 :Physics.NanoSecond;
-    session @1 :Rule.PlaySession;
-    kickingSide @2 :Field.Side;
-}
-
-struct FieldOpen
-{
-    side @0 :Field.Side;
-    position @1 :Physics.Position;
-    plan @2 :KickOffPlan;
-}
-
-struct TimeOver
-{
-    currentScore @0 :Rule.Score;
-    plan @1 :KickOffPlan;
-}
-
-struct Judgment
-{
-    time @0 :Physics.NanoSecond;
-    union
-    {
-	open @1 :FieldOpen;
-	kickOff @2 :Void;
-	timeOver @3 :TimeOver;
-    }
-}
-
 struct Communication
 {
     union
     {
 	announcement @0 :Announcement;
 	instruction @1 :Instruction;
-	judgment @2 :Judgment;
     }
 }
 

@@ -4,6 +4,7 @@ using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("robocup2Dsim::bcprotocol");
 
 using Command = import "/common/command.capnp";
+using CommonJudgement = import "/common/judgement.capnp";
 using Control = import "control.capnp";
 using Error = import "/common/error.capnp";
 using Info = import "info.capnp";
@@ -30,7 +31,10 @@ struct BotInput
 	visual @5 :Sensor.Visual;
 	registration @6 :Command.Registration;
 	status @7 :Command.MatchStatus;
-	close @8 :Command.MatchClose;
-	abort @9 :Command.MatchAbort;
+	fieldOpen @8 :CommonJudgement.FieldOpen;
+	kickOff @9 :CommonJudgement.KickOff;
+	timeOver @10 :CommonJudgement.TimeOver;
+	matchClose @11 :CommonJudgement.MatchClose;
+	matchAbort @12 :CommonJudgement.MatchAbort;
     }
 }

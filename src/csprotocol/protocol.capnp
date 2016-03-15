@@ -3,10 +3,11 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("robocup2Dsim::csprotocol");
 
-using Error = import "/common/error.capnp";
-using Metadata = import "/common/metadata.capnp";
 using Command = import "command.capnp";
 using CommonCommand = import "/common/command.capnp";
+using CommonJudgement = import "/common/judgement.capnp";
+using Error = import "/common/error.capnp";
+using Metadata = import "/common/metadata.capnp";
 
 using RecipientId = UInt64;
 
@@ -40,9 +41,11 @@ struct ServerTransaction
 	malformedMsg @2 :Error.MalformedMsgError;
 	regSuccess @3 :Void;
 	regError @4 :Command.RegistrationError;
-	close @5 :CommonCommand.MatchClose;
-	abort @6 :CommonCommand.MatchAbort;
-	judgement @7 :Void;
-	bye @8 :Void;
+	fieldOpen @5 :CommonJudgement.FieldOpen;
+	kickOff @6 :CommonJudgement.KickOff;
+	timeOver @7 :CommonJudgement.TimeOver;
+	matchClose @8 :CommonJudgement.MatchClose;
+	matchAbort @9 :CommonJudgement.MatchAbort;
+	bye @10 :Void;
     }
 }

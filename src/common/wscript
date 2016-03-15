@@ -10,6 +10,7 @@ commonCapnpFiles=[
 	'entity.capnp',
 	'error.capnp',
 	'field.capnp',
+	'judgement.capnp',
 	'metadata.capnp',
 	'physics.capnp',
 	'rule.capnp']
