@@ -2,6 +2,7 @@
 #include "engine.hxx"
 
 namespace rbc = robocup2Dsim::bcprotocol;
+namespace rco = robocup2Dsim::common;
 namespace rcs = robocup2Dsim::csprotocol;
 
 namespace robocup2Dsim {
@@ -55,18 +56,6 @@ handle<state::withbot_unregistered>&& spawned(handle<state::nobot_unregistered>&
     return std::move(output);
 }
 
-handle<state::nobot_unregistered>&& bot_terminated(handle<state::withbot_unregistered>&& input)
-{
-    handle<state::nobot_unregistered> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::withbot_unregistered>&& received_control(handle<state::withbot_unregistered>&& input, const rbc::Control::Reader& reader)
-{
-    handle<state::withbot_unregistered> output(std::move(input));
-    return std::move(output);
-}
-
 handle<state::withbot_onbench>&& registration_succeeded(handle<state::withbot_unregistered>&& input)
 {
     handle<state::withbot_onbench> output(std::move(input));
@@ -79,51 +68,75 @@ handle<state::withbot_unregistered>&& registration_failed(handle<state::withbot_
     return std::move(output);
 }
 
+handle<state::nobot_unregistered>&& bot_terminated(handle<state::withbot_unregistered>&& input)
+{
+    handle<state::nobot_unregistered> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::nobot_unregistered>&& bot_crashed(handle<state::withbot_unregistered>&& input)
+{
+    handle<state::nobot_unregistered> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::nobot_unregistered>&& disconnected(handle<state::nobot_onbench>&& input)
+{
+    handle<state::nobot_unregistered> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::withbot_playing>&& field_opened(handle<state::withbot_onbench>&& input, const rco::FieldOpen::Reader& reader)
+{
+    handle<state::withbot_playing> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::withbot_onbench>&& query_requested(handle<state::withbot_onbench>&& input, const rbc::QueryRequest::Reader& reader)
+{
+    handle<state::withbot_onbench> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::withbot_unregistered>&& match_aborted(handle<state::withbot_onbench>&& input, const robocup2Dsim::common::MatchAbort::Reader& reader)
+{
+    handle<state::withbot_unregistered> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::nobot_onbench>&& bot_crashed(handle<state::withbot_onbench>&& input)
+{
+    handle<state::nobot_onbench> output(std::move(input));
+    return std::move(output);
+}
+
 handle<state::withbot_unregistered>&& disconnected(handle<state::withbot_onbench>&& input)
 {
     handle<state::withbot_unregistered> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withbot_unregistered>&& match_aborted(handle<state::withbot_onbench>&& input)
-{
-    handle<state::withbot_unregistered> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::withbot_playing>&& field_opened(handle<state::withbot_onbench>&& input)
+handle<state::withbot_playing>&& received_snapshot(handle<state::withbot_playing>&& input, const rcs::ServerStatus::Reader& reader)
 {
     handle<state::withbot_playing> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withbot_onbench>&& received_control(handle<state::withbot_onbench>&& input, const robocup2Dsim::bcprotocol::Control::Reader& reader)
+handle<state::withbot_playing>&& control_actioned(handle<state::withbot_playing>&& input, const rbc::Control::Reader& reader)
 {
-    handle<state::withbot_onbench> output(std::move(input));
+    handle<state::withbot_playing> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::nobot_onbench>&& bot_terminated(handle<state::withbot_onbench>&& input)
+handle<state::withbot_playing>&& query_requested(handle<state::withbot_playing>&& input, const rbc::QueryRequest::Reader& reader)
 {
-    handle<state::nobot_onbench> output(std::move(input));
+    handle<state::withbot_playing> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withbot_unregistered>&& disconnected(handle<state::withbot_playing>&& input)
+handle<state::withbot_playing>&& play_judged(handle<state::withbot_playing>&& input, const rco::PlayJudgement::Reader& reader)
 {
-    handle<state::withbot_unregistered> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::withbot_unregistered>&& match_aborted(handle<state::withbot_playing>&& input)
-{
-    handle<state::withbot_unregistered> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::withbot_unregistered>&& match_over(handle<state::withbot_playing>&& input)
-{
-    handle<state::withbot_unregistered> output(std::move(input));
+    handle<state::withbot_playing> output(std::move(input));
     return std::move(output);
 }
 
@@ -145,33 +158,27 @@ handle<state::withbot_playing>&& status_timedout(handle<state::withbot_playing>&
     return std::move(output);
 }
 
-handle<state::withbot_playing>&& received_control(handle<state::withbot_playing>&& input, const robocup2Dsim::bcprotocol::Control::Reader& reader)
+handle<state::withbot_unregistered>&& match_aborted(handle<state::withbot_playing>&& input)
 {
-    handle<state::withbot_playing> output(std::move(input));
+    handle<state::withbot_unregistered> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withbot_playing>&& received_judgement(handle<state::withbot_playing>&& input)
+handle<state::withbot_unregistered>&& match_over(handle<state::withbot_playing>&& input)
 {
-    handle<state::withbot_playing> output(std::move(input));
+    handle<state::withbot_unregistered> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withbot_playing>&& received_snapshot(handle<state::withbot_playing>&& input)
-{
-    handle<state::withbot_playing> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::nobot_onbench>&& bot_terminated(handle<state::withbot_playing>&& input)
+handle<state::nobot_onbench>&& bot_crashed(handle<state::withbot_playing>&& input)
 {
     handle<state::nobot_onbench> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::nobot_unregistered>&& disconnected(handle<state::nobot_onbench>&& input)
+handle<state::withbot_unregistered>&& disconnected(handle<state::withbot_playing>&& input)
 {
-    handle<state::nobot_unregistered> output(std::move(input));
+    handle<state::withbot_unregistered> output(std::move(input));
     return std::move(output);
 }
 
