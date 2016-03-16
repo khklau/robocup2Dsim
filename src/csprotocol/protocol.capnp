@@ -39,13 +39,14 @@ struct ServerTransaction
     {
 	unknownMsg @1 :Error.UnknownMsgError;
 	malformedMsg @2 :Error.MalformedMsgError;
-	regSuccess @3 :Void;
-	regError @4 :Command.RegistrationError;
-	fieldOpen @5 :CommonJudgement.FieldOpen;
-	kickOff @6 :CommonJudgement.KickOff;
-	timeOver @7 :CommonJudgement.TimeOver;
-	matchClose @8 :CommonJudgement.MatchClose;
-	matchAbort @9 :CommonJudgement.MatchAbort;
-	bye @10 :Void;
+	bye @3 :Void;
+	regSuccess @4 :Void;
+	regError @5 :Command.RegistrationError;
+	fieldOpen @6 :CommonJudgement.FieldOpen;
+	kickOff @7 :CommonJudgement.KickOff;
+	timeOver @8 :CommonJudgement.TimeOver;
+	matchClose @9 :CommonJudgement.MatchClose;
+	matchAbort @10 :CommonJudgement.MatchAbort;
+	playJudgement @11 :CommonJudgement.PlayJudgement;
     }
 }

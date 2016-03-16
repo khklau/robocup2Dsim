@@ -52,3 +52,7 @@ struct MatchAbort
     reason @0 :AbortReason;
     score @1 :Rule.Score;
 }
+
+struct PlayJudgement
+{
+}
