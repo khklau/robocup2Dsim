@@ -1,9 +1,13 @@
 #include <cstdlib>
 #include <cstdint>
+#include <ctime>
+#include <chrono>
 #include <limits>
 #include <string>
 #include <utility>
 #include <vector>
+#include <asio/high_resolution_timer.hpp>
+#include <asio/io_service.hpp>
 #include <beam/message/capnproto.hxx>
 #include <kj/common.h>
 #include <kj/debug.h>
@@ -157,9 +161,15 @@ void client::run()
     std::unique_ptr<bme::capnproto<rbc::BotOutput>> bot_output;
     std::unique_ptr<bme::capnproto<rcs::ServerStatus>> server_status;
     std::unique_ptr<bme::capnproto<rcs::ServerTransaction>> server_trans;
+    std::chrono:: high_resolution_clock::time_point next_tick = std::chrono::high_resolution_clock::now() + config_.tick_rate;
+    asio::io_service service;
+    asio::high_resolution_timer timer(service);
+    std::size_t tick_count = 0;
     bool should_run = true;
     while (should_run)
     {
+	timer.expires_at(next_tick);
+	timer.wait();
 	if (handle_.bot_output_queue->get_consumer().try_dequeue_move(bot_output) == rbc::bot_output_queue_type::consumer::result::success)
 	{
 	    if (handle_.engine_state == rcl::engine::state::withbot_playing && bot_output->get_reader().isControl())
@@ -222,7 +232,28 @@ void client::run()
 			server_trans->get_reader().getRegError())));
 	    }
 	}
-
+	if (handle_.engine_state == rcl::engine::state::withbot_playing && tick_count % config_.simulation_frequency == config_.simulation_start_tick)
+	{
+	    handle_ = std::move(rcl::engine::up_cast(rcl::engine::simulation_timedout(
+		    rcl::engine::down_cast<rcl::engine::state::withbot_playing>(std::move(handle_)))));
+	}
+	if (handle_.engine_state == rcl::engine::state::withbot_playing && tick_count % config_.sensor_frequency == config_.sensor_start_tick)
+	{
+	    handle_ = std::move(rcl::engine::up_cast(rcl::engine::sensor_timedout(
+		    rcl::engine::down_cast<rcl::engine::state::withbot_playing>(std::move(handle_)))));
+	}
+	if (handle_.engine_state == rcl::engine::state::withbot_playing && tick_count % config_.upload_frequency == config_.upload_start_tick)
+	{
+	    handle_ = std::move(rcl::engine::up_cast(rcl::engine::upload_timedout(
+		    rcl::engine::down_cast<rcl::engine::state::withbot_playing>(std::move(handle_)))));
+	}
+	next_tick += config_.tick_rate;
+	if (TURBO_UNLIKELY(std::chrono::high_resolution_clock::now() > next_tick))
+	{
+	    std::time_t time = std::chrono::high_resolution_clock::to_time_t(next_tick);
+	    LOG(WARNING) << "Tick at " << ctime(&time) << " missed";
+	}
+	++tick_count;
     }
 }
 

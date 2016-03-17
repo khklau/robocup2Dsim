@@ -152,7 +152,7 @@ handle<state::withbot_playing>&& sensor_timedout(handle<state::withbot_playing>&
     return std::move(output);
 }
 
-handle<state::withbot_playing>&& status_timedout(handle<state::withbot_playing>&& input)
+handle<state::withbot_playing>&& upload_timedout(handle<state::withbot_playing>&& input)
 {
     handle<state::withbot_playing> output(std::move(input));
     return std::move(output);
