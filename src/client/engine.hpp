@@ -93,29 +93,29 @@ inline handle<state_value>&& down_cast(basic_handle&& from)
 handle<state::withbot_unregistered>&& spawned(handle<state::nobot_unregistered>&&);
 
 handle<state::withbot_onbench>&& registration_succeeded(handle<state::withbot_unregistered>&& input);
-handle<state::withbot_unregistered>&& registration_failed(handle<state::withbot_unregistered>&& input, const robocup2Dsim::csprotocol::RegistrationError::Reader&);
-handle<state::nobot_unregistered>&& bot_terminated(handle<state::withbot_unregistered>&&);
-handle<state::nobot_unregistered>&& bot_crashed(handle<state::withbot_unregistered>&&);
+handle<state::withbot_unregistered>&& registration_failed(handle<state::withbot_unregistered>&& input, const robocup2Dsim::csprotocol::RegistrationError::Reader& reader);
+handle<state::nobot_unregistered>&& bot_terminated(handle<state::withbot_unregistered>&& input);
+handle<state::nobot_unregistered>&& bot_crashed(handle<state::withbot_unregistered>&& input);
 
-handle<state::nobot_unregistered>&& disconnected(handle<state::nobot_onbench>&&);
+handle<state::nobot_unregistered>&& disconnected(handle<state::nobot_onbench>&& input);
 
-handle<state::withbot_playing>&& field_opened(handle<state::withbot_onbench>&& input, const robocup2Dsim::common::FieldOpen::Reader&);
-handle<state::withbot_onbench>&& query_requested(handle<state::withbot_onbench>&& input, const robocup2Dsim::bcprotocol::QueryRequest::Reader&);
-handle<state::withbot_unregistered>&& match_aborted(handle<state::withbot_onbench>&& input, const robocup2Dsim::common::MatchAbort::Reader&);
-handle<state::nobot_onbench>&& bot_crashed(handle<state::withbot_onbench>&&);
-handle<state::withbot_unregistered>&& disconnected(handle<state::withbot_onbench>&&);
+handle<state::withbot_playing>&& field_opened(handle<state::withbot_onbench>&& input, const robocup2Dsim::common::FieldOpen::Reader& reader);
+handle<state::withbot_onbench>&& query_requested(handle<state::withbot_onbench>&& input, const robocup2Dsim::bcprotocol::QueryRequest::Reader& reader);
+handle<state::withbot_unregistered>&& match_aborted(handle<state::withbot_onbench>&& input, const robocup2Dsim::common::MatchAbort::Reader& reader);
+handle<state::nobot_onbench>&& bot_crashed(handle<state::withbot_onbench>&& input);
+handle<state::withbot_unregistered>&& disconnected(handle<state::withbot_onbench>&& input);
 
-handle<state::withbot_playing>&& received_snapshot(handle<state::withbot_playing>&&, const robocup2Dsim::csprotocol::ServerStatus::Reader&);
-handle<state::withbot_playing>&& control_actioned(handle<state::withbot_playing>&&, const robocup2Dsim::bcprotocol::Control::Reader&);
-handle<state::withbot_playing>&& query_requested(handle<state::withbot_playing>&&, const robocup2Dsim::bcprotocol::QueryRequest::Reader&);
-handle<state::withbot_playing>&& play_judged(handle<state::withbot_playing>&&, const robocup2Dsim::common::PlayJudgement::Reader&);
+handle<state::withbot_playing>&& received_snapshot(handle<state::withbot_playing>&&, const robocup2Dsim::csprotocol::ServerStatus::Reader& reader);
+handle<state::withbot_playing>&& control_actioned(handle<state::withbot_playing>&&, const robocup2Dsim::bcprotocol::Control::Reader& reader);
+handle<state::withbot_playing>&& query_requested(handle<state::withbot_playing>&&, const robocup2Dsim::bcprotocol::QueryRequest::Reader& reader);
+handle<state::withbot_playing>&& play_judged(handle<state::withbot_playing>&&, const robocup2Dsim::common::PlayJudgement::Reader& reader);
 handle<state::withbot_playing>&& simulation_timedout(handle<state::withbot_playing>&& input);
 handle<state::withbot_playing>&& sensor_timedout(handle<state::withbot_playing>&& input);
 handle<state::withbot_playing>&& upload_timedout(handle<state::withbot_playing>&& input);
-handle<state::withbot_unregistered>&& match_aborted(handle<state::withbot_playing>&&);
-handle<state::withbot_unregistered>&& match_over(handle<state::withbot_playing>&&);
-handle<state::nobot_onbench>&& bot_crashed(handle<state::withbot_playing>&&);
-handle<state::withbot_unregistered>&& disconnected(handle<state::withbot_playing>&&);
+handle<state::withbot_unregistered>&& match_closed(handle<state::withbot_playing>&& input, const robocup2Dsim::common::MatchClose::Reader& reader);
+handle<state::withbot_unregistered>&& match_aborted(handle<state::withbot_playing>&& input, const robocup2Dsim::common::MatchAbort::Reader& reader);
+handle<state::nobot_onbench>&& bot_crashed(handle<state::withbot_playing>&& input);
+handle<state::withbot_unregistered>&& disconnected(handle<state::withbot_playing>&& input);
 
 } // namespace engine
 } // namespace client

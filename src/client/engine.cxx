@@ -158,13 +158,13 @@ handle<state::withbot_playing>&& upload_timedout(handle<state::withbot_playing>&
     return std::move(output);
 }
 
-handle<state::withbot_unregistered>&& match_aborted(handle<state::withbot_playing>&& input)
+handle<state::withbot_unregistered>&& match_closed(handle<state::withbot_playing>&& input, const robocup2Dsim::common::MatchClose::Reader& reader)
 {
     handle<state::withbot_unregistered> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withbot_unregistered>&& match_over(handle<state::withbot_playing>&& input)
+handle<state::withbot_unregistered>&& match_aborted(handle<state::withbot_playing>&& input, const robocup2Dsim::common::MatchAbort::Reader& reader)
 {
     handle<state::withbot_unregistered> output(std::move(input));
     return std::move(output);

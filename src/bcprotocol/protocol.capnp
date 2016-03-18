@@ -16,6 +16,8 @@ struct BotOutput
     {
 	control @0 :Control.Control;
 	query @1 :Info.QueryRequest;
+	shutDown @2 :Void;
+	crash @3 :Void;
     }
 }
 
@@ -36,5 +38,6 @@ struct BotInput
 	timeOver @10 :CommonJudgement.TimeOver;
 	matchClose @11 :CommonJudgement.MatchClose;
 	matchAbort @12 :CommonJudgement.MatchAbort;
+	terminate @13 :Void;
     }
 }
