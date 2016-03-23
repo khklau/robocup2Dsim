@@ -708,15 +708,15 @@ idle#</dia:string>
         <dia:point val="18,6.6"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="11.975,5.5;18.05,7.3"/>
+        <dia:rectangle val="13.075,5.5;18.05,7.3"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
       </dia:attribute>
       <dia:attribute name="orth_points">
         <dia:point val="18,6.6"/>
-        <dia:point val="17.5,6.6"/>
-        <dia:point val="13.625,6.6"/>
+        <dia:point val="15.5625,6.6"/>
+        <dia:point val="15.5625,6.6"/>
         <dia:point val="13.125,6.6"/>
       </dia:attribute>
       <dia:attribute name="orth_orient">
@@ -725,7 +725,7 @@ idle#</dia:string>
         <dia:enum val="0"/>
       </dia:attribute>
       <dia:attribute name="orth_autoroute">
-        <dia:boolean val="true"/>
+        <dia:boolean val="false"/>
       </dia:attribute>
       <dia:attribute name="text_colour">
         <dia:color val="#000000"/>
@@ -734,7 +734,7 @@ idle#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="trigger">
-        <dia:string>#crash or terminate#</dia:string>
+        <dia:string>#crash#</dia:string>
       </dia:attribute>
       <dia:attribute name="action">
         <dia:string>##</dia:string>
