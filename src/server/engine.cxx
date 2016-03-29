@@ -56,13 +56,7 @@ handle<state::withref_idle>&& spawned(handle<state::noref_idle>&& input)
     return std::move(output);
 }
 
-handle<state::withref_onbench>&& registration_succeeded(handle<state::withref_idle>&& input)
-{
-    handle<state::withref_onbench> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::withref_idle>&& registration_failed(handle<state::withref_idle>&& input, const rcs::RegistrationError::Reader& reader)
+handle<state::withref_idle>&& registration_requested(handle<state::withref_idle>&& input, const rcs::RegistrationRequest::Reader& reader)
 {
     handle<state::withref_idle> output(std::move(input));
     return std::move(output);
@@ -80,31 +74,31 @@ handle<state::noref_idle>&& ref_crashed(handle<state::withref_idle>&& input)
     return std::move(output);
 }
 
-handle<state::noref_idle>&& disconnected(handle<state::noref_onbench>&& input)
+handle<state::noref_idle>&& disconnected(handle<state::noref_waiting>&& input)
 {
     handle<state::noref_idle> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withref_playing>&& field_opened(handle<state::withref_onbench>&& input, const rco::FieldOpen::Reader& reader)
+handle<state::withref_playing>&& field_opened(handle<state::withref_waiting>&& input, const rco::FieldOpen::Reader& reader)
 {
     handle<state::withref_playing> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withref_idle>&& match_aborted(handle<state::withref_onbench>&& input, const robocup2Dsim::common::MatchAbort::Reader& reader)
+handle<state::withref_idle>&& match_aborted(handle<state::withref_waiting>&& input, const robocup2Dsim::common::MatchAbort::Reader& reader)
 {
     handle<state::withref_idle> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::noref_onbench>&& ref_crashed(handle<state::withref_onbench>&& input)
+handle<state::noref_waiting>&& ref_crashed(handle<state::withref_waiting>&& input)
 {
-    handle<state::noref_onbench> output(std::move(input));
+    handle<state::noref_waiting> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withref_idle>&& disconnected(handle<state::withref_onbench>&& input)
+handle<state::withref_idle>&& disconnected(handle<state::withref_waiting>&& input)
 {
     handle<state::withref_idle> output(std::move(input));
     return std::move(output);
@@ -128,13 +122,7 @@ handle<state::withref_playing>&& simulation_timedout(handle<state::withref_playi
     return std::move(output);
 }
 
-handle<state::withref_playing>&& sensor_timedout(handle<state::withref_playing>&& input)
-{
-    handle<state::withref_playing> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::withref_playing>&& upload_timedout(handle<state::withref_playing>&& input)
+handle<state::withref_playing>&& snapshot_timedout(handle<state::withref_playing>&& input)
 {
     handle<state::withref_playing> output(std::move(input));
     return std::move(output);
@@ -152,15 +140,27 @@ handle<state::withref_idle>&& match_aborted(handle<state::withref_playing>&& inp
     return std::move(output);
 }
 
-handle<state::noref_onbench>&& ref_crashed(handle<state::withref_playing>&& input)
+handle<state::noref_waiting>&& ref_crashed(handle<state::withref_playing>&& input)
 {
-    handle<state::noref_onbench> output(std::move(input));
+    handle<state::noref_waiting> output(std::move(input));
     return std::move(output);
 }
 
 handle<state::withref_idle>&& disconnected(handle<state::withref_playing>&& input)
 {
     handle<state::withref_idle> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::noref_playing>&& simulation_timedout(handle<state::noref_playing>&& input)
+{
+    handle<state::noref_playing> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::noref_playing>&& snapshot_timedout(handle<state::noref_playing>&& input)
+{
+    handle<state::noref_playing> output(std::move(input));
     return std::move(output);
 }
 

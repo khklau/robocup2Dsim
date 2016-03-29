@@ -1,14 +1,24 @@
 #include <cstdlib>
 #include <cstdint>
+#include <ctime>
+#include <chrono>
 #include <limits>
 #include <string>
 #include <utility>
 #include <vector>
+#include <asio/high_resolution_timer.hpp>
+#include <asio/io_service.hpp>
+#include <beam/message/capnproto.hpp>
+#include <beam/message/capnproto.hxx>
 #include <kj/common.h>
 #include <kj/debug.h>
 #include <kj/main.h>
 #include <kj/string.h>
 #include <glog/logging.h>
+#include <robocup2Dsim/csprotocol/protocol.hpp>
+#include <robocup2Dsim/srprotocol/protocol.hpp>
+#include <turbo/container/spsc_ring_queue.hpp>
+#include <turbo/container/spsc_ring_queue.hxx>
 #include <turbo/ipc/posix/pipe.hpp>
 #include <turbo/ipc/posix/signal_notifier.hpp>
 #include <turbo/process/posix/spawn.hpp>
@@ -18,9 +28,12 @@
 #include "engine.hxx"
 #include "ref_io.hpp"
 
+namespace bme = beam::message;
 namespace tip = turbo::ipc::posix;
 namespace tpp = turbo::process::posix;
+namespace rcs = robocup2Dsim::csprotocol;
 namespace rse = robocup2Dsim::server;
+namespace rsr = robocup2Dsim::srprotocol;
 
 void parse_cmd_args(int argc, char* argv[], rse::config& conf)
 {
@@ -90,6 +103,61 @@ private:
 
 void server::run()
 {
+    std::unique_ptr<bme::capnproto<rsr::RefOutput>> ref_output;
+    std::unique_ptr<bme::capnproto<rcs::ClientStatus>> client_status;
+    std::unique_ptr<bme::capnproto<rcs::ClientTransaction>> client_trans;
+    std::chrono:: high_resolution_clock::time_point next_tick = std::chrono::high_resolution_clock::now() + config_.tick_rate;
+    asio::io_service service;
+    asio::high_resolution_timer timer(service);
+    std::size_t tick_count = 0;
+    bool should_run = true;
+    while (should_run)
+    {
+	timer.expires_at(next_tick);
+	timer.wait();
+	if (handle_.ref_output_queue->get_consumer().try_dequeue_move(ref_output) == rsr::ref_output_queue_type::consumer::result::success)
+	{
+	}
+	if (handle_.client_status_queue->get_consumer().try_dequeue_move(client_status) == rcs::client_status_queue_type::consumer::result::success)
+	{
+	}
+	if (handle_.client_trans_queue->get_consumer().try_dequeue_move(client_trans) == rcs::client_trans_queue_type::consumer::result::success)
+	{
+	}
+	if (handle_.engine_state == rse::engine::state::withref_playing)
+	{
+	    if (tick_count % config_.simulation_frequency == config_.simulation_start_tick)
+	    {
+		handle_ = std::move(rse::engine::up_cast(rse::engine::simulation_timedout(
+			rse::engine::down_cast<rse::engine::state::withref_playing>(std::move(handle_)))));
+	    }
+	    if (tick_count % config_.snapshot_frequency == config_.snapshot_start_tick)
+	    {
+		handle_ = std::move(rse::engine::up_cast(rse::engine::snapshot_timedout(
+			rse::engine::down_cast<rse::engine::state::withref_playing>(std::move(handle_)))));
+	    }
+	}
+	if (handle_.engine_state == rse::engine::state::noref_playing)
+	{
+	    if (tick_count % config_.simulation_frequency == config_.simulation_start_tick)
+	    {
+		handle_ = std::move(rse::engine::up_cast(rse::engine::simulation_timedout(
+			rse::engine::down_cast<rse::engine::state::noref_playing>(std::move(handle_)))));
+	    }
+	    if (tick_count % config_.snapshot_frequency == config_.snapshot_start_tick)
+	    {
+		handle_ = std::move(rse::engine::up_cast(rse::engine::snapshot_timedout(
+			rse::engine::down_cast<rse::engine::state::noref_playing>(std::move(handle_)))));
+	    }
+	}
+	next_tick += config_.tick_rate;
+	if (TURBO_UNLIKELY(std::chrono::high_resolution_clock::now() > next_tick))
+	{
+	    std::time_t time = std::chrono::high_resolution_clock::to_time_t(next_tick);
+	    LOG(WARNING) << "Tick at " << ctime(&time) << " missed";
+	}
+	++tick_count;
+    }
 }
 
 int main(int argc, char* argv[])
