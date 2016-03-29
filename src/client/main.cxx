@@ -8,6 +8,7 @@
 #include <vector>
 #include <asio/high_resolution_timer.hpp>
 #include <asio/io_service.hpp>
+#include <beam/message/capnproto.hpp>
 #include <beam/message/capnproto.hxx>
 #include <kj/common.h>
 #include <kj/debug.h>
@@ -16,6 +17,7 @@
 #include <glog/logging.h>
 #include <robocup2Dsim/bcprotocol/protocol.hpp>
 #include <robocup2Dsim/csprotocol/protocol.hpp>
+#include <turbo/container/spsc_ring_queue.hpp>
 #include <turbo/container/spsc_ring_queue.hxx>
 #include <turbo/ipc/posix/pipe.hpp>
 #include <turbo/ipc/posix/signal_notifier.hpp>
