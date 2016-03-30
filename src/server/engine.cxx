@@ -50,33 +50,21 @@ basic_handle& basic_handle::operator=(basic_handle&& other)
     return *this;
 }
 
-handle<state::withref_idle>&& spawned(handle<state::noref_idle>&& input)
+handle<state::withref_waiting>&& ref_ready(handle<state::noref_waiting>&& input)
 {
-    handle<state::withref_idle> output(std::move(input));
+    handle<state::withref_waiting> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withref_idle>&& registration_requested(handle<state::withref_idle>&& input, const rcs::RegistrationRequest::Reader& reader)
+handle<state::noref_waiting>&& registration_requested(handle<state::noref_waiting>&& input, const rcs::RegistrationRequest::Reader& reader)
 {
-    handle<state::withref_idle> output(std::move(input));
+    handle<state::noref_waiting> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::noref_idle>&& ref_terminated(handle<state::withref_idle>&& input)
+handle<state::noref_waiting>&& disconnected(handle<state::noref_waiting>&& input)
 {
-    handle<state::noref_idle> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::noref_idle>&& ref_crashed(handle<state::withref_idle>&& input)
-{
-    handle<state::noref_idle> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::noref_idle>&& disconnected(handle<state::noref_waiting>&& input)
-{
-    handle<state::noref_idle> output(std::move(input));
+    handle<state::noref_waiting> output(std::move(input));
     return std::move(output);
 }
 
@@ -86,9 +74,15 @@ handle<state::withref_playing>&& field_opened(handle<state::withref_waiting>&& i
     return std::move(output);
 }
 
-handle<state::withref_idle>&& match_aborted(handle<state::withref_waiting>&& input, const robocup2Dsim::common::MatchAbort::Reader& reader)
+handle<state::withref_waiting>&& registration_requested(handle<state::withref_waiting>&& input, const rcs::RegistrationRequest::Reader& reader)
 {
-    handle<state::withref_idle> output(std::move(input));
+    handle<state::withref_waiting> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::withref_waiting>&& disconnected(handle<state::withref_waiting>&& input)
+{
+    handle<state::withref_waiting> output(std::move(input));
     return std::move(output);
 }
 
@@ -98,13 +92,13 @@ handle<state::noref_waiting>&& ref_crashed(handle<state::withref_waiting>&& inpu
     return std::move(output);
 }
 
-handle<state::withref_idle>&& disconnected(handle<state::withref_waiting>&& input)
+handle<state::withref_playing>&& received_status(handle<state::withref_playing>&& input, const rcs::ClientStatus::Reader& reader)
 {
-    handle<state::withref_idle> output(std::move(input));
+    handle<state::withref_playing> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withref_playing>&& received_snapshot(handle<state::withref_playing>&& input, const rcs::ClientStatus::Reader& reader)
+handle<state::withref_playing>&& received_transaction(handle<state::withref_playing>&& input, const rcs::ClientTransaction::Reader& reader)
 {
     handle<state::withref_playing> output(std::move(input));
     return std::move(output);
@@ -128,27 +122,51 @@ handle<state::withref_playing>&& snapshot_timedout(handle<state::withref_playing
     return std::move(output);
 }
 
-handle<state::withref_idle>&& match_closed(handle<state::withref_playing>&& input, const robocup2Dsim::common::MatchClose::Reader& reader)
+handle<state::withref_playing>&& registration_requested(handle<state::withref_playing>&& input, const rcs::RegistrationRequest::Reader& reader)
 {
-    handle<state::withref_idle> output(std::move(input));
+    handle<state::withref_playing> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withref_idle>&& match_aborted(handle<state::withref_playing>&& input, const robocup2Dsim::common::MatchAbort::Reader& reader)
+handle<state::withref_playing>&& disconnected(handle<state::withref_playing>&& input)
 {
-    handle<state::withref_idle> output(std::move(input));
+    handle<state::withref_playing> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::noref_waiting>&& ref_crashed(handle<state::withref_playing>&& input)
+handle<state::noref_playing>&& ref_crashed(handle<state::withref_playing>&& input)
 {
-    handle<state::noref_waiting> output(std::move(input));
+    handle<state::noref_playing> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withref_idle>&& disconnected(handle<state::withref_playing>&& input)
+handle<state::withref_waiting>&& match_closed(handle<state::withref_playing>&& input, const robocup2Dsim::common::MatchClose::Reader& reader)
 {
-    handle<state::withref_idle> output(std::move(input));
+    handle<state::withref_waiting> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::withref_waiting>&& match_aborted(handle<state::withref_playing>&& input, const robocup2Dsim::common::MatchAbort::Reader& reader)
+{
+    handle<state::withref_waiting> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::withref_playing>&& ref_ready(handle<state::noref_playing>&& input)
+{
+    handle<state::withref_playing> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::noref_playing>&& received_status(handle<state::noref_playing>&& input, const rcs::ClientStatus::Reader& reader)
+{
+    handle<state::noref_playing> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::noref_playing>&& received_transaction(handle<state::noref_playing>&& input, const rcs::ClientTransaction::Reader& reader)
+{
+    handle<state::noref_playing> output(std::move(input));
     return std::move(output);
 }
 
@@ -159,6 +177,18 @@ handle<state::noref_playing>&& simulation_timedout(handle<state::noref_playing>&
 }
 
 handle<state::noref_playing>&& snapshot_timedout(handle<state::noref_playing>&& input)
+{
+    handle<state::noref_playing> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::noref_playing>&& registration_requested(handle<state::noref_playing>&& input, const rcs::RegistrationRequest::Reader& reader)
+{
+    handle<state::noref_playing> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::noref_playing>&& disconnected(handle<state::noref_playing>&& input)
 {
     handle<state::noref_playing> output(std::move(input));
     return std::move(output);

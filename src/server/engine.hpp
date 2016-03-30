@@ -19,10 +19,8 @@ namespace engine {
 
 enum class state : uint8_t
 {
-    noref_idle,
     noref_waiting,
     noref_playing,
-    withref_idle,
     withref_waiting,
     withref_playing
 };
@@ -91,30 +89,33 @@ inline handle<state_value>&& down_cast(basic_handle&& from)
     }
 }
 
-handle<state::withref_idle>&& spawned(handle<state::noref_idle>&&);
-
-handle<state::withref_idle>&& registration_requested(handle<state::withref_idle>&& input, const robocup2Dsim::csprotocol::RegistrationRequest::Reader& reader);
-handle<state::noref_idle>&& ref_terminated(handle<state::withref_idle>&& input);
-handle<state::noref_idle>&& ref_crashed(handle<state::withref_idle>&& input);
-
-handle<state::noref_idle>&& disconnected(handle<state::noref_waiting>&& input);
+handle<state::withref_waiting>&& ref_ready(handle<state::noref_waiting>&&);
+handle<state::noref_waiting>&& registration_requested(handle<state::noref_waiting>&& input, const robocup2Dsim::csprotocol::RegistrationRequest::Reader& reader);
+handle<state::noref_waiting>&& disconnected(handle<state::noref_waiting>&& input);
 
 handle<state::withref_playing>&& field_opened(handle<state::withref_waiting>&& input, const robocup2Dsim::common::FieldOpen::Reader& reader);
-handle<state::withref_idle>&& match_aborted(handle<state::withref_waiting>&& input, const robocup2Dsim::common::MatchAbort::Reader& reader);
+handle<state::withref_waiting>&& registration_requested(handle<state::withref_waiting>&& input, const robocup2Dsim::csprotocol::RegistrationRequest::Reader& reader);
+handle<state::withref_waiting>&& disconnected(handle<state::withref_waiting>&& input);
 handle<state::noref_waiting>&& ref_crashed(handle<state::withref_waiting>&& input);
-handle<state::withref_idle>&& disconnected(handle<state::withref_waiting>&& input);
 
-handle<state::withref_playing>&& received_snapshot(handle<state::withref_playing>&&, const robocup2Dsim::csprotocol::ClientStatus::Reader& reader);
+handle<state::withref_playing>&& received_status(handle<state::withref_playing>&&, const robocup2Dsim::csprotocol::ClientStatus::Reader& reader);
+handle<state::withref_playing>&& received_transaction(handle<state::withref_playing>&&, const robocup2Dsim::csprotocol::ClientTransaction::Reader& reader);
 handle<state::withref_playing>&& play_judged(handle<state::withref_playing>&&, const robocup2Dsim::common::PlayJudgement::Reader& reader);
 handle<state::withref_playing>&& simulation_timedout(handle<state::withref_playing>&& input);
 handle<state::withref_playing>&& snapshot_timedout(handle<state::withref_playing>&& input);
-handle<state::withref_idle>&& match_closed(handle<state::withref_playing>&& input, const robocup2Dsim::common::MatchClose::Reader& reader);
-handle<state::withref_idle>&& match_aborted(handle<state::withref_playing>&& input, const robocup2Dsim::common::MatchAbort::Reader& reader);
-handle<state::noref_waiting>&& ref_crashed(handle<state::withref_playing>&& input);
-handle<state::withref_idle>&& disconnected(handle<state::withref_playing>&& input);
+handle<state::withref_playing>&& registration_requested(handle<state::withref_playing>&& input, const robocup2Dsim::csprotocol::RegistrationRequest::Reader& reader);
+handle<state::withref_playing>&& disconnected(handle<state::withref_playing>&& input);
+handle<state::noref_playing>&& ref_crashed(handle<state::withref_playing>&& input);
+handle<state::withref_waiting>&& match_closed(handle<state::withref_playing>&& input, const robocup2Dsim::common::MatchClose::Reader& reader);
+handle<state::withref_waiting>&& match_aborted(handle<state::withref_playing>&& input, const robocup2Dsim::common::MatchAbort::Reader& reader);
 
+handle<state::withref_playing>&& ref_ready(handle<state::noref_playing>&&);
+handle<state::noref_playing>&& received_status(handle<state::noref_playing>&&, const robocup2Dsim::csprotocol::ClientStatus::Reader& reader);
+handle<state::noref_playing>&& received_transaction(handle<state::noref_playing>&&, const robocup2Dsim::csprotocol::ClientTransaction::Reader& reader);
 handle<state::noref_playing>&& simulation_timedout(handle<state::noref_playing>&& input);
 handle<state::noref_playing>&& snapshot_timedout(handle<state::noref_playing>&& input);
+handle<state::noref_playing>&& registration_requested(handle<state::noref_playing>&& input, const robocup2Dsim::csprotocol::RegistrationRequest::Reader& reader);
+handle<state::noref_playing>&& disconnected(handle<state::noref_playing>&& input);
 
 } // namespace engine
 } // namespace server

@@ -24,18 +24,6 @@ struct FieldOpen
     plan @3 :KickOffPlan;
 }
 
-struct KickOff
-{
-    time @0 :Physics.NanoSecond;
-}
-
-struct TimeOver
-{
-    time @0 :Physics.NanoSecond;
-    currentScore @1 :Rule.Score;
-    plan @2 :KickOffPlan;
-}
-
 struct MatchClose
 {
     finalScore @0 :Rule.Score;
@@ -53,6 +41,23 @@ struct MatchAbort
     score @1 :Rule.Score;
 }
 
+struct KickOff
+{
+    time @0 :Physics.NanoSecond;
+}
+
+struct TimeOver
+{
+    time @0 :Physics.NanoSecond;
+    currentScore @1 :Rule.Score;
+    plan @2 :KickOffPlan;
+}
+
 struct PlayJudgement
 {
+    union
+    {
+	kickOff @0 :KickOff;
+	timeOver @1 :TimeOver;
+    }
 }
