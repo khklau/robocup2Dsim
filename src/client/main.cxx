@@ -253,7 +253,7 @@ void client::run()
 			    rcl::engine::down_cast<rcl::engine::state::withbot_playing>(std::move(handle_)),
 			    server_trans->get_reader().getMatchAbort())));
 		}
-		else if (server_trans->get_reader().isBye())
+		else if (server_trans->get_reader().isDisconnect())
 		{
 		    handle_ = std::move(rcl::engine::up_cast(rcl::engine::disconnected(
 			    rcl::engine::down_cast<rcl::engine::state::withbot_playing>(std::move(handle_)))));
@@ -273,7 +273,7 @@ void client::run()
 			    rcl::engine::down_cast<rcl::engine::state::withbot_onbench>(std::move(handle_)),
 			    server_trans->get_reader().getMatchAbort())));
 		}
-		else if (server_trans->get_reader().isBye())
+		else if (server_trans->get_reader().isDisconnect())
 		{
 		    handle_ = std::move(rcl::engine::up_cast(rcl::engine::disconnected(
 			    rcl::engine::down_cast<rcl::engine::state::withbot_onbench>(std::move(handle_)))));
@@ -281,7 +281,7 @@ void client::run()
 	    }
 	    else if (handle_.engine_state == rcl::engine::state::nobot_onbench)
 	    {
-		if (server_trans->get_reader().isBye())
+		if (server_trans->get_reader().isDisconnect())
 		{
 		    handle_ = std::move(rcl::engine::up_cast(rcl::engine::disconnected(
 			    rcl::engine::down_cast<rcl::engine::state::nobot_onbench>(std::move(handle_)))));
