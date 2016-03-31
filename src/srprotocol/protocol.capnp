@@ -16,6 +16,7 @@ struct RefOutput
 	matchClose @2 :Judgement.MatchClose;
 	matchAbort @3 :Judgement.MatchAbort;
 	playJudgement @4 :Judgement.PlayJudgement;
+	refCrashed @5 :Void;
     }
 }
 

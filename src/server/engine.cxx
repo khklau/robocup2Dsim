@@ -92,13 +92,13 @@ handle<state::noref_waiting>&& ref_crashed(handle<state::withref_waiting>&& inpu
     return std::move(output);
 }
 
-handle<state::withref_playing>&& received_status(handle<state::withref_playing>&& input, const rcs::ClientStatus::Reader& reader)
+handle<state::withref_playing>&& status_uploaded(handle<state::withref_playing>&& input, const rcs::ClientStatus::Reader& reader)
 {
     handle<state::withref_playing> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withref_playing>&& received_transaction(handle<state::withref_playing>&& input, const rcs::ClientTransaction::Reader& reader)
+handle<state::withref_playing>&& control_actioned(handle<state::withref_playing>&& input, const rco::Control::Reader& reader)
 {
     handle<state::withref_playing> output(std::move(input));
     return std::move(output);
@@ -158,13 +158,13 @@ handle<state::withref_playing>&& ref_ready(handle<state::noref_playing>&& input)
     return std::move(output);
 }
 
-handle<state::noref_playing>&& received_status(handle<state::noref_playing>&& input, const rcs::ClientStatus::Reader& reader)
+handle<state::noref_playing>&& status_uploaded(handle<state::noref_playing>&& input, const rcs::ClientStatus::Reader& reader)
 {
     handle<state::noref_playing> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::noref_playing>&& received_transaction(handle<state::noref_playing>&& input, const rcs::ClientTransaction::Reader& reader)
+handle<state::noref_playing>&& control_actioned(handle<state::noref_playing>&& input, const rco::Control::Reader& reader)
 {
     handle<state::noref_playing> output(std::move(input));
     return std::move(output);
