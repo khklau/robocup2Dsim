@@ -123,7 +123,7 @@ void server_io::on_disconnect(const in_connection_type&)
 {
     // TODO should validate that the disconnection is from the server we expect?
     std::unique_ptr<bme::capnproto<rcs::ServerTransaction>> message(new bme::capnproto<rcs::ServerTransaction>());
-    message->get_builder().setBye();
+    message->get_builder().setDisconnect();
     if (TURBO_UNLIKELY(server_trans_.try_enqueue_move(std::move(message)) != rcs::server_trans_queue_type::producer::result::success))
     {
 	LOG(WARNING) << "server transaction queue is full; dropping disconnect error";

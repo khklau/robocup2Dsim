@@ -5,6 +5,7 @@ $Cxx.namespace("robocup2Dsim::csprotocol");
 
 using Command = import "command.capnp";
 using CommonCommand = import "/common/command.capnp";
+using CommonControl = import "/common/control.capnp";
 using CommonJudgement = import "/common/judgement.capnp";
 using Error = import "/common/error.capnp";
 using Metadata = import "/common/metadata.capnp";
@@ -21,8 +22,8 @@ struct ClientTransaction
     union
     {
 	registration @0 :Command.RegistrationRequest;
-	control @1 :Void;
-	bye @2 :Void;
+	control @1 :CommonControl.Control;
+	disconnect @2 :Void;
     }
 }
 
@@ -39,7 +40,7 @@ struct ServerTransaction
     {
 	unknownMsg @1 :Error.UnknownMsgError;
 	malformedMsg @2 :Error.MalformedMsgError;
-	bye @3 :Void;
+	disconnect @3 :Void;
 	regSuccess @4 :Void;
 	regError @5 :Command.RegistrationError;
 	fieldOpen @6 :CommonJudgement.FieldOpen;
