@@ -14,11 +14,11 @@ namespace tip = turbo::ipc::posix;
 namespace robocup2Dsim {
 namespace server {
 
-ref_io::ref_io(tip::pipe::front& ref_stdout, tip::pipe::back& ref_stdin, rsr::ref_output_queue_type::producer& producer, rsr::ref_input_queue_type::consumer& consumer) :
-	ref_stdout_(ref_stdout),
+ref_io::ref_io(tip::pipe::back& ref_stdin, tip::pipe::front& ref_stdout, rsr::ref_input_queue_type::consumer& consumer, rsr::ref_output_queue_type::producer& producer) :
 	ref_stdin_(ref_stdin),
-	producer_(producer),
+	ref_stdout_(ref_stdout),
 	consumer_(consumer),
+	producer_(producer),
 	thread_(nullptr),
 	service_(),
 	stream_(service_, ref_stdout_.get_handle())

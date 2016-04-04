@@ -19,10 +19,10 @@ class ref_io
 {
 public:
     ref_io(
-	    turbo::ipc::posix::pipe::front& ref_stdout,
 	    turbo::ipc::posix::pipe::back& ref_stdin,
-	    robocup2Dsim::srprotocol::ref_output_queue_type::producer& producer,
-	    robocup2Dsim::srprotocol::ref_input_queue_type::consumer& consumer);
+	    turbo::ipc::posix::pipe::front& ref_stdout,
+	    robocup2Dsim::srprotocol::ref_input_queue_type::consumer& consumer,
+	    robocup2Dsim::srprotocol::ref_output_queue_type::producer& producerr);
     ~ref_io();
     bool running() const { return thread_ != nullptr; }
     void start();
@@ -34,10 +34,10 @@ private:
     void run();
     void send();
     void receive(const asio::error_code& error, std::size_t bytes_received);
-    turbo::ipc::posix::pipe::front& ref_stdout_;
     turbo::ipc::posix::pipe::back& ref_stdin_;
-    robocup2Dsim::srprotocol::ref_output_queue_type::producer& producer_;
+    turbo::ipc::posix::pipe::front& ref_stdout_;
     robocup2Dsim::srprotocol::ref_input_queue_type::consumer& consumer_;
+    robocup2Dsim::srprotocol::ref_output_queue_type::producer& producer_;
     std::thread* thread_;
     asio::io_service service_;
     asio::posix::stream_descriptor stream_;
