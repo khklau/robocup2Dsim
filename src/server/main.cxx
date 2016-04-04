@@ -101,6 +101,31 @@ private:
     rse::client_io client_io_;
 };
 
+server::server(const rse::config&& config, tpp::child&& ref) :
+	config_(std::move(config)),
+	handle_
+	{
+	    std::move(std::unique_ptr<rsr::ref_input_queue_type>(new rsr::ref_input_queue_type(config_.ref_msg_queue_length))),
+	    std::move(std::unique_ptr<rsr::ref_output_queue_type>(new rsr::ref_output_queue_type(config_.ref_msg_queue_length))),
+	    std::move(std::unique_ptr<rcs::client_status_queue_type>(new rcs::client_status_queue_type(config_.client_msg_queue_length))),
+	    std::move(std::unique_ptr<rcs::client_trans_queue_type>(new rcs::client_trans_queue_type(config_.client_msg_queue_length))),
+	    std::move(std::unique_ptr<rcs::server_status_queue_type>(new rcs::server_status_queue_type(config_.client_msg_queue_length))),
+	    std::move(std::unique_ptr<rcs::server_trans_queue_type>(new rcs::server_trans_queue_type(config_.client_msg_queue_length))),
+	    rse::engine::state::withref_waiting
+	},
+	notifier_(),
+	ref_(std::move(ref)),
+	ref_io_(ref_.in, ref_.out, handle_.ref_input_queue->get_consumer(), handle_.ref_output_queue->get_producer()),
+	client_io_(
+		handle_.client_status_queue->get_producer(),
+		handle_.client_trans_queue->get_producer(),
+		handle_.server_status_queue->get_consumer(),
+		handle_.server_trans_queue->get_consumer(),
+		config_)
+{
+    // TODO: setup SIGCHLD handling
+}
+
 void server::run()
 {
     std::unique_ptr<bme::capnproto<rsr::RefOutput>> ref_output;
@@ -305,6 +330,7 @@ int main(int argc, char* argv[])
     FLAGS_logtostderr = true;
     FLAGS_minloglevel = (kj::_::Debug::shouldLog(kj::_::Debug::Severity::INFO)) ? 0 : 1;
     google::InstallFailureSignalHandler();
-    //rse::state_machine machine(conf, std::move(ref));
+    server serv(std::move(conf), std::move(ref));
+    serv.run();
     return 0;
 }
