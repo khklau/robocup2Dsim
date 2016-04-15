@@ -16,6 +16,9 @@ commonCapnpFiles=[
 	'physics.capnp',
 	'rule.capnp']
 
+publicHeaders = [
+    'entity.hpp']
+
 def configure(confCtx):
     confCtx.env.component = Component.fromContext(confCtx, name(confCtx), confCtx.env.product)
     confCtx.env.product.addComponent(confCtx.env.component)
@@ -47,6 +50,17 @@ def build(buildCtx):
 	commonHNodeList.append(hNode)
 	commonCapnpTaskList.append(compileTask)
 	commonPublishTaskList.append(publishTask)
+    headerPublishTaskList=[]
+    for header in publicHeaders:
+	publishTask='publish_%s' % header
+	buildCtx(
+		name=publishTask,
+		rule='cp ${SRC} ${TGT}',
+		source=header,
+		target=os.path.join(buildCtx.env.component.build_tree.includePathFromBuild(buildCtx), header),
+		after=commonPublishTaskList,
+		install_path=os.path.join(buildCtx.env.component.install_tree.include, os.path.dirname(header)))
+	headerPublishTaskList.append(publishTask)
     buildCtx.stlib(
 	    name='stlib_robocup2Dsim_common',
 	    source=commonCxxNodeList,
@@ -57,4 +71,4 @@ def build(buildCtx):
 	    linkflags=buildCtx.env.LDFLAGS,
 	    use=['CAPNPROTO_STLIB'],
 	    install_path=buildCtx.env.component.install_tree.lib,
-	    after=commonPublishTaskList)
+	    after=commonPublishTaskList + headerPublishTaskList)
