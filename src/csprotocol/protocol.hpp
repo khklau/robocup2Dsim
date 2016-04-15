@@ -15,9 +15,11 @@ typedef turbo::container::spsc_ring_queue<std::unique_ptr<beam::message::capnpro
 typedef turbo::container::spsc_ring_queue<std::unique_ptr<beam::message::capnproto<robocup2Dsim::csprotocol::ServerStatus>>> server_status_queue_type;
 typedef turbo::container::spsc_ring_queue<std::unique_ptr<beam::message::capnproto<robocup2Dsim::csprotocol::ServerTransaction>>> server_trans_queue_type;
 
-typedef std::uint64_t recipient_id;
+typedef std::uint64_t client_id;
 
-inline beam::duplex::common::endpoint_id convert(const recipient_id& recipient)
+static const client_id no_client = 0U;
+
+inline beam::duplex::common::endpoint_id convert(const client_id& recipient)
 {
     beam::duplex::common::endpoint_id endpoint{
 	    static_cast<decltype(endpoint.address)>(recipient >> std::numeric_limits<decltype(endpoint.address)>::digits),
@@ -25,9 +27,9 @@ inline beam::duplex::common::endpoint_id convert(const recipient_id& recipient)
     return endpoint;
 }
 
-inline recipient_id convert(const beam::duplex::common::endpoint_id& endpoint)
+inline client_id convert(const beam::duplex::common::endpoint_id& endpoint)
 {
-    recipient_id recipient = endpoint.address;
+    client_id recipient = endpoint.address;
     recipient = (recipient << std::numeric_limits<decltype(endpoint.address)>::digits) + endpoint.port;
     return recipient;
 }
