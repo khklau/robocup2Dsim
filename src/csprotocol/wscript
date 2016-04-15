@@ -43,7 +43,7 @@ def build(buildCtx):
 	csprotocolHNodeList.append(hNode)
 	csprotocolCapnpTaskList.append(compileTask)
 	csprotocolPublishTaskList.append(publishTask)
-    publishTaskList=[]
+    headerPublishTaskList=[]
     for header in publicHeaders:
 	publishTask='publish_%s' % header
 	buildCtx(
@@ -53,7 +53,7 @@ def build(buildCtx):
 		target=os.path.join(buildCtx.env.component.build_tree.includePathFromBuild(buildCtx), header),
 		after=csprotocolPublishTaskList,
 		install_path=os.path.join(buildCtx.env.component.install_tree.include, os.path.dirname(header)))
-	publishTaskList.append(publishTask)
+	headerPublishTaskList.append(publishTask)
     buildCtx.stlib(
 	    name='stlib_robocup2Dsim_csprotocol',
 	    source=csprotocolCxxNodeList,
@@ -67,4 +67,4 @@ def build(buildCtx):
 	    linkflags=buildCtx.env.LDFLAGS,
 	    use=['CAPNPROTO_STLIB', 'stlib_robocup2Dsim_common'],
 	    install_path=buildCtx.env.component.install_tree.lib,
-	    after=['stlib_robocup2Dsim_common'] + csprotocolPublishTaskList)
+	    after=['stlib_robocup2Dsim_common'] + csprotocolPublishTaskList + headerPublishTaskList)
