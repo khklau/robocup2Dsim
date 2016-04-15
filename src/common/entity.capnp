@@ -1,7 +1,7 @@
 @0xc98f2d65bc9a57fc;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("robocup2Dsim::common");
+$Cxx.namespace("robocup2Dsim::common::entity");
 
 using Field = import "field.capnp";
 using Physics = import "/common/physics.capnp";
@@ -33,18 +33,18 @@ struct PlayerId
 {
     side @0 :Field.Side;
     uniform @1 :UniformNumber;
-    type @2 :PlayerType;
 }
 
 struct Player
 {
     id @0 :PlayerId;
-    position @1 :Physics.Position;
-    stamina @2 :Physics.KiloJoule;
-    effort @3 :Physics.KiloJoule;
-    bodyDirection @4 :Physics.Degree;
-    headDirection @5 :Physics.Degree;
-    velocity @6 :Physics.MilliMetrePerSecond;
+    type @1 :PlayerType;
+    position @2 :Physics.Position;
+    stamina @3 :Physics.KiloJoule;
+    effort @4 :Physics.KiloJoule;
+    bodyDirection @5 :Physics.Degree;
+    headDirection @6 :Physics.Degree;
+    velocity @7 :Physics.MilliMetrePerSecond;
 }
 
 enum ParticipantType
