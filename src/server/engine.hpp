@@ -12,6 +12,7 @@
 #include <robocup2Dsim/csprotocol/protocol.hpp>
 #include <turbo/container/spsc_ring_queue.hpp>
 #include <turbo/toolset/extension.hpp>
+#include "roster.hpp"
 
 namespace robocup2Dsim {
 namespace server {
@@ -34,6 +35,7 @@ public:
     std::unique_ptr<robocup2Dsim::csprotocol::client_trans_queue_type> client_trans_queue;
     std::unique_ptr<robocup2Dsim::csprotocol::server_status_queue_type> server_status_queue;
     std::unique_ptr<robocup2Dsim::csprotocol::server_trans_queue_type> server_trans_queue;
+    robocup2Dsim::server::roster roster;
     state engine_state;
     basic_handle(
 	    decltype(ref_input_queue) ref_in,

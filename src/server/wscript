@@ -14,6 +14,7 @@ def build(buildCtx):
 	    name='exe_robocup2Dsim_server',
 	    source=[buildCtx.path.find_node('main.cxx'),
 		    buildCtx.path.find_node('engine.cxx'),
+		    buildCtx.path.find_node('roster.cxx'),
 		    buildCtx.path.find_node('client_io.cxx'),
 		    buildCtx.path.find_node('ref_io.cxx')] +
 		    [buildCtx.root.find_node(lib) for lib in buildCtx.env['ASIO_STLIB_PATH']] +
