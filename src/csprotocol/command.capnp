@@ -27,8 +27,7 @@ struct RegistrationError
     {
 	versionMismatch @0 :VersionMismatchError;
 	teamTaken @1 :TeamSlotTakenError;
-	teamFull @2 :TeamFullError;
-	uniformTaken @3 :UniformTakenError;
-	goalieTaken @4 :GoalieTakenError;
+	uniformTaken @2 :UniformTakenError;
+	goalieTaken @3 :GoalieTakenError;
     }
 }

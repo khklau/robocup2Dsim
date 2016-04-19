@@ -20,7 +20,6 @@ public:
 	success,
 	version_mismatch,
 	team_slot_taken,
-	team_full,
 	uniform_taken,
 	goalie_taken
     };
