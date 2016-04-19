@@ -11,7 +11,7 @@ using TeamName = Text;
 enum PlayerType
 {
     outfield @0;
-    goalie @1;
+    goalKeeper @1;
 }
 
 enum UniformNumber
