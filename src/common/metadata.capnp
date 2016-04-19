@@ -1,7 +1,7 @@
 @0xc61bac6a340f9df1;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("robocup2Dsim::common");
+$Cxx.namespace("robocup2Dsim::common::metadata");
 
 using ChannelId = UInt8;
 using FrameNumber = UInt32;
