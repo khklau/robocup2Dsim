@@ -1,11 +1,14 @@
-def options(optCtx):
-    return
+from waflib.extras.layout import Solution, Product
 
-def prepare(prepCtx):
-    return
+NAME = 'robocup2Dsim'
+
+def options(optCtx):
+    optCtx.add_option('--test', action='store', default='', dest='test')
 
 def configure(confCtx):
-    return
+    confCtx.env.product = Product.fromContext(confCtx, NAME, confCtx.env.solution)
+    confCtx.recurse('server')
 
 def build(buildCtx):
-    return
+    buildCtx.env.product = buildCtx.env.solution.getProduct(NAME)
+    buildCtx.recurse('server')
