@@ -1,6 +1,7 @@
 #ifndef ROBOCUP2DSIM_CSPROTOCOL_PROTOCOL_HPP
 #define ROBOCUP2DSIM_CSPROTOCOL_PROTOCOL_HPP
 
+#include <limits>
 #include <memory>
 #include <beam/duplex/common.hpp>
 #include <beam/message/capnproto.hpp>
