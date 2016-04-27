@@ -171,7 +171,7 @@ roster::finalisation_result roster::finalise()
 		}
 		else
 		{
-		    index_.emplace(team_roster[uniform], rce::player_id{uniform, id});
+		    tmp.emplace(team_roster[uniform], rce::player_id{uniform, id});
 		}
 	    }
 	}
