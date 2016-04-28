@@ -18,6 +18,7 @@ struct player_id
 {
     UniformNumber uniform;
     team_id team;
+    inline bool operator==(const player_id& other) const { return uniform == other.uniform && team == other.team; }
 };
 
 } // namespace entity
