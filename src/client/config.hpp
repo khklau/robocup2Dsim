@@ -12,7 +12,7 @@ struct config
 {
     config() :
 	    team("demo"),
-	    
+	    uniform(0U),
 	    address("localhost"),
 	    port(23230U),
 	    goalie(false),
