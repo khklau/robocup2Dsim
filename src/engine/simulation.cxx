@@ -4,12 +4,12 @@
 #include <SnapBox2D/storage.hpp>
 
 namespace robocup2Dsim {
-namespace common {
+namespace engine {
 
 simulation::simulation()
     :
 	world_(b2Vec2(0, 0))
 { }
 
-} // namespace common
+} // namespace engine
 } // robocup2Dsim
