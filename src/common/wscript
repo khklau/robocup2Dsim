@@ -17,8 +17,7 @@ commonCapnpFiles=[
 	'rule.capnp']
 
 publicHeaders = [
-    'entity.hpp',
-    'simulation.hpp']
+    'entity.hpp']
 
 def configure(confCtx):
     confCtx.env.component = Component.fromContext(confCtx, name(confCtx), confCtx.env.product)
@@ -62,16 +61,3 @@ def build(buildCtx):
 		after=commonPublishTaskList,
 		install_path=os.path.join(buildCtx.env.component.install_tree.include, os.path.dirname(header)))
 	headerPublishTaskList.append(publishTask)
-    buildCtx.stlib(
-	    name='stlib_robocup2Dsim_common',
-	    source=commonCxxNodeList +
-		    [buildCtx.path.find_node('simulation.cxx')] +
-		    [buildCtx.root.find_node(lib) for lib in buildCtx.env['SNAPBOX2D_STLIB_PATH']],
-	    target='robocup2Dsim_common',
-	    includes=['.'] + buildCtx.env.component.include_path_list,
-	    libpath=buildCtx.env.component.lib_path_list,
-	    cxxflags=buildCtx.env.CXXFLAGS,
-	    linkflags=buildCtx.env.LDFLAGS,
-	    use=['CAPNPROTO_STLIB', 'SNAPBOX2D_STLIB'],
-	    install_path=buildCtx.env.component.install_tree.lib,
-	    after=commonPublishTaskList + headerPublishTaskList)
