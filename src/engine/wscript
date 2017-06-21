@@ -7,6 +7,7 @@ def name(context):
 
 publicHeaders = [
     'primitives.hpp',
+    'primitives.hxx',
     'simulation.hpp',
     'ram_db.hpp',
     'ram_db.hxx']
@@ -31,11 +32,11 @@ def build(buildCtx):
 	    name='stlib_robocup2Dsim_engine',
 	    source=[buildCtx.path.find_node('simulation.cxx')] +
 		    [buildCtx.root.find_node(lib) for lib in buildCtx.env['SNAPBOX2D_STLIB_PATH']],
-	    target='robocup2Dsim_engine',
+	    target=os.path.join(buildCtx.env.component.build_tree.libPathFromBuild(buildCtx), 'robocup2Dsim_engine'),
 	    includes=['.'] + buildCtx.env.component.include_path_list,
 	    libpath=buildCtx.env.component.lib_path_list,
 	    cxxflags=buildCtx.env.CXXFLAGS,
 	    linkflags=buildCtx.env.LDFLAGS,
-	    use=['CAPNPROTO_STLIB', 'SNAPBOX2D_STLIB'],
+	    use=['SNAPBOX2D_STLIB'],
 	    install_path=buildCtx.env.component.install_tree.lib,
 	    after=headerPublishTaskList)
