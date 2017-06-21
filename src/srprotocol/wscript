@@ -55,7 +55,7 @@ def build(buildCtx):
     buildCtx.stlib(
 	    name='stlib_robocup2Dsim_srprotocol',
 	    source=srprotocolCxxNodeList,
-	    target='robocup2Dsim_srprotocol',
+	    target=os.path.join(buildCtx.env.component.build_tree.libPathFromBuild(buildCtx), 'robocup2Dsim_srprotocol'),
 	    includes=['.'] + buildCtx.env.component.include_path_list,
 	    libpath=buildCtx.env.component.lib_path_list,
 	    cxxflags=buildCtx.env.CXXFLAGS,
