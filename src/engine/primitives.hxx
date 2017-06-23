@@ -21,6 +21,13 @@ fixed_cstring<length_c>::fixed_cstring(const char* other)
     assign(other);
 }
 
+template <std::size_t this_length_c>
+template <std::size_t other_length_c>
+fixed_cstring<this_length_c>::fixed_cstring(const char other[other_length_c])
+{
+    assign(other);
+}
+
 template <std::size_t length_c>
 fixed_cstring<length_c>::fixed_cstring(const std::string& other)
 {
@@ -46,8 +53,22 @@ fixed_cstring<length_c>& fixed_cstring<length_c>::operator=(const fixed_cstring&
 template <std::size_t length_c>
 void fixed_cstring<length_c>::assign(const char* other)
 {
-    std::size_t other_length = strlen(other);
+    std::size_t other_length = ::strlen(other);
     if (length_c < (other_length + 1U))
+    {
+	throw std::invalid_argument("Other string argument is too long");
+    }
+    else
+    {
+	::strncpy(data_.data(), other, data_.max_size() - 1U);
+    }
+}
+
+template <std::size_t this_length_c>
+template <std::size_t other_length_c>
+void fixed_cstring<this_length_c>::assign(const char other[other_length_c])
+{
+    if (this_length_c < other_length_c)
     {
 	throw std::invalid_argument("Other string argument is too long");
     }

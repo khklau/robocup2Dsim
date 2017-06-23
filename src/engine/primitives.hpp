@@ -25,6 +25,8 @@ public:
     using const_reverse_iterator = typename array_type::const_reverse_iterator;
     fixed_cstring();
     fixed_cstring(const char* other);
+    template <std::size_t other_length_c>
+    fixed_cstring(const char other[other_length_c]);
     fixed_cstring(const std::string& other);
     fixed_cstring(const fixed_cstring& other);
     fixed_cstring& operator=(const fixed_cstring& other);
@@ -39,6 +41,8 @@ public:
     inline std::size_t max_size() { return data_.max_size(); }
     inline const char* c_str() { return data_.data(); }
     void assign(const char* other);
+    template <std::size_t other_length_c>
+    void assign(const char other[other_length_c]);
     void assign(const std::string& other);
 private:
     array_type data_;
