@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <array>
 #include <string>
+#include <turbo/toolset/attribute.hpp>
 
 namespace robocup2Dsim {
 namespace engine {
@@ -14,7 +15,7 @@ typedef std::uint32_t key_32;
 typedef std::uint64_t key_64;
 
 template <std::size_t length_c>
-class fixed_cstring
+class TURBO_SYMBOL_DECL fixed_cstring
 {
 private:
     typedef std::array<char, length_c> array_type;
@@ -39,7 +40,7 @@ public:
     inline const_reverse_iterator crbegin() { return data_.crbegin(); }
     inline const_reverse_iterator crend() { return data_.crend(); }
     inline std::size_t max_size() { return data_.max_size(); }
-    inline const char* c_str() { return data_.data(); }
+    inline const char* c_str() const noexcept { return data_.data(); }
     void assign(const char* other);
     template <std::size_t other_length_c>
     void assign(const char other[other_length_c]);
