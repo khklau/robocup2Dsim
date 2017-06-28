@@ -107,8 +107,13 @@ template <std::size_t length_c>
 std::size_t hash<robocup2Dsim::engine::fixed_cstring<length_c>>::operator()(
 	const robocup2Dsim::engine::fixed_cstring<length_c>& cstring) const
 {
-    std::hash<const char*> hasher;
-    return hasher(cstring.c_str());
+    // use the same hash function as java.lang.String
+    std::size_t result = 0U;
+    for (std::size_t counter = 0U; counter < length_c; ++counter)
+    {
+	result = cstring.c_str()[counter] + (result * 31U);
+    }
+    return result;
 }
 
 } // namespace std
