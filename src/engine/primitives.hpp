@@ -31,6 +31,7 @@ public:
     fixed_cstring(const std::string& other);
     fixed_cstring(const fixed_cstring& other);
     fixed_cstring& operator=(const fixed_cstring& other);
+    bool operator==(const fixed_cstring& other) const;
     inline iterator begin() { return data_.begin(); }
     inline iterator end() { return data_.end(); }
     inline const_iterator cbegin() { return data_.cbegin(); }
@@ -54,5 +55,15 @@ typedef fixed_cstring<32U> fixed_cstring_32;
 
 } // namespace engine
 } // namespace robocup2Dsim
+
+namespace std {
+
+template <std::size_t length_c>
+struct hash<robocup2Dsim::engine::fixed_cstring<length_c>>
+{
+    std::size_t operator()(const robocup2Dsim::engine::fixed_cstring<length_c>& cstring) const;
+};
+
+} // namespace std
 
 #endif

@@ -51,6 +51,12 @@ fixed_cstring<length_c>& fixed_cstring<length_c>::operator=(const fixed_cstring&
 }
 
 template <std::size_t length_c>
+bool fixed_cstring<length_c>::operator==(const fixed_cstring& other) const
+{
+    return ::strncmp(this->c_str(), other.c_str(), length_c) == 0;
+}
+
+template <std::size_t length_c>
 void fixed_cstring<length_c>::assign(const char* other)
 {
     std::size_t other_length = ::strlen(other);
@@ -94,5 +100,17 @@ void fixed_cstring<length_c>::assign(const std::string& other)
 
 } // namespace engine
 } // namespace robocup2Dsim
+
+namespace std {
+
+template <std::size_t length_c>
+std::size_t hash<robocup2Dsim::engine::fixed_cstring<length_c>>::operator()(
+	const robocup2Dsim::engine::fixed_cstring<length_c>& cstring) const
+{
+    std::hash<const char*> hasher;
+    return hasher(cstring.c_str());
+}
+
+} // namespace std
 
 #endif
