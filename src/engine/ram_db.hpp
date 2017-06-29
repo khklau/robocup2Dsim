@@ -23,20 +23,26 @@ class TURBO_SYMBOL_DECL table
 {
 public:
     typedef key_t key_type;
+    typedef std::tuple<key_t, values_t...> row_type;
     static constexpr std::size_t total_columns()
     {
 	// the extra 1 is the key column
 	return 1U + sizeof...(values_t);
     }
-    turbo::memory::block_list data_;
-    template <class... args_t>
-    table(std::size_t initial_size, const char* key_name, args_t&&... args);
-    template <class... args_t>
-    emplace_result emplace(key_type key, args_t&&... args);
+    template <class... column_names_t>
+    table(std::size_t initial_size, const char* key_name, column_names_t&&... column_names);
+    template <class... column_names_t>
+    emplace_result emplace(key_type key, column_names_t&&... column_names);
 private:
-    typedef std::tuple<key_t, values_t...> tuple_type;
+    typedef std::unordered_map<fixed_cstring_32, std::size_t> column_map_type;
+    template <class column_name_t>
+    static void populate_column_map(column_map_type& map, std::size_t column_id, column_name_t&& name);
+    template <class column_name_t, class... column_names_t>
+    static void populate_column_map(column_map_type& map, std::size_t column_id, column_name_t&& name, column_names_t&&... column_names);
+    turbo::memory::block_list data_;
+    std::unordered_map<key_t, row_type*> index_;
     std::array<fixed_cstring_32, total_columns()> column_names_;
-    std::unordered_map<key_t, tuple_type*> index_;
+    column_map_type column_map_;
 };
 
 struct TURBO_SYMBOL_DECL some_table;

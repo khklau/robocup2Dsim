@@ -22,36 +22,60 @@ namespace robocup2Dsim {
 namespace engine {
 
 template <class k, class... vs>
-template <class... args_t>
-table<k, vs...>::table(std::size_t initial_size, const char* key_name, args_t&&... args)
+template <class... column_names_t>
+table<k, vs...>::table(std::size_t initial_size, const char* key_name, column_names_t&&... column_names)
     :
-	data_(sizeof(tuple_type), initial_size),
-	column_names_{{ key_name, args... }},
-	index_()
+	data_(sizeof(row_type), initial_size),
+	index_(),
+	column_names_{{ key_name, column_names... }},
+	column_map_()
 {
-    static_assert(sizeof...(vs) == sizeof...(args), "The number of column name arguments "
+    populate_column_map(column_map_, 0U, key_name, column_names...);
+    static_assert(sizeof...(vs) == sizeof...(column_names), "The number of column name arguments "
 	    "does not match the number of columns in the table");
 }
 
 template <class k, class... vs>
-template <class... args_t>
-emplace_result table<k, vs...>::emplace(key_type key, args_t&&... args)
+template <class... column_names_t>
+emplace_result table<k, vs...>::emplace(key_type key, column_names_t&&... column_names)
 {
     if (index_.count(key) > 0)
     {
 	return emplace_result::key_already_exists;
     }
-    tuple_type* entry = static_cast<tuple_type*>(data_.allocate());
+    row_type* entry = static_cast<row_type*>(data_.allocate());
     if (TURBO_UNLIKELY(entry == nullptr))
     {
 	throw turbo::memory::out_of_memory_error("Insufficient free memory to allocate the requested table row");
     }
     else
     {
-	new (entry) tuple_type(key, std::forward<args_t>(args)...);
+	new (entry) row_type(key, std::forward<column_names_t>(column_names)...);
 	index_.emplace(key, entry);
 	return emplace_result::success;
     }
+}
+
+template <class k, class... vs>
+template <class column_name_t>
+void table<k, vs...>::populate_column_map(
+	column_map_type& map,
+	std::size_t column_id,
+	column_name_t&& name)
+{
+    map.emplace(name, column_id);
+}
+
+template <class k, class... vs>
+template <class column_name_t, class... column_names_t>
+void table<k, vs...>::populate_column_map(
+	column_map_type& map,
+	std::size_t column_id,
+	column_name_t&& name,
+	column_names_t&&... column_names)
+{
+    map.emplace(name, column_id);
+    populate_column_map(map, column_id + 1, column_names...);
 }
 
 template <class key_t, class... values_t>
