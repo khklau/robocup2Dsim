@@ -1,8 +1,12 @@
 #ifndef ROBOCUP2DSIM_ENGINE_RAM_DB_HPP
 #define ROBOCUP2DSIM_ENGINE_RAM_DB_HPP
 
+#include <cstddef>
 #include <array>
+#include <iterator>
 #include <memory>
+#include <string>
+#include <stdexcept>
 #include <tuple>
 #include <unordered_map>
 #include <robocup2Dsim/engine/primitives.hpp>
@@ -11,6 +15,52 @@
 
 namespace robocup2Dsim {
 namespace engine {
+
+static const std::size_t TABLE_COLUMN_NUMBER_LIMIT_ = 16U;
+
+class unknown_column_error : public std::invalid_argument
+{
+    explicit unknown_column_error(const char* what) : invalid_argument(what) { }
+    explicit unknown_column_error(const std::string& what) : invalid_argument(what) { }
+};
+
+class column_limit_error : public std::invalid_argument
+{
+    explicit column_limit_error(const char* what) : invalid_argument(what) { }
+    explicit column_limit_error(const std::string& what) : invalid_argument(what) { }
+};
+
+namespace table_iterator {
+
+template <class row_t, class index_iterator_t, class column_map_t>
+class basic_iterator : std::forward_iterator_tag
+{
+public:
+    typedef row_t value_type;
+    typedef row_t* pointer;
+    typedef row_t& reference;
+    typedef std::ptrdiff_t difference_type;
+    typedef std::forward_iterator_tag iterator_category;
+    typedef row_t row_type;
+    typedef index_iterator_t index_iterator_type;
+    typedef column_map_t column_map_type;
+    inline basic_iterator(index_iterator_type iter, const column_map_type* map);
+    inline basic_iterator(const basic_iterator& other);
+    ~basic_iterator() = default;
+    inline basic_iterator& operator=(const basic_iterator& other);
+    inline bool operator==(const basic_iterator& other) const;
+    inline row_type& operator*();
+    inline row_type* operator->();
+    inline basic_iterator& operator++();
+    inline basic_iterator& operator++(int);
+    template <class column_t>
+    inline column_t& column(const typename column_map_type::key_type& key);
+private:
+    index_iterator_type iter_;
+    const column_map_type* map_;
+};
+
+} // namespace table_iterator
 
 enum class emplace_result
 {
@@ -21,9 +71,14 @@ enum class emplace_result
 template <class key_t, class... values_t>
 class TURBO_SYMBOL_DECL table
 {
+private:
+    typedef std::tuple<key_t, values_t...> row_type;
+    typedef std::unordered_map<key_t, row_type*> row_index_type;
+    typedef std::unordered_map<fixed_cstring_32, std::size_t> column_map_type;
 public:
     typedef key_t key_type;
-    typedef std::tuple<key_t, values_t...> row_type;
+    typedef table_iterator::basic_iterator<row_type, typename row_index_type::iterator, column_map_type> iterator;
+    typedef table_iterator::basic_iterator<const row_type, typename row_index_type::const_iterator, column_map_type> const_iterator;
     static constexpr std::size_t total_columns()
     {
 	// the extra 1 is the key column
@@ -33,14 +88,14 @@ public:
     table(std::size_t initial_size, const char* key_name, column_names_t&&... column_names);
     template <class... column_names_t>
     emplace_result emplace(key_type key, column_names_t&&... column_names);
+    inline const_iterator select_row(key_type key) const;
 private:
-    typedef std::unordered_map<fixed_cstring_32, std::size_t> column_map_type;
     template <class column_name_t>
     static void populate_column_map(column_map_type& map, std::size_t column_id, column_name_t&& name);
     template <class column_name_t, class... column_names_t>
     static void populate_column_map(column_map_type& map, std::size_t column_id, column_name_t&& name, column_names_t&&... column_names);
     turbo::memory::block_list data_;
-    std::unordered_map<key_t, row_type*> index_;
+    row_index_type index_;
     std::array<fixed_cstring_32, total_columns()> column_names_;
     column_map_type column_map_;
 };
