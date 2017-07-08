@@ -18,16 +18,22 @@ namespace engine {
 
 static const std::size_t TABLE_COLUMN_NUMBER_LIMIT_ = 16U;
 
-class unknown_column_error : public std::invalid_argument
+struct unknown_column_error : public std::invalid_argument
 {
     explicit unknown_column_error(const char* what) : invalid_argument(what) { }
     explicit unknown_column_error(const std::string& what) : invalid_argument(what) { }
 };
 
-class column_limit_error : public std::invalid_argument
+struct column_limit_error : public std::invalid_argument
 {
     explicit column_limit_error(const char* what) : invalid_argument(what) { }
     explicit column_limit_error(const std::string& what) : invalid_argument(what) { }
+};
+
+struct invalid_deference_error : public std::logic_error
+{
+    explicit invalid_deference_error(const char* what) : logic_error(what) { }
+    explicit invalid_deference_error(const std::string& what) : logic_error(what) { }
 };
 
 namespace table_iterator {
@@ -49,12 +55,13 @@ public:
     ~basic_iterator() = default;
     inline basic_iterator& operator=(const basic_iterator& other);
     inline bool operator==(const basic_iterator& other) const;
+    inline bool operator!=(const basic_iterator& other) const;
     inline row_type& operator*();
     inline row_type* operator->();
     inline basic_iterator& operator++();
     inline basic_iterator& operator++(int);
     template <class column_t>
-    inline column_t& column(const typename column_map_type::key_type& key);
+    inline const column_t& get_column(const typename column_map_type::key_type& key) const;
 private:
     index_iterator_type iter_;
     const column_map_type* map_;
@@ -86,6 +93,8 @@ public:
     }
     template <class... column_names_t>
     table(std::size_t initial_size, const char* key_name, column_names_t&&... column_names);
+    inline iterator end();
+    inline const_iterator cend() const;
     template <class... column_names_t>
     emplace_result emplace(key_type key, column_names_t&&... column_names);
     inline const_iterator select_row(key_type key) const;
