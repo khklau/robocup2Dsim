@@ -39,7 +39,7 @@ struct invalid_deference_error : public std::logic_error
 namespace table_iterator {
 
 template <class row_t, class index_iterator_t, class column_map_t>
-class basic_iterator : std::forward_iterator_tag
+class basic_const_iterator : public std::forward_iterator_tag
 {
 public:
     typedef row_t value_type;
@@ -50,21 +50,40 @@ public:
     typedef row_t row_type;
     typedef index_iterator_t index_iterator_type;
     typedef column_map_t column_map_type;
-    inline basic_iterator(index_iterator_type iter, const column_map_type* map);
-    inline basic_iterator(const basic_iterator& other);
-    ~basic_iterator() = default;
-    inline basic_iterator& operator=(const basic_iterator& other);
-    inline bool operator==(const basic_iterator& other) const;
-    inline bool operator!=(const basic_iterator& other) const;
+    inline basic_const_iterator(index_iterator_type iter, const column_map_type* map);
+    inline basic_const_iterator(const basic_const_iterator& other);
+    ~basic_const_iterator() = default;
+    inline basic_const_iterator& operator=(const basic_const_iterator& other);
+    inline bool operator==(const basic_const_iterator& other) const;
+    inline bool operator!=(const basic_const_iterator& other) const;
     inline row_type& operator*();
     inline row_type* operator->();
-    inline basic_iterator& operator++();
-    inline basic_iterator& operator++(int);
+    inline basic_const_iterator& operator++();
+    inline basic_const_iterator& operator++(int);
     template <class column_t>
-    inline const column_t& get_column(const typename column_map_type::key_type& key) const;
-private:
+    const column_t& get_column(const typename column_map_type::key_type& key) const;
+protected:
     index_iterator_type iter_;
     const column_map_type* map_;
+};
+
+template <class row_t, class index_iterator_t, class column_map_t>
+class basic_iterator : public basic_const_iterator<row_t, index_iterator_t, column_map_t>
+{
+public:
+    typedef basic_const_iterator<row_t, index_iterator_t, column_map_t> base_type;
+    typedef row_t value_type;
+    typedef row_t* pointer;
+    typedef row_t& reference;
+    typedef std::ptrdiff_t difference_type;
+    typedef std::forward_iterator_tag iterator_category;
+    typedef row_t row_type;
+    typedef index_iterator_t index_iterator_type;
+    typedef column_map_t column_map_type;
+    inline basic_iterator(index_iterator_type iter, const column_map_type* map);
+    ~basic_iterator() = default;
+    template <class column_t>
+    column_t& set_column(const typename column_map_type::key_type& key);
 };
 
 } // namespace table_iterator
@@ -85,7 +104,7 @@ private:
 public:
     typedef key_t key_type;
     typedef table_iterator::basic_iterator<row_type, typename row_index_type::iterator, column_map_type> iterator;
-    typedef table_iterator::basic_iterator<const row_type, typename row_index_type::const_iterator, column_map_type> const_iterator;
+    typedef table_iterator::basic_const_iterator<const row_type, typename row_index_type::const_iterator, column_map_type> const_iterator;
     static constexpr std::size_t total_columns()
     {
 	// the extra 1 is the key column
@@ -98,6 +117,7 @@ public:
     template <class... column_names_t>
     emplace_result emplace(key_type key, column_names_t&&... column_names);
     inline const_iterator select_row(key_type key) const;
+    inline iterator update_row(key_type key);
 private:
     template <class column_name_t>
     static void populate_column_map(column_map_type& map, std::size_t column_id, column_name_t&& name);

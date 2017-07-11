@@ -18,40 +18,40 @@ void delete_unique_table(some_table* something)
 }
 
 template <std::size_t arity_c, class element_t, class tuple_t>
-inline const element_t& access(std::true_type, const tuple_t& tuple)
+inline element_t& access_element(std::true_type, tuple_t& tuple)
 {
     return std::get<arity_c>(tuple);
 }
 
 template <std::size_t arity_c, class element_t, class tuple_t>
-inline const element_t& access(std::false_type, const tuple_t&)
+inline element_t& access_element(std::false_type, tuple_t&)
 {
     throw unknown_column_error("the type of the column at the given index does not "
 	    "match the element type template argument");
 }
 
 template <std::size_t arity_c, class element_t, class tuple_t>
-struct element_getter
+struct element_access
 {
-    static const element_t& get(const tuple_t& tuple, std::size_t index)
+    static element_t& access(tuple_t& tuple, std::size_t index)
     {
 	if (arity_c == index)
 	{
-	    return access<arity_c, element_t, tuple_t>(std::is_same<element_t, typename std::tuple_element<arity_c, tuple_t>::type>(), tuple);
+	    return access_element<arity_c, element_t, tuple_t>(std::is_same<element_t, typename std::tuple_element<arity_c, tuple_t>::type>(), tuple);
 	}
 	else
 	{
-	    return element_getter<arity_c - 1U, element_t, tuple_t>::get(tuple, index);
+	    return element_access<arity_c - 1U, element_t, tuple_t>::access(tuple, index);
 	}
     }
 };
 
 template <class element_t, class tuple_t>
-struct element_getter<0U, element_t, tuple_t>
+struct element_access<0U, element_t, tuple_t>
 {
-    static inline const element_t& get(const tuple_t& tuple, std::size_t)
+    static inline element_t& access(tuple_t& tuple, std::size_t)
     {
-	return access<0U, element_t, tuple_t>(std::is_same<element_t, typename std::tuple_element<0U, tuple_t>::type>(), tuple);
+	return access_element<0U, element_t, tuple_t>(std::is_same<element_t, typename std::tuple_element<0U, tuple_t>::type>(), tuple);
     }
 };
 
@@ -65,7 +65,21 @@ const element_t& get_element(const std::tuple<tuple_types_t...>& tuple, std::siz
     }
     else
     {
-	return element_getter<tuple_size - 1U, element_t, std::tuple<tuple_types_t...>>::get(tuple, index);
+	return element_access<tuple_size - 1U, const element_t, const std::tuple<tuple_types_t...>>::access(tuple, index);
+    }
+}
+
+template <class element_t, class... tuple_types_t>
+element_t& set_element(std::tuple<tuple_types_t...>& tuple, std::size_t index)
+{
+    constexpr std::size_t tuple_size = sizeof...(tuple_types_t);
+    if (TURBO_UNLIKELY(tuple_size <= index))
+    {
+	throw unknown_column_error("given index exceeds the tuple's size");
+    }
+    else
+    {
+	return element_access<tuple_size - 1U, element_t, std::tuple<tuple_types_t...>>::access(tuple, index);
     }
 }
 
@@ -77,21 +91,21 @@ namespace engine {
 namespace table_iterator {
 
 template <class r, class i, class c>
-basic_iterator<r, i, c>::basic_iterator(index_iterator_type iter, const typename basic_iterator<r, i, c>::column_map_type* map)
+basic_const_iterator<r, i, c>::basic_const_iterator(index_iterator_type iter, const typename basic_const_iterator<r, i, c>::column_map_type* map)
     :
 	iter_(iter),
 	map_(map)
 { }
 
 template <class r, class i, class c>
-basic_iterator<r, i, c>::basic_iterator(const basic_iterator& other)
+basic_const_iterator<r, i, c>::basic_const_iterator(const basic_const_iterator& other)
     :
 	iter_(other.iter_),
 	map_(other.map_)
 { }
 
 template <class r, class i, class c>
-basic_iterator<r, i, c>& basic_iterator<r, i, c>::operator=(const basic_iterator& other)
+basic_const_iterator<r, i, c>& basic_const_iterator<r, i, c>::operator=(const basic_const_iterator& other)
 {
     if (this != &other)
     {
@@ -102,47 +116,47 @@ basic_iterator<r, i, c>& basic_iterator<r, i, c>::operator=(const basic_iterator
 }
 
 template <class r, class i, class c>
-bool basic_iterator<r, i, c>::operator==(const basic_iterator& other) const
+bool basic_const_iterator<r, i, c>::operator==(const basic_const_iterator& other) const
 {
     return this->iter_ == other.iter_;
 }
 
 template <class r, class i, class c>
-bool basic_iterator<r, i, c>::operator!=(const basic_iterator& other) const
+bool basic_const_iterator<r, i, c>::operator!=(const basic_const_iterator& other) const
 {
     return !(*this == other);
 }
 
 template <class r, class i, class c>
-typename basic_iterator<r, i, c>::row_type& basic_iterator<r, i, c>::operator*()
+typename basic_const_iterator<r, i, c>::row_type& basic_const_iterator<r, i, c>::operator*()
 {
     return *(iter_->second);
 }
 
 template <class r, class i, class c>
-typename basic_iterator<r, i, c>::row_type* basic_iterator<r, i, c>::operator->()
+typename basic_const_iterator<r, i, c>::row_type* basic_const_iterator<r, i, c>::operator->()
 {
     return iter_->second;
 }
 
 template <class r, class i, class c>
-basic_iterator<r, i, c>& basic_iterator<r, i, c>::operator++()
+basic_const_iterator<r, i, c>& basic_const_iterator<r, i, c>::operator++()
 {
     ++iter_;
     return *this;
 }
 
 template <class r, class i, class c>
-basic_iterator<r, i, c>& basic_iterator<r, i, c>::operator++(int)
+basic_const_iterator<r, i, c>& basic_const_iterator<r, i, c>::operator++(int)
 {
-    basic_iterator<r, i, c> tmp = *this;
+    basic_const_iterator<r, i, c> tmp = *this;
     ++(*this);
     return tmp;
 }
 
 template <class r, class i, class c>
 template <class column_t>
-const column_t& basic_iterator<r, i, c>::get_column(const typename basic_iterator<r, i, c>::column_map_type::key_type& key) const
+const column_t& basic_const_iterator<r, i, c>::get_column(const typename basic_const_iterator<r, i, c>::column_map_type::key_type& key) const
 {
     if (!map_)
     {
@@ -156,6 +170,31 @@ const column_t& basic_iterator<r, i, c>::get_column(const typename basic_iterato
     else
     {
 	return get_element<column_t>(*(iter_->second), result->second);
+    }
+}
+
+template <class r, class i, class c>
+basic_iterator<r, i, c>::basic_iterator(index_iterator_type iter, const typename basic_iterator<r, i, c>::column_map_type* map)
+    :
+	base_type(iter, map)
+{ }
+
+template <class r, class i, class c>
+template <class column_t>
+inline column_t& basic_iterator<r, i, c>::set_column(const typename column_map_type::key_type& key)
+{
+    if (!(this->map_))
+    {
+	throw invalid_deference_error("The end iterator cannot be deferenced");
+    }
+    typename column_map_type::const_iterator result = this->map_->find(key);
+    if (TURBO_UNLIKELY(result == this->map_->cend()))
+    {
+	throw unknown_column_error(key.c_str());
+    }
+    else
+    {
+	return set_element<column_t>(*(this->iter_->second), result->second);
     }
 }
 
@@ -212,6 +251,12 @@ template <class k, class... vs>
 typename table<k, vs...>::const_iterator table<k, vs...>::select_row(key_type key) const
 {
     return const_iterator(index_.find(key), &column_map_);
+}
+
+template <class k, class... vs>
+typename table<k, vs...>::iterator table<k, vs...>::update_row(key_type key)
+{
+    return iterator(index_.find(key), &column_map_);
 }
 
 template <class k, class... vs>
