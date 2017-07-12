@@ -18,6 +18,7 @@ commonCapnpFiles=[
 
 publicHeaders = [
     'ecs_db.hpp',
+    'ecs_db.hxx',
     'entity.hpp']
 
 def configure(confCtx):
