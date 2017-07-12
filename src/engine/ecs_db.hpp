@@ -1,12 +1,12 @@
-#ifndef ROBOCUP2DSIM_COMMON_ECS_DB_HPP
-#define ROBOCUP2DSIM_COMMON_ECS_DB_HPP
+#ifndef ROBOCUP2DSIM_ENGINE_ECS_DB_HPP
+#define ROBOCUP2DSIM_ENGINE_ECS_DB_HPP
 
 #include <cstdint>
 #include <robocup2Dsim/engine/ram_db.hpp>
 #include <turbo/toolset/attribute.hpp>
 
 namespace robocup2Dsim {
-namespace common {
+namespace engine {
 
 namespace table_id {
 
@@ -34,7 +34,7 @@ private:
     robocup2Dsim::engine::catalog catalog_;
 };
 
-} // namespace common
+} // namespace engine
 } // namespace robocup2Dsim
 
 #endif

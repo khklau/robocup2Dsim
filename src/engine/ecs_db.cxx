@@ -1,10 +1,10 @@
 #include "ecs_db.hpp"
-#include <robocup2Dsim/engine/ram_db.hxx>
+#include "ram_db.hxx"
 
 namespace ren = robocup2Dsim::engine;
 
 namespace robocup2Dsim {
-namespace common {
+namespace engine {
 
 ecs_db::ecs_db()
     :
@@ -18,5 +18,5 @@ ecs_db::ecs_db()
 	    new system_table_type(8U, "system_id", "system_name")));
 }
 
-} // namespace common
+} // namespace engine
 } // namespace robocup2Dsim

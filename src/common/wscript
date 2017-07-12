@@ -17,8 +17,6 @@ commonCapnpFiles=[
 	'rule.capnp']
 
 publicHeaders = [
-    'ecs_db.hpp',
-    'ecs_db.hxx',
     'entity.hpp']
 
 def configure(confCtx):
@@ -65,7 +63,7 @@ def build(buildCtx):
 	headerPublishTaskList.append(publishTask)
     buildCtx.stlib(
 	    name='stlib_robocup2Dsim_common',
-	    source=[buildCtx.path.find_node('ecs_db.cxx')] + commonCxxNodeList,
+	    source=commonCxxNodeList,
 	    target=os.path.join(buildCtx.env.component.build_tree.libPathFromBuild(buildCtx), 'robocup2Dsim_common'),
 	    includes=['.'] + buildCtx.env.component.include_path_list,
 	    libpath=buildCtx.env.component.lib_path_list,
