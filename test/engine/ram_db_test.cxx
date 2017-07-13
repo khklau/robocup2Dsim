@@ -47,6 +47,25 @@ bool coordinate::operator==(const coordinate& other) const
 
 typedef ren::table<ren::key_32, ren::key_16, coordinate, ren::fixed_cstring_32> vertex_table_type;
 
+TEST(ram_db_test, select_invalid)
+{
+    vertex_table_type table1(4U, "vertex_id", "entity_id", "coordinate", "vertex_name");
+    auto iter1 = table1.select_row(0U);
+    ASSERT_EQ(table1.cend(), iter1) << "Selection of non-existent row succeeded";
+}
+
+TEST(ram_db_test, emplace_invalid)
+{
+    coordinate coordinate1a(5, 10);
+    coordinate coordinate1b(14, 9);
+    ren::fixed_cstring_32 vertex_name1a("top_left");
+    ren::fixed_cstring_32 vertex_name1b("top_right");
+    vertex_table_type table1(4U, "vertex_id", "entity_id", "coordinate", "vertex_name");
+    ASSERT_EQ(ren::emplace_result::success, table1.emplace(0U, 1U, coordinate1a, vertex_name1a)) << "Emplace failed";
+    ASSERT_EQ(ren::emplace_result::key_already_exists, table1.emplace(0U, 5U, coordinate1b, vertex_name1b))
+	    << "Emplace succeeded with a duplicate key";
+}
+
 TEST(ram_db_test, emplace_basic)
 {
     coordinate coordinate1(5, 10);
@@ -63,6 +82,13 @@ TEST(ram_db_test, emplace_basic)
 	    << "Column value selected is not the value inserted";
     ASSERT_TRUE(::strncmp(vertex_name1.c_str(), iter1.get_column<ren::fixed_cstring_32>("vertex_name").c_str(), vertex_name1.max_size()) == 0)
 	    << "Column value selected is not the value inserted";
+}
+
+TEST(ram_db_test, update_invalid)
+{
+    vertex_table_type table1(4U, "vertex_id", "entity_id", "coordinate", "vertex_name");
+    auto iter1 = table1.update_row(0U);
+    ASSERT_EQ(table1.end(), iter1) << "Selection of non-existent row succeeded";
 }
 
 TEST(ram_db_test, update_basic)
