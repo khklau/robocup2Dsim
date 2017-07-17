@@ -8,6 +8,7 @@
 
 namespace robocup2Dsim {
 namespace engine {
+namespace primitives {
 
 template <std::size_t length_c>
 fixed_cstring<length_c>::fixed_cstring()
@@ -98,14 +99,15 @@ void fixed_cstring<length_c>::assign(const std::string& other)
     }
 }
 
+} // namespace primitives
 } // namespace engine
 } // namespace robocup2Dsim
 
 namespace std {
 
 template <std::size_t length_c>
-std::size_t hash<robocup2Dsim::engine::fixed_cstring<length_c>>::operator()(
-	const robocup2Dsim::engine::fixed_cstring<length_c>& cstring) const
+std::size_t hash<robocup2Dsim::engine::primitives::fixed_cstring<length_c>>::operator()(
+	const robocup2Dsim::engine::primitives::fixed_cstring<length_c>& cstring) const
 {
     // use the same hash function as java.lang.String
     std::size_t result = 0U;

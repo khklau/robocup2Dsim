@@ -100,7 +100,7 @@ class TURBO_SYMBOL_DECL table
 private:
     typedef std::tuple<key_t, values_t...> row_type;
     typedef std::unordered_map<key_t, row_type*> row_index_type;
-    typedef std::unordered_map<fixed_cstring_32, std::size_t> column_map_type;
+    typedef std::unordered_map<primitives::fixed_cstring_32, std::size_t> column_map_type;
 public:
     typedef key_t key_type;
     typedef table_iterator::basic_iterator<row_type, typename row_index_type::iterator, column_map_type> iterator;
@@ -125,7 +125,7 @@ private:
     static void populate_column_map(column_map_type& map, std::size_t column_id, column_name_t&& name, column_names_t&&... column_names);
     turbo::memory::block_list data_;
     row_index_type index_;
-    std::array<fixed_cstring_32, total_columns()> column_names_;
+    std::array<primitives::fixed_cstring_32, total_columns()> column_names_;
     column_map_type column_map_;
 };
 
@@ -136,7 +136,7 @@ typedef std::unique_ptr<some_table, void (*)(some_table*)> unique_table_ptr;
 template <class key_t, class... values_t>
 unique_table_ptr make_unique_table(table<key_t, values_t...>* table);
 
-typedef table<robocup2Dsim::engine::key_16, robocup2Dsim::engine::fixed_cstring_32, unique_table_ptr> catalog;
+typedef table<robocup2Dsim::engine::primitives::key_16, robocup2Dsim::engine::primitives::fixed_cstring_32, unique_table_ptr> catalog;
 
 } // namespace engine
 } // namespace robocup2Dsim

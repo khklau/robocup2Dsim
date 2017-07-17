@@ -9,6 +9,7 @@
 
 namespace robocup2Dsim {
 namespace engine {
+namespace primitives {
 
 typedef std::uint16_t key_16;
 typedef std::uint32_t key_32;
@@ -53,15 +54,16 @@ private:
 typedef fixed_cstring<16U> fixed_cstring_16;
 typedef fixed_cstring<32U> fixed_cstring_32;
 
+} // namespace primitives
 } // namespace engine
 } // namespace robocup2Dsim
 
 namespace std {
 
 template <std::size_t length_c>
-struct hash<robocup2Dsim::engine::fixed_cstring<length_c>>
+struct hash<robocup2Dsim::engine::primitives::fixed_cstring<length_c>>
 {
-    std::size_t operator()(const robocup2Dsim::engine::fixed_cstring<length_c>& cstring) const;
+    std::size_t operator()(const robocup2Dsim::engine::primitives::fixed_cstring<length_c>& cstring) const;
 };
 
 } // namespace std
