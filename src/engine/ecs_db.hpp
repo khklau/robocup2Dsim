@@ -12,19 +12,32 @@ namespace table_id {
 
 enum TURBO_SYMBOL_DECL type : std::uint16_t
 {
-    entity,
-    component,
-    system
+    entity_registry,
+    component_registry,
+    system_registry,
+    entity_component_map,
+    component_system_map
 };
 
 } // namespace table_id
 
+namespace system_id {
+
+enum TURBO_SYMBOL_DECL type : std::uint16_t
+{
+    physics
+};
+
+} // namespace system_id
+
 class TURBO_SYMBOL_DECL ecs_db
 {
 public:
-    typedef robocup2Dsim::engine::table<robocup2Dsim::engine::key_16, robocup2Dsim::engine::fixed_cstring_32> entity_table_type;
-    typedef robocup2Dsim::engine::table<robocup2Dsim::engine::key_16, robocup2Dsim::engine::fixed_cstring_32> component_table_type;
-    typedef robocup2Dsim::engine::table<robocup2Dsim::engine::key_16, robocup2Dsim::engine::fixed_cstring_32> system_table_type;
+    typedef table<primitives::key_16, primitives::fixed_cstring_32> entity_table_type;
+    typedef table<primitives::key_16, unique_table_ptr, primitives::fixed_cstring_32> component_table_type;
+    typedef table<primitives::key_16, unique_table_ptr, primitives::fixed_cstring_32> system_table_type;
+    typedef table<primitives::key_16, primitives::key_16, primitives::key_32> entity_component_table_type;
+    typedef table<primitives::key_16, primitives::key_16, primitives::key_32> component_system_table_type;
     ecs_db();
     template <class table_t>
     table_t& access(table_id::type id);
