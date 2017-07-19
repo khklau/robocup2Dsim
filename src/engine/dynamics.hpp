@@ -1,5 +1,5 @@
-#ifndef ROBOCUP2DSIM_ENGINE_PRESENCE_HPP
-#define ROBOCUP2DSIM_ENGINE_PRESENCE_HPP
+#ifndef ROBOCUP2DSIM_ENGINE_DYNAMICS_HPP
+#define ROBOCUP2DSIM_ENGINE_DYNAMICS_HPP
 
 #include <Box2D/Dynamics/b2Body.h>
 
@@ -12,3 +12,5 @@ typedef b2Body body;
 } // namespace dynamics
 } // namespace engine
 } // namespace robocup2Dsim
+
+#endif
