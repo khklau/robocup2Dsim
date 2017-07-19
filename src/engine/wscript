@@ -11,7 +11,7 @@ publicHeaders = [
     'dynamics.hpp',
     'primitives.hpp',
     'primitives.hxx',
-    'simulation.hpp',
+    'physics.hpp',
     'ram_db.hpp',
     'ram_db.hxx']
 
@@ -34,7 +34,7 @@ def build(buildCtx):
     buildCtx.stlib(
 	    name='stlib_robocup2Dsim_engine',
 	    source=[buildCtx.path.find_node('ecs_db.cxx'),
-		    buildCtx.path.find_node('simulation.cxx')] +
+		    buildCtx.path.find_node('physics.cxx')] +
 		    [buildCtx.root.find_node(lib) for lib in buildCtx.env['SNAPBOX2D_STLIB_PATH']],
 	    target=os.path.join(buildCtx.env.component.build_tree.libPathFromBuild(buildCtx), 'robocup2Dsim_engine'),
 	    includes=['.'] + buildCtx.env.component.include_path_list,
