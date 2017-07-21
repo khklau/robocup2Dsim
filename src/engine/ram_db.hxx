@@ -2,7 +2,7 @@
 #define ROBOCUP2DSIM_ENGINE_RAM_DB_HXX
 
 #include <robocup2Dsim/engine/primitives.hxx>
-#include <turbo/memory/block.hpp>
+#include <turbo/memory/block.hxx>
 #include <turbo/toolset/extension.hpp>
 #include <type_traits>
 
