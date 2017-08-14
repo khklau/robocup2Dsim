@@ -7,10 +7,12 @@ def options(optCtx):
 
 def configure(confCtx):
     confCtx.env.product = Product.fromContext(confCtx, NAME, confCtx.env.solution)
+    confCtx.recurse('runtime')
     confCtx.recurse('engine')
     confCtx.recurse('server')
 
 def build(buildCtx):
     buildCtx.env.product = buildCtx.env.solution.getProduct(NAME)
+    buildCtx.recurse('runtime')
     buildCtx.recurse('engine')
     buildCtx.recurse('server')

@@ -54,6 +54,7 @@ def configure(confCtx):
     confCtx.env.product.rpath_list.append(confCtx.env['LIBPATH_ENET_SHLIB'])
     confCtx.env.product.rpath_list.append(confCtx.env['LIBPATH_SNAPBOX2D_SHLIB'])
     confCtx.env.product.rpath_list.append(confCtx.env['LIBPATH_GLOG_SHLIB'])
+    confCtx.recurse('runtime')
     confCtx.recurse('engine')
     confCtx.recurse('common')
     confCtx.recurse('bcprotocol')
@@ -64,6 +65,7 @@ def configure(confCtx):
 
 def build(buildCtx):
     buildCtx.env.product = buildCtx.env.solution.getProduct(NAME)
+    buildCtx.recurse('runtime')
     buildCtx.recurse('engine')
     buildCtx.recurse('common')
     buildCtx.recurse('bcprotocol')
