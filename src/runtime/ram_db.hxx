@@ -1,14 +1,14 @@
-#ifndef ROBOCUP2DSIM_ENGINE_RAM_DB_HXX
-#define ROBOCUP2DSIM_ENGINE_RAM_DB_HXX
+#ifndef ROBOCUP2DSIM_RUNTIME_RAM_DB_HXX
+#define ROBOCUP2DSIM_RUNTIME_RAM_DB_HXX
 
-#include <robocup2Dsim/engine/primitives.hxx>
+#include <robocup2Dsim/runtime/primitives.hxx>
 #include <turbo/memory/block.hxx>
 #include <turbo/toolset/extension.hpp>
 #include <type_traits>
 
 namespace {
 
-using namespace robocup2Dsim::engine;
+using namespace robocup2Dsim::runtime;
 
 template <class key_t, class... values_t>
 void delete_unique_table(some_table* something)
@@ -86,7 +86,7 @@ element_t& set_element(std::tuple<tuple_types_t...>& tuple, std::size_t index)
 } // anonymous namespace
 
 namespace robocup2Dsim {
-namespace engine {
+namespace runtime {
 
 namespace table_iterator {
 
@@ -288,7 +288,7 @@ unique_table_ptr make_unique_table(table<key_t, values_t...>* table_ptr)
 	    delete_unique_table<key_t, values_t...>));
 }
 
-} // namespace engine
+} // namespace runtime
 } // namespace robocup2Dsim
 
 #endif

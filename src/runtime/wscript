@@ -9,6 +9,8 @@ publicHeaders = [
     'db_access.hpp',
     'ecs_db.hpp',
     'ecs_db.hxx',
+    'primitives.hpp',
+    'primitives.hxx',
     'ram_db.hpp',
     'ram_db.hxx']
 

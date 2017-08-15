@@ -1,13 +1,13 @@
-#ifndef ROBOCUP2DSIM_ENGINE_PRIMITIVES_HXX
-#define ROBOCUP2DSIM_ENGINE_PRIMITIVES_HXX
+#ifndef ROBOCUP2DSIM_RUNTIME_PRIMITIVES_HXX
+#define ROBOCUP2DSIM_RUNTIME_PRIMITIVES_HXX
 
-#include <robocup2Dsim/engine/primitives.hpp>
+#include <robocup2Dsim/runtime/primitives.hpp>
 #include <cstring>
 #include <algorithm>
 #include <stdexcept>
 
 namespace robocup2Dsim {
-namespace engine {
+namespace runtime {
 namespace primitives {
 
 template <std::size_t length_c>
@@ -100,14 +100,14 @@ void fixed_cstring<length_c>::assign(const std::string& other)
 }
 
 } // namespace primitives
-} // namespace engine
+} // namespace runtime
 } // namespace robocup2Dsim
 
 namespace std {
 
 template <std::size_t length_c>
-std::size_t hash<robocup2Dsim::engine::primitives::fixed_cstring<length_c>>::operator()(
-	const robocup2Dsim::engine::primitives::fixed_cstring<length_c>& cstring) const
+std::size_t hash<robocup2Dsim::runtime::primitives::fixed_cstring<length_c>>::operator()(
+	const robocup2Dsim::runtime::primitives::fixed_cstring<length_c>& cstring) const
 {
     // use the same hash function as java.lang.String
     std::size_t result = 0U;

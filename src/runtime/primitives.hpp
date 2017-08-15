@@ -1,5 +1,5 @@
-#ifndef ROBOCUP2DSIM_ENGINE_PRIMITIVES_HPP
-#define ROBOCUP2DSIM_ENGINE_PRIMITIVES_HPP
+#ifndef ROBOCUP2DSIM_RUNTIME_PRIMITIVES_HPP
+#define ROBOCUP2DSIM_RUNTIME_PRIMITIVES_HPP
 
 #include <cstddef>
 #include <cstdint>
@@ -8,7 +8,7 @@
 #include <turbo/toolset/attribute.hpp>
 
 namespace robocup2Dsim {
-namespace engine {
+namespace runtime {
 namespace primitives {
 
 typedef std::uint16_t key_16;
@@ -55,15 +55,15 @@ typedef fixed_cstring<16U> fixed_cstring_16;
 typedef fixed_cstring<32U> fixed_cstring_32;
 
 } // namespace primitives
-} // namespace engine
+} // namespace runtime
 } // namespace robocup2Dsim
 
 namespace std {
 
 template <std::size_t length_c>
-struct hash<robocup2Dsim::engine::primitives::fixed_cstring<length_c>>
+struct hash<robocup2Dsim::runtime::primitives::fixed_cstring<length_c>>
 {
-    std::size_t operator()(const robocup2Dsim::engine::primitives::fixed_cstring<length_c>& cstring) const;
+    std::size_t operator()(const robocup2Dsim::runtime::primitives::fixed_cstring<length_c>& cstring) const;
 };
 
 } // namespace std

@@ -10,3 +10,16 @@ def configure(confCtx):
 
 def build(buildCtx):
     buildCtx.env.component = buildCtx.env.product.getComponent(name(buildCtx))
+    buildCtx.program(
+	    name='exe_ram_db_test',
+	    source=[buildCtx.path.find_node('ram_db_test.cxx')] +
+		    [buildCtx.root.find_node(lib) for lib in buildCtx.env['TURBO_STLIB_PATH']],
+	    target=os.path.join(buildCtx.env.component.build_tree.testPathFromBuild(buildCtx), 'ram_db_test'),
+	    defines=['GTEST_HAS_PTHREAD=1'],
+	    includes=['.'] + buildCtx.env.component.include_path_list,
+	    cxxflags=buildCtx.env.CXXFLAGS,
+	    linkflags=buildCtx.env.LDFLAGS,
+	    use=['GTEST', 'TURBO_STLIB', 'stlib_robocup2Dsim_runtime'],
+	    libpath=['.'] + buildCtx.env.component.lib_path_list,
+	    rpath=buildCtx.env.component.rpath_list,
+	    install_path=None)

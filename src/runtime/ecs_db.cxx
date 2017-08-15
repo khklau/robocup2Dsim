@@ -2,7 +2,7 @@
 #include "ram_db.hxx"
 
 namespace robocup2Dsim {
-namespace engine {
+namespace runtime {
 
 ecs_db::ecs_db(std::size_t contingency_capacity, const std::vector<turbo::memory::block_config>& allocator_config)
     :
@@ -21,5 +21,5 @@ ecs_db::ecs_db(std::size_t contingency_capacity, const std::vector<turbo::memory
 	    new component_system_table_type(512U, "component_id", "system_id", "task_id")));
 }
 
-} // namespace engine
+} // namespace runtime
 } // namespace robocup2Dsim

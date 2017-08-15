@@ -1,10 +1,10 @@
-#ifndef ROBOCUP2DSIM_ENGINE_ECS_DB_HXX
-#define ROBOCUP2DSIM_ENGINE_ECS_DB_HXX
+#ifndef ROBOCUP2DSIM_RUNTIME_ECS_DB_HXX
+#define ROBOCUP2DSIM_RUNTIME_ECS_DB_HXX
 
-#include <robocup2Dsim/engine/ram_db.hxx>
+#include <robocup2Dsim/runtime/ram_db.hxx>
 
 namespace robocup2Dsim {
-namespace engine {
+namespace runtime {
 
 template <class table_t>
 table_t& ecs_db::access(table_id::type id)
@@ -20,7 +20,7 @@ const table_t& ecs_db::access(table_id::type id) const
     return *(static_cast<table_t*>(static_cast<void*>(iter.get_column<unique_table_ptr>("table_ptr").get())));
 }
 
-} // namespace engine
+} // namespace runtime
 } // namespace robocup2Dsim
 
 #endif

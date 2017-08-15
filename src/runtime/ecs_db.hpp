@@ -1,15 +1,15 @@
-#ifndef ROBOCUP2DSIM_ENGINE_ECS_DB_HPP
-#define ROBOCUP2DSIM_ENGINE_ECS_DB_HPP
+#ifndef ROBOCUP2DSIM_RUNTIME_ECS_DB_HPP
+#define ROBOCUP2DSIM_RUNTIME_ECS_DB_HPP
 
 #include <cstddef>
 #include <cstdint>
 #include <vector>
-#include <robocup2Dsim/engine/ram_db.hpp>
+#include <robocup2Dsim/runtime/ram_db.hpp>
 #include <turbo/memory/slab_allocator.hpp>
 #include <turbo/toolset/attribute.hpp>
 
 namespace robocup2Dsim {
-namespace engine {
+namespace runtime {
 
 namespace table_id {
 
@@ -52,10 +52,10 @@ public:
     }
 private:
     turbo::memory::concurrent_sized_slab component_allocator_;
-    robocup2Dsim::engine::catalog catalog_;
+    robocup2Dsim::runtime::catalog catalog_;
 };
 
-} // namespace engine
+} // namespace runtime
 } // namespace robocup2Dsim
 
 #endif

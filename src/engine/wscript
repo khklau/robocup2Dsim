@@ -6,14 +6,8 @@ def name(context):
     return os.path.basename(str(context.path))
 
 publicHeaders = [
-    'ecs_db.hpp',
-    'ecs_db.hxx',
     'dynamics.hpp',
-    'primitives.hpp',
-    'primitives.hxx',
-    'physics.hpp',
-    'ram_db.hpp',
-    'ram_db.hxx']
+    'physics.hpp']
 
 def configure(confCtx):
     confCtx.env.component = Component.fromContext(confCtx, name(confCtx), confCtx.env.product)
@@ -33,14 +27,17 @@ def build(buildCtx):
 	headerPublishTaskList.append(publishTask)
     buildCtx.stlib(
 	    name='stlib_robocup2Dsim_engine',
-	    source=[buildCtx.path.find_node('ecs_db.cxx'),
-		    buildCtx.path.find_node('physics.cxx')] +
-		    [buildCtx.root.find_node(lib) for lib in buildCtx.env['SNAPBOX2D_STLIB_PATH']],
+	    source=[buildCtx.path.find_node('physics.cxx')],
 	    target=os.path.join(buildCtx.env.component.build_tree.libPathFromBuild(buildCtx), 'robocup2Dsim_engine'),
 	    includes=['.'] + buildCtx.env.component.include_path_list,
 	    libpath=buildCtx.env.component.lib_path_list,
 	    cxxflags=buildCtx.env.CXXFLAGS,
 	    linkflags=buildCtx.env.LDFLAGS,
-	    use=['SNAPBOX2D_STLIB'],
+	    stlib=buildCtx.env['STLIB_TURBO_STLIB'] +
+		    buildCtx.env['STLIB_SNAPBOX2D_STLIB'],
+	    use=['TURBO_STLIB',
+		    'stlib_robocup2Dsim_runtime',
+		    'SNAPBOX2D_STLIB'],
 	    install_path=buildCtx.env.component.install_tree.lib,
-	    after=headerPublishTaskList)
+	    after=headerPublishTaskList +
+		    ['stlib_robocup2Dsim_runtime'])

@@ -1,5 +1,5 @@
-#ifndef ROBOCUP2DSIM_ENGINE_RAM_DB_HPP
-#define ROBOCUP2DSIM_ENGINE_RAM_DB_HPP
+#ifndef ROBOCUP2DSIM_RUNTIME_RAM_DB_HPP
+#define ROBOCUP2DSIM_RUNTIME_RAM_DB_HPP
 
 #include <cstddef>
 #include <array>
@@ -9,12 +9,12 @@
 #include <stdexcept>
 #include <tuple>
 #include <unordered_map>
-#include <robocup2Dsim/engine/primitives.hpp>
+#include <robocup2Dsim/runtime/primitives.hpp>
 #include <turbo/memory/block.hpp>
 #include <turbo/toolset/attribute.hpp>
 
 namespace robocup2Dsim {
-namespace engine {
+namespace runtime {
 
 static const std::size_t TABLE_COLUMN_NUMBER_LIMIT_ = 16U;
 
@@ -136,9 +136,9 @@ typedef std::unique_ptr<some_table, void (*)(some_table*)> unique_table_ptr;
 template <class key_t, class... values_t>
 unique_table_ptr make_unique_table(table<key_t, values_t...>* table);
 
-typedef table<robocup2Dsim::engine::primitives::key_16, robocup2Dsim::engine::primitives::fixed_cstring_32, unique_table_ptr> catalog;
+typedef table<robocup2Dsim::runtime::primitives::key_16, robocup2Dsim::runtime::primitives::fixed_cstring_32, unique_table_ptr> catalog;
 
-} // namespace engine
+} // namespace runtime
 } // namespace robocup2Dsim
 
 #endif
