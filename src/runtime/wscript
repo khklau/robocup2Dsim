@@ -39,6 +39,5 @@ def build(buildCtx):
 	    libpath=buildCtx.env.component.lib_path_list,
 	    cxxflags=buildCtx.env.CXXFLAGS,
 	    linkflags=buildCtx.env.LDFLAGS,
-	    stlib=buildCtx.env['STLIB_TURBO_STLIB'],
 	    install_path=buildCtx.env.component.install_tree.lib,
 	    after=headerPublishTaskList)
