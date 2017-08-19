@@ -1,7 +1,5 @@
 #include "physics.hpp"
 #include <Box2D/Common/b2Math.h>
-#include <SnapBox2D/snapshot.hpp>
-#include <SnapBox2D/storage.hpp>
 #include <robocup2Dsim/runtime/ecs_db.hpp>
 #include <robocup2Dsim/runtime/ecs_db.hxx>
 #include <robocup2Dsim/runtime/ram_db.hxx>
