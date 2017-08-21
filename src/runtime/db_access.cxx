@@ -2,18 +2,16 @@
 #include <turbo/memory/slab_allocator.hxx>
 #include <robocup2Dsim/runtime/ecs_db.hxx>
 
-namespace rru = robocup2Dsim::runtime;
-
 namespace robocup2Dsim {
 namespace runtime {
 
-rru::ecs_db& update_local_db()
+ecs_db& update_local_db()
 {
-    thread_local rru::ecs_db* db_ = nullptr;
-    if (!db_)
+    thread_local ecs_db* db_ = nullptr;
+    if (db_ == nullptr)
     {
 	// TODO: parse the component allocator config from a file
-	db_ = new rru::ecs_db(4U,
+	db_ = new ecs_db(4U,
 	{
 	    {2U, 256U},
 	    {4U, 256U},

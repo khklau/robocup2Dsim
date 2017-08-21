@@ -5,24 +5,16 @@
 #include <robocup2Dsim/runtime/ecs_db.hpp>
 
 namespace robocup2Dsim {
-
 namespace runtime {
 
-class ecs_db;
+ecs_db& update_local_db();
 
-} // namespace runtime
-
-namespace runtime {
-
-robocup2Dsim::runtime::ecs_db& update_local_db();
-
-inline const robocup2Dsim::runtime::ecs_db& select_local_db()
+inline const ecs_db& select_local_db()
 {
     return update_local_db();
 }
 
 } // namespace runtime
-
 } // namespace robocup2Dsim
 
 namespace runtime_ {
