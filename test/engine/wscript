@@ -10,3 +10,21 @@ def configure(confCtx):
 
 def build(buildCtx):
     buildCtx.env.component = buildCtx.env.product.getComponent(name(buildCtx))
+    buildCtx.program(
+	    name='exe_physics_test',
+	    source=[buildCtx.path.find_node('physics_test.cxx')],
+	    target=os.path.join(buildCtx.env.component.build_tree.testPathFromBuild(buildCtx), 'physics_test'),
+	    defines=['GTEST_HAS_PTHREAD=1'],
+	    includes=['.'] + buildCtx.env.component.include_path_list,
+	    cxxflags=buildCtx.env.CXXFLAGS,
+	    linkflags=buildCtx.env.LDFLAGS,
+	    use=['GTEST_STLIB',
+		    'TURBO_STLIB',
+		    'stlib_robocup2Dsim_runtime',
+		    'SNAPBOX2D_STLIB',
+		    'stlib_robocup2Dsim_engine'],
+	    libpath=['.'] + buildCtx.env.component.lib_path_list,
+	    rpath=buildCtx.env.component.rpath_list,
+	    install_path=None,
+	    after=['stlib_robocup2Dsim_runtime',
+		    'stlib_robocup2Dsim_engine'])
