@@ -33,11 +33,6 @@ def build(buildCtx):
 	    libpath=buildCtx.env.component.lib_path_list,
 	    cxxflags=buildCtx.env.CXXFLAGS,
 	    linkflags=buildCtx.env.LDFLAGS,
-	    stlib=buildCtx.env['STLIB_TURBO_STLIB'] +
-		    buildCtx.env['STLIB_SNAPBOX2D_STLIB'],
-	    use=['TURBO_STLIB',
-		    'stlib_robocup2Dsim_runtime',
-		    'SNAPBOX2D_STLIB'],
 	    install_path=buildCtx.env.component.install_tree.lib,
 	    after=headerPublishTaskList +
 		    ['stlib_robocup2Dsim_runtime'])
