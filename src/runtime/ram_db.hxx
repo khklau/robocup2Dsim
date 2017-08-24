@@ -1,10 +1,12 @@
 #ifndef ROBOCUP2DSIM_RUNTIME_RAM_DB_HXX
 #define ROBOCUP2DSIM_RUNTIME_RAM_DB_HXX
 
-#include <robocup2Dsim/runtime/primitives.hxx>
+#include <robocup2Dsim/runtime/ram_db.hpp>
+#include <limits>
+#include <type_traits>
 #include <turbo/memory/block.hxx>
 #include <turbo/toolset/extension.hpp>
-#include <type_traits>
+#include <robocup2Dsim/runtime/primitives.hxx>
 
 namespace {
 
@@ -207,7 +209,8 @@ table<k, vs...>::table(std::size_t initial_size, const char* key_name, column_na
 	data_(sizeof(row_type), initial_size),
 	index_(),
 	column_names_{{ key_name, column_names... }},
-	column_map_()
+	column_map_(),
+	auto_key_(std::numeric_limits<key_type>::min())
 {
     populate_column_map(column_map_, 0U, key_name, column_names...);
     static_assert(sizeof...(vs) == sizeof...(column_names), "The number of column name arguments "
@@ -244,6 +247,29 @@ emplace_result table<k, vs...>::emplace(key_type key, column_values_t&&... colum
 	new (entry) row_type(key, std::forward<column_values_t>(column_values)...);
 	index_.emplace(key, entry);
 	return emplace_result::success;
+    }
+}
+
+template <class k, class... vs>
+template <class... column_values_t>
+typename table<k, vs...>::key_type table<k, vs...>::auto_emplace(column_values_t&&... column_values)
+{
+    if (auto_key_ == std::numeric_limits<key_type>::max())
+    {
+	throw key_limit_error("The auto incrementing key is at maximum");
+    }
+    row_type* entry = static_cast<row_type*>(data_.allocate());
+    if (TURBO_UNLIKELY(entry == nullptr))
+    {
+	throw turbo::memory::out_of_memory_error("Insufficient free memory to allocate the requested table row");
+    }
+    else
+    {
+	key_type key_used = auto_key_;
+	new (entry) row_type(key_used, std::forward<column_values_t>(column_values)...);
+	index_.emplace(key_used, entry);
+	++auto_key_;
+	return key_used;
     }
 }
 

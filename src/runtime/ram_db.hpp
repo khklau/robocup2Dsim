@@ -24,10 +24,10 @@ struct unknown_column_error : public std::invalid_argument
     explicit unknown_column_error(const std::string& what) : invalid_argument(what) { }
 };
 
-struct column_limit_error : public std::invalid_argument
+struct key_limit_error : public std::out_of_range
 {
-    explicit column_limit_error(const char* what) : invalid_argument(what) { }
-    explicit column_limit_error(const std::string& what) : invalid_argument(what) { }
+    explicit key_limit_error(const char* what) : out_of_range(what) { }
+    explicit key_limit_error(const std::string& what) : out_of_range(what) { }
 };
 
 struct invalid_deference_error : public std::logic_error
@@ -114,8 +114,10 @@ public:
     table(std::size_t initial_size, const char* key_name, column_names_t&&... column_names);
     inline iterator end();
     inline const_iterator cend() const;
-    template <class... column_names_t>
-    emplace_result emplace(key_type key, column_names_t&&... column_names);
+    template <class... column_values_t>
+    emplace_result emplace(key_type key, column_values_t&&... column_values);
+    template <class... column_values_t>
+    key_type auto_emplace(column_values_t&&... column_values);
     inline const_iterator select_row(key_type key) const;
     inline iterator update_row(key_type key);
 private:
@@ -127,6 +129,7 @@ private:
     row_index_type index_;
     std::array<primitives::fixed_cstring_32, total_columns()> column_names_;
     column_map_type column_map_;
+    key_type auto_key_;
 };
 
 struct TURBO_SYMBOL_DECL some_table;
