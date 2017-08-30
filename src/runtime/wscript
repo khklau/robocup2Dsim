@@ -12,7 +12,9 @@ publicHeaders = [
     'primitives.hpp',
     'primitives.hxx',
     'ram_db.hpp',
-    'ram_db.hxx']
+    'ram_db.hxx',
+    'resource.hpp',
+    'resource.hxx']
 
 def configure(confCtx):
     confCtx.env.component = Component.fromContext(confCtx, name(confCtx), confCtx.env.product)
