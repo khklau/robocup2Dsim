@@ -7,7 +7,9 @@ def name(context):
 
 publicHeaders = [
     'dynamics.hpp',
-    'physics.hpp']
+    'math.hpp',
+    'physics.hpp',
+    'physics.hxx']
 
 def configure(confCtx):
     confCtx.env.component = Component.fromContext(confCtx, name(confCtx), confCtx.env.product)
@@ -27,7 +29,8 @@ def build(buildCtx):
 	headerPublishTaskList.append(publishTask)
     buildCtx.stlib(
 	    name='stlib_robocup2Dsim_engine',
-	    source=[buildCtx.path.find_node('physics.cxx')],
+	    source=[buildCtx.path.find_node('physics.cxx'),
+		    buildCtx.path.find_node('dynamics.cxx')],
 	    target=os.path.join(buildCtx.env.component.build_tree.libPathFromBuild(buildCtx), 'robocup2Dsim_engine'),
 	    includes=['.'] + buildCtx.env.component.include_path_list,
 	    libpath=buildCtx.env.component.lib_path_list,
