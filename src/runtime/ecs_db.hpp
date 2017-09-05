@@ -33,14 +33,23 @@ enum TURBO_SYMBOL_DECL type : std::uint16_t
 
 } // namespace system_id
 
+namespace component_id {
+
+enum TURBO_SYMBOL_DECL type : std::uint16_t
+{
+    body
+};
+
+} // namespace component_id
+
 class TURBO_SYMBOL_DECL ecs_db
 {
 public:
     typedef table<primitives::key_16, primitives::fixed_cstring_32> entity_table_type;
     typedef table<primitives::key_16, primitives::fixed_cstring_32> component_table_type;
     typedef table<primitives::key_16, unique_table_ptr, primitives::fixed_cstring_32> system_table_type;
-    typedef table<primitives::key_16, primitives::key_16, primitives::key_32> entity_component_table_type;
-    typedef table<primitives::key_16, primitives::key_16, primitives::key_32> component_system_table_type;
+    typedef table<primitives::key_32, primitives::key_16, primitives::key_16> entity_component_table_type;
+    typedef table<primitives::key_32, primitives::key_16, primitives::key_16> component_system_table_type;
     ecs_db(std::size_t contingency_capacity, const std::vector<turbo::memory::block_config>& allocator_config);
     template <class table_t>
     table_t& access(table_id::type id);
