@@ -9,7 +9,6 @@ namespace engine {
 namespace dynamics {
 
 typedef b2Body body;
-typedef b2BodyDef body_config;
 
 void register_components(robocup2Dsim::runtime::ecs_db& db);
 
