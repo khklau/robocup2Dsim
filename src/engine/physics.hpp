@@ -4,13 +4,16 @@
 #include <bitset>
 #include <memory>
 #include <type_traits>
+#include <Box2D/Collision/Shapes/b2CircleShape.h>
 #include <Box2D/Dynamics/b2Fixture.h>
 #include <Box2D/Dynamics/b2World.h>
 #include <turbo/toolset/attribute.hpp>
+#include <robocup2Dsim/runtime/ecs_db.hpp>
 #include <robocup2Dsim/runtime/primitives.hpp>
 #include <robocup2Dsim/runtime/ram_db.hpp>
 #include <robocup2Dsim/runtime/resource.hpp>
 #include <robocup2Dsim/engine/dynamics.hpp>
+#include <robocup2Dsim/engine/math.hpp>
 
 namespace robocup2Dsim {
 
@@ -28,22 +31,26 @@ enum class contact_result
     collide
 };
 
-template <class entity_category_t>
-class collision_config
+template <class contact_category_t>
+class contact_config
 {
 public:
-    typedef entity_category_t entity_category_type;
-    static constexpr std::size_t category_bit_size = std::numeric_limits<decltype(b2Filter::categoryBits)>::digits;
-    static_assert(std::is_unsigned<typename std::underlying_type<entity_category_type>::type>::value,
+    typedef contact_category_t contact_category_type;
+    typedef typename std::underlying_type<contact_category_type>::type category_underlying_type;
+    static constexpr std::size_t max_category_limit = std::numeric_limits<decltype(b2Filter::categoryBits)>::digits;
+    static_assert(std::is_unsigned<category_underlying_type>::value,
 	    "entity_cateogry_type template parameter must be have an underlying type that is an unsigned integer");
-    static_assert(std::numeric_limits<typename std::underlying_type<entity_category_type>::type>::digits <= category_bit_size,
-	    "the underlying type of the entity_cateogry_type template exceeds the supported size");
-    collision_config(contact_result initial);
-    ~collision_config() = default;
-    contact_result get(entity_category_type category) const;
-    void set(entity_category_type category, contact_result contact);
+    static_assert(static_cast<category_underlying_type>(contact_category_type::max) <= max_category_limit,
+	    "the maximum value of entity_cateogry_type template exceeds the supported category limit");
+    contact_config(contact_result initial, contact_result from_same_entity);
+    ~contact_config() = default;
+    inline decltype(b2Filter::categoryBits) to_uint() const;
+    inline contact_result get_from_same_entity_config() const;
+    contact_result get(contact_category_type category) const;
+    void set(contact_category_type category, contact_result contact);
 private:
-    std::bitset<category_bit_size> config_;
+    std::bitset<max_category_limit> config_;
+    contact_result from_same_entity_;
 };
 
 template <class element_t>
@@ -52,9 +59,25 @@ using physics_ptr = robocup2Dsim::runtime::borrowed_ptr<robocup2Dsim::runtime::s
 class TURBO_SYMBOL_DECL physics
 {
 public:
-    typedef b2Fixture fixture;
+    typedef b2Vec2 vec2;
+    typedef b2BodyDef body_def;
+    typedef b2FixtureDef fixture_def;
+    typedef b2CircleShape circle_shape;
+    typedef robocup2Dsim::runtime::ecs_db::entity_table_type::key_type entity_id_type;
     physics();
+    physics(const vec2& gravity);
+    physics_ptr<dynamics::body> make_body(entity_id_type entity_id, const body_def& def);
+    template <class contact_category_t>
+    fixture_def make_fixture_def(
+	    entity_id_type entity_id,
+	    contact_category_t category,
+	    const contact_config<contact_category_t>& contact);
+    void make_fixture(
+	    entity_id_type entity_id,
+	    physics_ptr<dynamics::body> body,
+	    const fixture_def& def);
 private:
+    typedef b2Fixture fixture;
     b2World world_;
 };
 
