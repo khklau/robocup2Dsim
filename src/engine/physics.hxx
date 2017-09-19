@@ -77,6 +77,15 @@ typename physics::fixture_def physics::make_fixture_def(
     return result;
 }
 
+template <class joint_t, class def_t>
+void physics::make_joint(
+	entity_id_type entity_id,
+	const def_t& def)
+{
+    physics_ptr<joint_t> result(static_cast<joint_t*>(world_.CreateJoint(&def)));
+    result->SetUserData(reinterpret_cast<void*>(static_cast<std::uintptr_t>(entity_id)));
+}
+
 } // namespace engine
 } // namespace robocup2Dsim
 

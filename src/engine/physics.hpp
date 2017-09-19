@@ -5,8 +5,11 @@
 #include <memory>
 #include <type_traits>
 #include <Box2D/Collision/Shapes/b2CircleShape.h>
+#include <Box2D/Collision/Shapes/b2PolygonShape.h>
 #include <Box2D/Dynamics/b2Fixture.h>
 #include <Box2D/Dynamics/b2World.h>
+#include <Box2D/Dynamics/Joints/b2RevoluteJoint.h>
+#include <Box2D/Dynamics/Joints/b2PrismaticJoint.h>
 #include <turbo/toolset/attribute.hpp>
 #include <robocup2Dsim/runtime/ecs_db.hpp>
 #include <robocup2Dsim/runtime/primitives.hpp>
@@ -61,8 +64,12 @@ class TURBO_SYMBOL_DECL physics
 public:
     typedef b2Vec2 vec2;
     typedef b2BodyDef body_def;
+    typedef b2MassData mass_data;
     typedef b2FixtureDef fixture_def;
     typedef b2CircleShape circle_shape;
+    typedef b2PolygonShape polygon_shape;
+    typedef b2RevoluteJointDef revolute_joint_def;
+    typedef b2PrismaticJointDef prismatic_joint_def;
     typedef robocup2Dsim::runtime::ecs_db::entity_table_type::key_type entity_id_type;
     physics();
     physics(const vec2& gravity);
@@ -76,8 +83,20 @@ public:
 	    entity_id_type entity_id,
 	    physics_ptr<dynamics::body> body,
 	    const fixture_def& def);
+    void make_joint(
+	    entity_id_type entity_id,
+	    const revolute_joint_def& def);
+    void make_joint(
+	    entity_id_type entity_id,
+	    const prismatic_joint_def& def);
 private:
     typedef b2Fixture fixture;
+    typedef b2RevoluteJoint revolute_joint;
+    typedef b2PrismaticJoint prismatic_joint;
+    template <class joint_t, class def_t>
+    void make_joint(
+	    entity_id_type entity_id,
+	    const def_t& def);
     b2World world_;
 };
 

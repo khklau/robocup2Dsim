@@ -20,6 +20,10 @@ public:
     ~borrowed_ptr() = default;
     borrowed_ptr& operator=(const borrowed_ptr& other);
     explicit operator bool() const;
+    inline element_type* get() const
+    {
+	return ptr_;
+    }
     inline element_type& operator*()
     {
 	return *ptr_;

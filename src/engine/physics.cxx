@@ -41,6 +41,20 @@ void physics::make_fixture(
     result->SetUserData(reinterpret_cast<void*>(static_cast<std::uintptr_t>(entity_id)));
 }
 
+void physics::make_joint(
+	entity_id_type entity_id,
+	const revolute_joint_def& def)
+{
+    make_joint<revolute_joint>(entity_id, def);
+}
+
+void physics::make_joint(
+	entity_id_type entity_id,
+	const prismatic_joint_def& def)
+{
+    make_joint<prismatic_joint>(entity_id, def);
+}
+
 void register_system(rru::ecs_db& db, std::unique_ptr<physics> phys)
 {
     rru::ecs_db::system_table_type& sys_table = db.access<ecs_db::system_table_type>(table_id::system_registry);
