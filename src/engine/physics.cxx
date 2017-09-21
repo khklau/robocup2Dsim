@@ -2,6 +2,7 @@
 #include "physics.hxx"
 #include <cstdint>
 #include <type_traits>
+#include <utility>
 #include <Box2D/Common/b2Math.h>
 #include <Box2D/Collision/Shapes/b2CircleShape.h>
 #include <robocup2Dsim/runtime/db_access.hpp>
@@ -11,6 +12,21 @@
 #include "dynamics.hpp"
 
 namespace rru = robocup2Dsim::runtime;
+
+namespace {
+
+using namespace robocup2Dsim::engine;
+
+void delete_body(dynamics::body* body)
+{
+     physics* engine = static_cast<physics*>(body->GetUserData());
+     if (engine != nullptr)
+     {
+	 engine->destroy_body(body);
+     }
+}
+
+} // anonymous namespace
 
 namespace robocup2Dsim {
 namespace engine {
@@ -25,19 +41,24 @@ physics::physics(const vec2& gravity)
 	world_(gravity)
 { }
 
-physics_ptr<dynamics::body> physics::make_body(entity_id_type entity_id, const body_def& def)
+physics_ptr<dynamics::body> physics::make_body(entity_id_type, const body_def& def)
 {
-    physics_ptr<dynamics::body> body(world_.CreateBody(&def));
-    body->SetUserData(reinterpret_cast<void*>(static_cast<std::uintptr_t>(entity_id)));
-    return body;
+    physics_ptr<dynamics::body> body(world_.CreateBody(&def), &delete_body);
+    body->SetUserData(reinterpret_cast<void*>(this));
+    return std::move(body);
+}
+
+void physics::destroy_body(dynamics::body* body)
+{
+    world_.DestroyBody(body);
 }
 
 void physics::make_fixture(
 	entity_id_type entity_id,
-	physics_ptr<dynamics::body> body,
+	dynamics::body& body,
 	const fixture_def& def)
 {
-    physics_ptr<fixture> result(body->CreateFixture(&def));
+    fixture* result = body.CreateFixture(&def);
     result->SetUserData(reinterpret_cast<void*>(static_cast<std::uintptr_t>(entity_id)));
 }
 

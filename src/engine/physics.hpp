@@ -57,7 +57,7 @@ private:
 };
 
 template <class element_t>
-using physics_ptr = robocup2Dsim::runtime::borrowed_ptr<robocup2Dsim::runtime::system_id::physics, element_t>;
+using physics_ptr = robocup2Dsim::runtime::owned_ptr<robocup2Dsim::runtime::system_id::physics, element_t>;
 
 class TURBO_SYMBOL_DECL physics
 {
@@ -74,6 +74,7 @@ public:
     physics();
     physics(const vec2& gravity);
     physics_ptr<dynamics::body> make_body(entity_id_type entity_id, const body_def& def);
+    void destroy_body(dynamics::body* body);
     template <class contact_category_t>
     fixture_def make_fixture_def(
 	    entity_id_type entity_id,
@@ -81,7 +82,7 @@ public:
 	    const contact_config<contact_category_t>& contact);
     void make_fixture(
 	    entity_id_type entity_id,
-	    physics_ptr<dynamics::body> body,
+	    dynamics::body& body,
 	    const fixture_def& def);
     void make_joint(
 	    entity_id_type entity_id,

@@ -82,7 +82,7 @@ void physics::make_joint(
 	entity_id_type entity_id,
 	const def_t& def)
 {
-    physics_ptr<joint_t> result(static_cast<joint_t*>(world_.CreateJoint(&def)));
+    joint_t* result = static_cast<joint_t*>(world_.CreateJoint(&def));
     result->SetUserData(reinterpret_cast<void*>(static_cast<std::uintptr_t>(entity_id)));
 }
 

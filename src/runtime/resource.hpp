@@ -1,10 +1,14 @@
 #ifndef ROBOCUP2DSIM_RUNTIME_RESOURCE_HPP
 #define ROBOCUP2DSIM_RUNTIME_RESOURCE_HPP
 
+#include <memory>
 #include <robocup2Dsim/runtime/ecs_db.hpp>
 
 namespace robocup2Dsim {
 namespace runtime {
+
+template <system_id::type owner_c, class element_t>
+using owned_ptr = std::unique_ptr<element_t, void (*)(element_t*)>;
 
 template <system_id::type owner_c, class element_t>
 class borrowed_ptr

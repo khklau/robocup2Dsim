@@ -14,13 +14,13 @@ namespace rru = robocup2Dsim::runtime;
 static const float deg2rad = 0.0174532925199432957f;
 static const float rad2deg = 57.295779513082320876f;
 
-TEST(db_access_test, local_allocator_basic)
+TEST(physics_test, local_allocator_basic)
 {
     std::unique_ptr<ren::physics> physics1(new ren::physics());
     ren::register_system(rru::update_local_db(), std::move(physics1));
 }
 
-TEST(db_access_test, make_body_basic)
+TEST(physics_test, make_body_basic)
 {
     std::unique_ptr<ren::physics> physics1(new ren::physics());
     ren::physics::body_def body_def1;
@@ -32,7 +32,7 @@ TEST(db_access_test, make_body_basic)
     EXPECT_TRUE(actual1) << "body pointer is nullptr";
 }
 
-TEST(db_access_test, make_fixture_basic)
+TEST(physics_test, make_fixture_basic)
 {
     enum class category1 : std::uint8_t
     {
@@ -52,10 +52,10 @@ TEST(db_access_test, make_fixture_basic)
     shape1.m_p.Set(0, 0);
     shape1.m_radius = 1;
     fixture_def1.shape = &shape1;
-    physics1->make_fixture(1U, body1, fixture_def1);
+    physics1->make_fixture(1U, *body1, fixture_def1);
 }
 
-TEST(db_access_test, make_revolute_joint_basic)
+TEST(physics_test, make_revolute_joint_basic)
 {
     std::unique_ptr<ren::physics> physics1(new ren::physics());
     ren::physics::body_def body_def1;
@@ -77,7 +77,7 @@ TEST(db_access_test, make_revolute_joint_basic)
     physics1->make_joint(0U, joint_def1);
 }
 
-TEST(db_access_test, make_prismatic_joint_basic)
+TEST(physics_test, make_prismatic_joint_basic)
 {
     std::unique_ptr<ren::physics> physics1(new ren::physics());
     ren::physics::body_def body_def1;
