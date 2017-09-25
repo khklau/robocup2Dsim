@@ -3,6 +3,8 @@
 
 #include <utility>
 #include <Box2D/Dynamics/b2Body.h>
+#include <Box2D/Dynamics/b2WorldCallbacks.h>
+#include <Box2D/Dynamics/Contacts/b2Contact.h>
 #include <robocup2Dsim/runtime/resource.hxx>
 
 namespace robocup2Dsim {
@@ -84,6 +86,53 @@ void physics::make_joint(
 {
     joint_t* result = static_cast<joint_t*>(world_.CreateJoint(&def));
     result->SetUserData(reinterpret_cast<void*>(static_cast<std::uintptr_t>(entity_id)));
+}
+
+namespace {
+
+using namespace robocup2Dsim::engine;
+
+template <typename collision_func_t, typename separation_func_t>
+struct contact_listener : public b2ContactListener
+{
+    typedef collision_func_t collision_func_type;
+    typedef separation_func_t separation_func_type;
+    virtual void BeginContact(b2Contact* contact);
+    virtual void EndContact(b2Contact* contact);
+    collision_func_t on_collision;
+    separation_func_t on_separation;
+};
+
+template <typename c, typename s>
+void contact_listener<c, s>::BeginContact(b2Contact* contact)
+{
+    if (contact)
+    {
+	on_collision(
+		static_cast<physics::entity_id_type>(reinterpret_cast<std::uintptr_t>(contact->GetFixtureA()->GetUserData())),
+		static_cast<physics::entity_id_type>(reinterpret_cast<std::uintptr_t>(contact->GetFixtureB()->GetUserData())));
+    }
+}
+
+template <typename c, typename s>
+void contact_listener<c, s>::EndContact(b2Contact* contact)
+{
+    if (contact)
+    {
+	on_separation(
+		static_cast<physics::entity_id_type>(reinterpret_cast<std::uintptr_t>(contact->GetFixtureA()->GetUserData())),
+		static_cast<physics::entity_id_type>(reinterpret_cast<std::uintptr_t>(contact->GetFixtureB()->GetUserData())));
+    }
+}
+
+} // anonyous namespace
+
+template <typename collision_func_t, typename separation_func_t>
+void physics::step(float time_step, collision_func_t on_collision, separation_func_t on_separation)
+{
+    contact_listener<collision_func_t, separation_func_t> listener{on_collision, on_separation};
+    world_.SetContactListener(&listener);
+    world_.Step(time_step, solver_conf_.velocity_iteration_limit, solver_conf_.position_iteration_limit);
 }
 
 } // namespace engine

@@ -33,12 +33,13 @@ namespace engine {
 
 physics::physics()
     :
-	physics(vec2(0.0, 0.0))
+	physics(vec2(0.0, 0.0), {8U, 4U})
 { }
 
-physics::physics(const vec2& gravity)
+physics::physics(const vec2& gravity, const solver_config& solver_conf)
     :
-	world_(gravity)
+	world_(gravity),
+	solver_conf_{solver_conf.velocity_iteration_limit, solver_conf.position_iteration_limit}
 { }
 
 physics_ptr<dynamics::body> physics::make_body(entity_id_type, const body_def& def)

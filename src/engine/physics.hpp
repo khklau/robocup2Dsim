@@ -56,6 +56,12 @@ private:
     contact_result from_same_entity_;
 };
 
+struct solver_config
+{
+    std::uint16_t velocity_iteration_limit;
+    std::uint16_t position_iteration_limit;
+};
+
 template <class element_t>
 using physics_ptr = robocup2Dsim::runtime::owned_ptr<robocup2Dsim::runtime::system_id::physics, element_t>;
 
@@ -72,7 +78,7 @@ public:
     typedef b2PrismaticJointDef prismatic_joint_def;
     typedef robocup2Dsim::runtime::ecs_db::entity_table_type::key_type entity_id_type;
     physics();
-    physics(const vec2& gravity);
+    physics(const vec2& gravity, const solver_config& solver_conf);
     physics_ptr<dynamics::body> make_body(entity_id_type entity_id, const body_def& def);
     void destroy_body(dynamics::body* body);
     template <class contact_category_t>
@@ -90,6 +96,8 @@ public:
     void make_joint(
 	    entity_id_type entity_id,
 	    const prismatic_joint_def& def);
+    template <typename collision_func_t, typename separation_func_t>
+    void step(float time_step, collision_func_t on_collision, separation_func_t on_separation);
 private:
     typedef b2Fixture fixture;
     typedef b2RevoluteJoint revolute_joint;
@@ -99,6 +107,7 @@ private:
 	    entity_id_type entity_id,
 	    const def_t& def);
     b2World world_;
+    solver_config solver_conf_;
 };
 
 typedef robocup2Dsim::runtime::table<
