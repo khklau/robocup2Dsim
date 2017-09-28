@@ -55,12 +55,10 @@ void physics::destroy_body(dynamics::body* body)
 }
 
 void physics::make_fixture(
-	entity_id_type entity_id,
 	dynamics::body& body,
 	const fixture_def& def)
 {
     fixture* result = body.CreateFixture(&def);
-    result->SetUserData(reinterpret_cast<void*>(static_cast<std::uintptr_t>(entity_id)));
 }
 
 void physics::make_joint(

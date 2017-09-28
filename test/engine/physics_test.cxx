@@ -42,17 +42,21 @@ TEST(physics_test, make_fixture_basic)
 	yellow,
 	max = yellow
     };
+    enum fixture_name : ren::physics::fixture_id_type
+    {
+	ball
+    };
     std::unique_ptr<ren::physics> physics1(new ren::physics());
     ren::physics::body_def body_def1;
     ren::physics_ptr<red::body> body1 = physics1->make_body(1U, body_def1);
     ren::contact_config<category1> config1(ren::contact_result::collide, ren::contact_result::pass_over);
     config1.set(category1::yellow, ren::contact_result::pass_over);
-    ren::physics::fixture_def fixture_def1 = physics1->make_fixture_def(1U, category1::green, config1);
+    ren::physics::fixture_def fixture_def1 = physics1->make_fixture_def(1U, ball, category1::green, config1);
     ren::physics::circle_shape shape1;
     shape1.m_p.Set(0, 0);
     shape1.m_radius = 1;
     fixture_def1.shape = &shape1;
-    physics1->make_fixture(1U, *body1, fixture_def1);
+    physics1->make_fixture(*body1, fixture_def1);
 }
 
 TEST(physics_test, make_revolute_joint_basic)
@@ -97,4 +101,42 @@ TEST(physics_test, make_prismatic_joint_basic)
     joint_def1.lowerTranslation = 0;
     joint_def1.upperTranslation = 2;
     physics1->make_joint(0U, joint_def1);
+}
+
+TEST(physics_test, step_basic)
+{
+    enum class category1 : std::uint8_t
+    {
+	red,
+	green,
+	blue,
+	yellow,
+	max = yellow
+    };
+    enum fixture_name : ren::physics::fixture_id_type
+    {
+	ball
+    };
+    std::unique_ptr<ren::physics> physics1(new ren::physics());
+    ren::physics::body_def body_def1;
+    ren::physics_ptr<red::body> body1 = physics1->make_body(1U, body_def1);
+    ren::contact_config<category1> config1(ren::contact_result::collide, ren::contact_result::pass_over);
+    config1.set(category1::yellow, ren::contact_result::pass_over);
+    ren::physics::fixture_def fixture_def1 = physics1->make_fixture_def(1U, ball, category1::green, config1);
+    ren::physics::circle_shape shape1;
+    shape1.m_p.Set(0, 0);
+    shape1.m_radius = 1;
+    fixture_def1.shape = &shape1;
+    physics1->make_fixture(*body1, fixture_def1);
+    std::size_t collision_count = 0U;
+    std::size_t separation_count = 0U;
+    physics1->step(1.0,
+	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void
+	    {
+		++collision_count;
+	    },
+	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void
+	    {
+		++separation_count;
+	    });
 }

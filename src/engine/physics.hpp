@@ -1,6 +1,7 @@
 #ifndef ROBOCUP2DSIM_ENGINE_PHYSICS_HPP
 #define ROBOCUP2DSIM_ENGINE_PHYSICS_HPP
 
+#include <cstdint>
 #include <bitset>
 #include <memory>
 #include <type_traits>
@@ -77,6 +78,13 @@ public:
     typedef b2RevoluteJointDef revolute_joint_def;
     typedef b2PrismaticJointDef prismatic_joint_def;
     typedef robocup2Dsim::runtime::ecs_db::entity_table_type::key_type entity_id_type;
+    typedef std::uint16_t fixture_id_type;
+    struct contact_participant
+    {
+	entity_id_type entity_id;
+	fixture_id_type fixture_id;
+	dynamics::body& body;
+    };
     physics();
     physics(const vec2& gravity, const solver_config& solver_conf);
     physics_ptr<dynamics::body> make_body(entity_id_type entity_id, const body_def& def);
@@ -84,10 +92,10 @@ public:
     template <class contact_category_t>
     fixture_def make_fixture_def(
 	    entity_id_type entity_id,
+	    fixture_id_type fixture_id,
 	    contact_category_t category,
 	    const contact_config<contact_category_t>& contact);
     void make_fixture(
-	    entity_id_type entity_id,
 	    dynamics::body& body,
 	    const fixture_def& def);
     void make_joint(
@@ -97,7 +105,7 @@ public:
 	    entity_id_type entity_id,
 	    const prismatic_joint_def& def);
     template <typename collision_func_t, typename separation_func_t>
-    void step(float time_step, collision_func_t on_collision, separation_func_t on_separation);
+    void step(float time_step, collision_func_t&& on_collision, separation_func_t&& on_separation);
 private:
     typedef b2Fixture fixture;
     typedef b2RevoluteJoint revolute_joint;
