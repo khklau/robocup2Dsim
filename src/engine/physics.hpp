@@ -71,6 +71,7 @@ class TURBO_SYMBOL_DECL physics
 public:
     typedef b2Vec2 vec2;
     typedef b2BodyDef body_def;
+    typedef b2BodyType body_type;
     typedef b2MassData mass_data;
     typedef b2FixtureDef fixture_def;
     typedef b2CircleShape circle_shape;
@@ -125,6 +126,9 @@ typedef robocup2Dsim::runtime::table<
 	physics_table_type;
 
 void register_system(robocup2Dsim::runtime::ecs_db& db, std::unique_ptr<physics> phys);
+
+const physics& select_physics_instance(const robocup2Dsim::runtime::ecs_db& db);
+physics& update_physics_instance(robocup2Dsim::runtime::ecs_db& db);
 
 } // namespace engine
 } // namespace robobup2Dsim

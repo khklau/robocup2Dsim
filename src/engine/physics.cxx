@@ -13,9 +13,14 @@
 
 namespace rru = robocup2Dsim::runtime;
 
+namespace robocup2Dsim {
+namespace engine {
+
 namespace {
 
 using namespace robocup2Dsim::engine;
+
+static constexpr rru::primitives::key_16 default_physics_instance_id = 0U;
 
 void delete_body(dynamics::body* body)
 {
@@ -27,9 +32,6 @@ void delete_body(dynamics::body* body)
 }
 
 } // anonymous namespace
-
-namespace robocup2Dsim {
-namespace engine {
 
 physics::physics()
     :
@@ -58,7 +60,7 @@ void physics::make_fixture(
 	dynamics::body& body,
 	const fixture_def& def)
 {
-    fixture* result = body.CreateFixture(&def);
+    body.CreateFixture(&def);
 }
 
 void physics::make_joint(
@@ -77,14 +79,36 @@ void physics::make_joint(
 
 void register_system(rru::ecs_db& db, std::unique_ptr<physics> phys)
 {
-    rru::ecs_db::system_table_type& sys_table = db.access<ecs_db::system_table_type>(table_id::system_registry);
-    physics_table_type* table = new physics_table_type(1U, "task_id", "physics_instance", "instance_name");
+    rru::ecs_db::system_table_type& sys_table = db.access<rru::ecs_db::system_table_type>(rru::table_id::system_registry);
+    physics_table_type* table = new physics_table_type(default_physics_instance_id, "task_id", "physics_instance", "instance_name");
     table->emplace(0U, std::move(phys), "active_box2d");
     sys_table.emplace(system_id::physics, make_unique_table(table), "physics");
 
     rru::ecs_db::component_system_table_type& comp_sys_map = db.access<ecs_db::component_system_table_type>(
 	    table_id::component_system_map);
     comp_sys_map.auto_emplace(component_id::body, system_id::physics);
+}
+
+const physics& select_physics_instance(const robocup2Dsim::runtime::ecs_db& db)
+{
+    const rru::ecs_db::system_table_type& sys_table = db.access<rru::ecs_db::system_table_type>(rru::table_id::system_registry);
+    auto iter = sys_table.select_row(rru::system_id::physics);
+    if (iter == sys_table.cend())
+    {
+	throw rru::invalid_deference_error("physics instance not registered");
+    }
+    return *(iter.get_column<std::unique_ptr<physics>>("physics_instance"));
+}
+
+physics& update_physics_instance(robocup2Dsim::runtime::ecs_db& db)
+{
+    rru::ecs_db::system_table_type& sys_table = db.access<rru::ecs_db::system_table_type>(rru::table_id::system_registry);
+    auto iter = sys_table.update_row(rru::system_id::physics);
+    if (iter == sys_table.end())
+    {
+	throw rru::invalid_deference_error("physics instance not registered");
+    }
+    return *(iter.get_column<std::unique_ptr<physics>>("physics_instance"));
 }
 
 } // namespace engine
