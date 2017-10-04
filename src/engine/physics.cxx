@@ -44,7 +44,7 @@ physics::physics(const vec2& gravity, const solver_config& solver_conf)
 	solver_conf_{solver_conf.velocity_iteration_limit, solver_conf.position_iteration_limit}
 { }
 
-physics_ptr<dynamics::body> physics::make_body(entity_id_type, const body_def& def)
+physics_ptr<dynamics::body> physics::make_body(rru::ecs_db::entity_id_type, const body_def& def)
 {
     physics_ptr<dynamics::body> body(world_.CreateBody(&def), &delete_body);
     body->SetUserData(reinterpret_cast<void*>(this));
@@ -64,14 +64,14 @@ void physics::make_fixture(
 }
 
 void physics::make_joint(
-	entity_id_type entity_id,
+	rru::ecs_db::entity_id_type entity_id,
 	const revolute_joint_def& def)
 {
     make_joint<revolute_joint>(entity_id, def);
 }
 
 void physics::make_joint(
-	entity_id_type entity_id,
+	rru::ecs_db::entity_id_type entity_id,
 	const prismatic_joint_def& def)
 {
     make_joint<prismatic_joint>(entity_id, def);

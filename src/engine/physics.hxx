@@ -66,19 +66,20 @@ void contact_config<contact_category_t>::set(contact_category_type category, con
 namespace {
 
 using namespace robocup2Dsim::engine;
+namespace rru = robocup2Dsim::runtime;
 
-void set_fixture_data(physics::fixture_def& def, physics::entity_id_type entity_id, physics::fixture_id_type fixture_id)
+void set_fixture_data(physics::fixture_def& def, rru::ecs_db::entity_id_type entity_id, physics::fixture_id_type fixture_id)
 {
     std::uintptr_t data = fixture_id;
-    data <<= std::numeric_limits<physics::entity_id_type>::digits;
+    data <<= std::numeric_limits<rru::ecs_db::entity_id_type>::digits;
     data |= entity_id;
     def.userData = reinterpret_cast<void*>(data);
 }
 
-physics::entity_id_type get_entity_id(const b2Fixture& fixture)
+rru::ecs_db::entity_id_type get_entity_id(const b2Fixture& fixture)
 {
     std::uintptr_t mask = 0U;
-    mask |= std::numeric_limits<physics::entity_id_type>::max();
+    mask |= std::numeric_limits<rru::ecs_db::entity_id_type>::max();
     return reinterpret_cast<std::uintptr_t>(fixture.GetUserData()) & mask;
 }
 
@@ -87,7 +88,7 @@ physics::fixture_id_type get_fixture_id(const b2Fixture& fixture)
     std::uintptr_t mask = 0U;
     mask |= std::numeric_limits<physics::fixture_id_type>::max();
     std::uintptr_t raw_data = reinterpret_cast<std::uintptr_t>(fixture.GetUserData());
-    return (raw_data >> std::numeric_limits<physics::entity_id_type>::digits) & mask;
+    return (raw_data >> std::numeric_limits<rru::ecs_db::entity_id_type>::digits) & mask;
 }
 
 template <typename collision_func_t, typename separation_func_t>
@@ -147,7 +148,7 @@ void contact_listener<c, s>::EndContact(b2Contact* contact)
 
 template <class contact_category_t>
 typename physics::fixture_def physics::make_fixture_def(
-	entity_id_type entity_id,
+	robocup2Dsim::runtime::ecs_db::entity_id_type entity_id,
 	fixture_id_type fixture_id,
 	contact_category_t category,
 	const contact_config<contact_category_t>& contact)
@@ -165,7 +166,7 @@ typename physics::fixture_def physics::make_fixture_def(
 
 template <class joint_t, class def_t>
 void physics::make_joint(
-	entity_id_type entity_id,
+	robocup2Dsim::runtime::ecs_db::entity_id_type entity_id,
 	const def_t& def)
 {
     joint_t* result = static_cast<joint_t*>(world_.CreateJoint(&def));

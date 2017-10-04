@@ -78,21 +78,20 @@ public:
     typedef b2PolygonShape polygon_shape;
     typedef b2RevoluteJointDef revolute_joint_def;
     typedef b2PrismaticJointDef prismatic_joint_def;
-    typedef robocup2Dsim::runtime::ecs_db::entity_table_type::key_type entity_id_type;
     typedef std::uint16_t fixture_id_type;
     struct contact_participant
     {
-	entity_id_type entity_id;
+	robocup2Dsim::runtime::ecs_db::entity_id_type entity_id;
 	fixture_id_type fixture_id;
 	dynamics::body& body;
     };
     physics();
     physics(const vec2& gravity, const solver_config& solver_conf);
-    physics_ptr<dynamics::body> make_body(entity_id_type entity_id, const body_def& def);
+    physics_ptr<dynamics::body> make_body(robocup2Dsim::runtime::ecs_db::entity_id_type entity_id, const body_def& def);
     void destroy_body(dynamics::body* body);
     template <class contact_category_t>
     fixture_def make_fixture_def(
-	    entity_id_type entity_id,
+	    robocup2Dsim::runtime::ecs_db::entity_id_type entity_id,
 	    fixture_id_type fixture_id,
 	    contact_category_t category,
 	    const contact_config<contact_category_t>& contact);
@@ -100,10 +99,10 @@ public:
 	    dynamics::body& body,
 	    const fixture_def& def);
     void make_joint(
-	    entity_id_type entity_id,
+	    robocup2Dsim::runtime::ecs_db::entity_id_type entity_id,
 	    const revolute_joint_def& def);
     void make_joint(
-	    entity_id_type entity_id,
+	    robocup2Dsim::runtime::ecs_db::entity_id_type entity_id,
 	    const prismatic_joint_def& def);
     template <typename collision_func_t, typename separation_func_t>
     void step(float time_step, collision_func_t&& on_collision, separation_func_t&& on_separation);
@@ -113,7 +112,7 @@ private:
     typedef b2PrismaticJoint prismatic_joint;
     template <class joint_t, class def_t>
     void make_joint(
-	    entity_id_type entity_id,
+	    robocup2Dsim::runtime::ecs_db::entity_id_type entity_id,
 	    const def_t& def);
     b2World world_;
     solver_config solver_conf_;
