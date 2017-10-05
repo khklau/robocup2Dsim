@@ -75,13 +75,13 @@ TEST(ram_db_test, emplace_basic)
     ASSERT_EQ(rru::emplace_result::success, table1.emplace(0U, 1U, coordinate1, vertex_name1)) << "Emplace failed";
     auto iter1 = table1.select_row(0U);
     ASSERT_NE(table1.cend(), iter1) << "Could not select row that was just inserted";
-    ASSERT_EQ(0U, iter1.get_column<rrp::key_32>("vertex_id"))
+    ASSERT_EQ(0U, iter1.select_column<rrp::key_32>("vertex_id"))
 	    << "Column value selected is not the value inserted";
-    ASSERT_EQ(1U, iter1.get_column<rrp::key_16>("entity_id"))
+    ASSERT_EQ(1U, iter1.select_column<rrp::key_16>("entity_id"))
 	    << "Column value selected is not the value inserted";
-    ASSERT_EQ(coordinate1, iter1.get_column<coordinate>("coordinate"))
+    ASSERT_EQ(coordinate1, iter1.select_column<coordinate>("coordinate"))
 	    << "Column value selected is not the value inserted";
-    ASSERT_TRUE(::strncmp(vertex_name1.c_str(), iter1.get_column<rrp::fixed_cstring_32>("vertex_name").c_str(), vertex_name1.max_size()) == 0)
+    ASSERT_TRUE(::strncmp(vertex_name1.c_str(), iter1.select_column<rrp::fixed_cstring_32>("vertex_name").c_str(), vertex_name1.max_size()) == 0)
 	    << "Column value selected is not the value inserted";
 }
 
@@ -101,16 +101,16 @@ TEST(ram_db_test, update_basic)
     vertex_table_type table1(4U, "vertex_id", "entity_id", "coordinate", "vertex_name");
     ASSERT_EQ(rru::emplace_result::success, table1.emplace(0U, 1U, coordinate1a, vertex_name1a)) << "Emplace failed";
     auto iter1 = table1.update_row(0U);
-    iter1.set_column<rrp::key_16>("entity_id") = 5U;
-    iter1.set_column<coordinate>("coordinate") = coordinate1b;
-    iter1.set_column<rrp::fixed_cstring_32>("vertex_name").assign(vertex_name1b.c_str());
+    iter1.update_column<rrp::key_16>("entity_id") = 5U;
+    iter1.update_column<coordinate>("coordinate") = coordinate1b;
+    iter1.update_column<rrp::fixed_cstring_32>("vertex_name").assign(vertex_name1b.c_str());
     ASSERT_NE(table1.end(), iter1) << "Could not select row that was just inserted";
-    ASSERT_EQ(0U, iter1.get_column<rrp::key_32>("vertex_id"))
+    ASSERT_EQ(0U, iter1.select_column<rrp::key_32>("vertex_id"))
 	    << "Column value selected is not the value updated";
-    ASSERT_EQ(5U, iter1.get_column<rrp::key_16>("entity_id"))
+    ASSERT_EQ(5U, iter1.select_column<rrp::key_16>("entity_id"))
 	    << "Column value selected is not the value updatd";
-    ASSERT_EQ(coordinate1b, iter1.get_column<coordinate>("coordinate"))
+    ASSERT_EQ(coordinate1b, iter1.select_column<coordinate>("coordinate"))
 	    << "Column value selected is not the value updated";
-    ASSERT_TRUE(::strncmp(vertex_name1b.c_str(), iter1.get_column<rrp::fixed_cstring_32>("vertex_name").c_str(), vertex_name1b.max_size()) == 0)
+    ASSERT_TRUE(::strncmp(vertex_name1b.c_str(), iter1.select_column<rrp::fixed_cstring_32>("vertex_name").c_str(), vertex_name1b.max_size()) == 0)
 	    << "Column value selected is not the value updated";
 }

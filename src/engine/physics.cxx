@@ -97,7 +97,7 @@ const physics& select_physics_instance(const robocup2Dsim::runtime::ecs_db& db)
     {
 	throw rru::invalid_deference_error("physics instance not registered");
     }
-    return *(iter.get_column<std::unique_ptr<physics>>("physics_instance"));
+    return *(iter.select_column<std::unique_ptr<physics>>("physics_instance"));
 }
 
 physics& update_physics_instance(robocup2Dsim::runtime::ecs_db& db)
@@ -108,7 +108,7 @@ physics& update_physics_instance(robocup2Dsim::runtime::ecs_db& db)
     {
 	throw rru::invalid_deference_error("physics instance not registered");
     }
-    return *(iter.get_column<std::unique_ptr<physics>>("physics_instance"));
+    return *(iter.update_column<std::unique_ptr<physics>>("physics_instance"));
 }
 
 } // namespace engine

@@ -61,7 +61,7 @@ public:
     inline basic_const_iterator& operator++();
     inline basic_const_iterator& operator++(int);
     template <class column_t>
-    const column_t& get_column(const typename column_map_type::key_type& key) const;
+    const column_t& select_column(const typename column_map_type::key_type& key) const;
 protected:
     index_iterator_type iter_;
     const column_map_type* map_;
@@ -83,7 +83,7 @@ public:
     inline basic_iterator(index_iterator_type iter, const column_map_type* map);
     ~basic_iterator() = default;
     template <class column_t>
-    column_t& set_column(const typename column_map_type::key_type& key);
+    column_t& update_column(const typename column_map_type::key_type& key);
 };
 
 } // namespace table_iterator

@@ -158,7 +158,7 @@ basic_const_iterator<r, i, c>& basic_const_iterator<r, i, c>::operator++(int)
 
 template <class r, class i, class c>
 template <class column_t>
-const column_t& basic_const_iterator<r, i, c>::get_column(const typename basic_const_iterator<r, i, c>::column_map_type::key_type& key) const
+const column_t& basic_const_iterator<r, i, c>::select_column(const typename basic_const_iterator<r, i, c>::column_map_type::key_type& key) const
 {
     if (!map_)
     {
@@ -183,7 +183,7 @@ basic_iterator<r, i, c>::basic_iterator(index_iterator_type iter, const typename
 
 template <class r, class i, class c>
 template <class column_t>
-inline column_t& basic_iterator<r, i, c>::set_column(const typename column_map_type::key_type& key)
+inline column_t& basic_iterator<r, i, c>::update_column(const typename column_map_type::key_type& key)
 {
     if (!(this->map_))
     {

@@ -10,14 +10,14 @@ template <class table_t>
 table_t& ecs_db::access(table_id::type id)
 {
     auto iter = catalog_.update_row(id);
-    return *(static_cast<table_t*>(static_cast<void*>(iter.set_column<unique_table_ptr>("table_ptr").get())));
+    return *(static_cast<table_t*>(static_cast<void*>(iter.update_column<unique_table_ptr>("table_ptr").get())));
 }
 
 template <class table_t>
 const table_t& ecs_db::access(table_id::type id) const
 {
     auto iter = catalog_.select_row(id);
-    return *(static_cast<table_t*>(static_cast<void*>(iter.get_column<unique_table_ptr>("table_ptr").get())));
+    return *(static_cast<table_t*>(static_cast<void*>(iter.select_column<unique_table_ptr>("table_ptr").get())));
 }
 
 } // namespace runtime
