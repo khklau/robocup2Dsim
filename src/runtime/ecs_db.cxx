@@ -1,4 +1,5 @@
 #include "ecs_db.hpp"
+#include "ecs_db.hxx"
 #include "ram_db.hxx"
 
 namespace robocup2Dsim {
@@ -19,6 +20,11 @@ ecs_db::ecs_db(std::size_t contingency_capacity, const std::vector<turbo::memory
 	    new entity_component_table_type(2048U, "entity_id", "component_id", "value_id")));
     catalog_.emplace(table_id::component_system_map, "component_system_map", make_unique_table(
 	    new component_system_table_type(512U, "component_id", "system_id", "task_id")));
+}
+
+ecs_db::entity_id_type ecs_db::insert_entity(const std::string& name)
+{
+    return access<entity_table_type>(table_id::entity_registry).auto_emplace(name.c_str());
 }
 
 } // namespace runtime

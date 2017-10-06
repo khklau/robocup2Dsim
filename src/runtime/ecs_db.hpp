@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <string>
 #include <vector>
 #include <robocup2Dsim/runtime/ram_db.hpp>
 #include <turbo/memory/slab_allocator.hpp>
@@ -56,6 +57,7 @@ public:
     table_t& access(table_id::type id);
     template <class table_t>
     const table_t& access(table_id::type id) const;
+    entity_id_type insert_entity(const std::string& name);
     inline turbo::memory::concurrent_sized_slab& component_allocator()
     {
 	return component_allocator_;
