@@ -6,6 +6,7 @@
 #include <memory>
 #include <type_traits>
 #include <Box2D/Collision/Shapes/b2CircleShape.h>
+#include <Box2D/Collision/Shapes/b2EdgeShape.h>
 #include <Box2D/Collision/Shapes/b2PolygonShape.h>
 #include <Box2D/Dynamics/b2Fixture.h>
 #include <Box2D/Dynamics/b2World.h>
@@ -74,6 +75,7 @@ public:
     typedef b2BodyType body_type;
     typedef b2MassData mass_data;
     typedef b2FixtureDef fixture_def;
+    typedef b2EdgeShape edge_shape;
     typedef b2CircleShape circle_shape;
     typedef b2PolygonShape polygon_shape;
     typedef b2RevoluteJointDef revolute_joint_def;
