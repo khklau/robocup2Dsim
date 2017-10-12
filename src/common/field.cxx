@@ -17,7 +17,7 @@ void make_back_net(
 	ren::physics& physics,
 	rru::ecs_db::entity_table_type::key_type entity_id,
 	ren::dynamics::body& body,
-	Side side, 
+	Side side,
 	entity::fixture_name fixture_name)
 {
     std::array<ren::physics::vec2, 2> vertices;
@@ -51,7 +51,7 @@ void make_side_net(
 	ren::physics& physics,
 	rru::ecs_db::entity_table_type::key_type entity_id,
 	ren::dynamics::body& body,
-	Side side, 
+	Side side,
 	entity::fixture_name fixture_name)
 {
     std::array<b2Vec2, 2> vertices;
@@ -97,6 +97,73 @@ void make_side_net(
     physics.make_fixture(body, fixture_def);
 }
 
+void make_post(
+	ren::physics& physics,
+	rru::ecs_db::entity_table_type::key_type entity_id,
+	ren::dynamics::body& body,
+	Side,
+	entity::fixture_name fixture_name)
+{
+
+    ren::physics::circle_shape shape;
+    if (fixture_name == entity::fixture_name::top_net)
+    {
+	shape.m_p.Set(0.0, 32.0);
+    }
+    else if (fixture_name == entity::fixture_name::bottom_net)
+    {
+	shape.m_p.Set(0.0, -32.0);
+    }
+    shape.m_radius = 0.5;
+
+    ren::contact_config<entity::collision_category> collision_config(ren::contact_result::collide, ren::contact_result::pass_over);
+    ren::physics::fixture_def fixture_def = physics.make_fixture_def(
+	    entity_id,
+	    static_cast<std::underlying_type<entity::fixture_name>::type>(fixture_name),
+	    entity::collision_category::goal_post,
+	    collision_config);
+    fixture_def.shape = &shape;
+    physics.make_fixture(body, fixture_def);
+}
+
+void make_goal_sensor(
+	ren::physics& physics,
+	rru::ecs_db::entity_table_type::key_type entity_id,
+	ren::dynamics::body& body,
+	Side side,
+	entity::fixture_name fixture_name)
+{
+    std::array<b2Vec2, 4> vertices;
+    switch (side)
+    {
+	case Side::LEFT:
+	    vertices[0].Set(-16.0, 32.0);
+	    vertices[1].Set(-2.0, 32.0);
+	    vertices[2].Set(-2.0, -32.0);
+	    vertices[3].Set(-16.0, -32.0);
+	    break;
+	case Side::RIGHT:
+	    vertices[0].Set(16.0, -32.0);
+	    vertices[1].Set(2.0, -32.0);
+	    vertices[2].Set(2.0, 32.0);
+	    vertices[3].Set(16.0, 32.0);
+	    break;
+    }
+    ren::physics::polygon_shape shape;
+    shape.Set(vertices.data(), vertices.max_size());
+
+    ren::contact_config<entity::collision_category> collision_config(ren::contact_result::collide, ren::contact_result::pass_over);
+    ren::physics::fixture_def fixture_def = physics.make_fixture_def(
+	    entity_id,
+	    static_cast<std::underlying_type<entity::fixture_name>::type>(fixture_name),
+	    entity::collision_category::goal_sensor,
+	    collision_config);
+    fixture_def.shape = &shape;
+    fixture_def.density = 0;
+    fixture_def.isSensor = true;
+    physics.make_fixture(body, fixture_def);
+}
+
 ren::physics_ptr<ren::dynamics::body> make_goal(rru::ecs_db& db, Side side, const ren::physics::vec2& position)
 {
     const char* entity_name = nullptr;
@@ -121,6 +188,9 @@ ren::physics_ptr<ren::dynamics::body> make_goal(rru::ecs_db& db, Side side, cons
     make_back_net(physics, entity_id, *goal_body, side, entity::fixture_name::back_net);
     make_side_net(physics, entity_id, *goal_body, side, entity::fixture_name::top_net);
     make_side_net(physics, entity_id, *goal_body, side, entity::fixture_name::bottom_net);
+    make_post(physics, entity_id, *goal_body, side, entity::fixture_name::top_post);
+    make_post(physics, entity_id, *goal_body, side, entity::fixture_name::bottom_post);
+    make_goal_sensor(physics, entity_id, *goal_body, side, entity::fixture_name::line_sensor);
 
     return std::move(goal_body);
 }
