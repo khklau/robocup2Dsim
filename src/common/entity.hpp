@@ -30,7 +30,13 @@ enum class fixture_name : std::uint16_t
     bottom_post,
     back_net,
     top_net,
-    bottom_net
+    bottom_net,
+    goal_line_sensor,
+    center_circle_spot,
+    center_circle_top,
+    center_circle_left,
+    center_circle_right,
+    center_circle_bottom
 };
 
 enum class team_id : uint8_t

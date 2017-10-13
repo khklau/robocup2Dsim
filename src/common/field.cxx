@@ -152,7 +152,8 @@ void make_goal_sensor(
     ren::physics::polygon_shape shape;
     shape.Set(vertices.data(), vertices.max_size());
 
-    ren::contact_config<entity::collision_category> collision_config(ren::contact_result::collide, ren::contact_result::pass_over);
+    ren::contact_config<entity::collision_category> collision_config(ren::contact_result::pass_over, ren::contact_result::pass_over);
+    collision_config.set(entity::collision_category::ball, ren::contact_result::collide);
     ren::physics::fixture_def fixture_def = physics.make_fixture_def(
 	    entity_id,
 	    static_cast<std::underlying_type<entity::fixture_name>::type>(fixture_name),
@@ -183,16 +184,48 @@ ren::physics_ptr<ren::dynamics::body> make_goal(rru::ecs_db& db, Side side, cons
     body_def.position.Set(position.x, position.y);
     body_def.angle = 0;
     rru::ecs_db::entity_table_type::key_type entity_id = db.insert_entity(entity_name);
-    ren::physics_ptr<ren::dynamics::body> goal_body = std::move(physics.make_body(entity_id, body_def));
+    ren::physics_ptr<ren::dynamics::body> body = std::move(physics.make_body(entity_id, body_def));
 
-    make_back_net(physics, entity_id, *goal_body, side, entity::fixture_name::back_net);
-    make_side_net(physics, entity_id, *goal_body, side, entity::fixture_name::top_net);
-    make_side_net(physics, entity_id, *goal_body, side, entity::fixture_name::bottom_net);
-    make_post(physics, entity_id, *goal_body, side, entity::fixture_name::top_post);
-    make_post(physics, entity_id, *goal_body, side, entity::fixture_name::bottom_post);
-    make_goal_sensor(physics, entity_id, *goal_body, side, entity::fixture_name::line_sensor);
+    make_back_net(physics, entity_id, *body, side, entity::fixture_name::back_net);
+    make_side_net(physics, entity_id, *body, side, entity::fixture_name::top_net);
+    make_side_net(physics, entity_id, *body, side, entity::fixture_name::bottom_net);
+    make_post(physics, entity_id, *body, side, entity::fixture_name::top_post);
+    make_post(physics, entity_id, *body, side, entity::fixture_name::bottom_post);
+    make_goal_sensor(physics, entity_id, *body, side, entity::fixture_name::goal_line_sensor);
 
-    return std::move(goal_body);
+    return std::move(body);
+}
+
+ren::physics_ptr<ren::dynamics::body> make_field_sensor(
+	rru::ecs_db& db,
+	entity::fixture_name fixture_name,
+	const ren::physics::vec2& position,
+	const std::string& description)
+{
+    ren::physics& physics = ren::update_physics_instance(db);
+    ren::physics::body_def body_def;
+    body_def.type = ren::physics::body_type::b2_staticBody;
+    body_def.position.Set(position.x, position.y);
+    body_def.angle = 0;
+    rru::ecs_db::entity_table_type::key_type entity_id = db.insert_entity(description);
+    ren::physics_ptr<ren::dynamics::body> body = std::move(physics.make_body(entity_id, body_def));
+
+    ren::physics::circle_shape shape;
+    shape.m_p.Set(0.0, 0.0);
+    shape.m_radius = 0.5;
+    ren::contact_config<entity::collision_category> collision_config(ren::contact_result::pass_over, ren::contact_result::pass_over);
+    collision_config.set(entity::collision_category::player_sensor, ren::contact_result::collide);
+    ren::physics::fixture_def fixture_def = physics.make_fixture_def(
+	    entity_id,
+	    static_cast<std::underlying_type<entity::fixture_name>::type>(fixture_name),
+	    entity::collision_category::field_sensor,
+	    collision_config);
+    fixture_def.shape = &shape;
+    fixture_def.density = 0;
+    fixture_def.isSensor = true;
+    physics.make_fixture(*body, fixture_def);
+
+    return std::move(body);
 }
 
 } // anonymous namespace
@@ -201,7 +234,12 @@ field make_field(rru::ecs_db& db)
 {
     field result{
 	    make_goal(db, Side::LEFT, ren::physics::vec2(-480, 340)),
-	    make_goal(db, Side::RIGHT, ren::physics::vec2(480, 340))};
+	    make_goal(db, Side::RIGHT, ren::physics::vec2(480, 340)),
+	    make_field_sensor(db, entity::fixture_name::center_circle_spot, ren::physics::vec2(0, 340), "center circle spot"),
+	    make_field_sensor(db, entity::fixture_name::center_circle_top, ren::physics::vec2(0, 420), "center circle top"),
+	    make_field_sensor(db, entity::fixture_name::center_circle_left, ren::physics::vec2(-80, 340), "center circle left"),
+	    make_field_sensor(db, entity::fixture_name::center_circle_right, ren::physics::vec2(80, 340), "center circle right"),
+	    make_field_sensor(db, entity::fixture_name::center_circle_bottom, ren::physics::vec2(0, 260), "center circle bottom")};
     return std::move(result);
 }
 
