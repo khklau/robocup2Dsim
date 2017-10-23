@@ -54,7 +54,7 @@ void make_side_net(
 	Side side,
 	entity::fixture_name fixture_name)
 {
-    std::array<b2Vec2, 2> vertices;
+    std::array<ren::physics::vec2, 2> vertices;
     switch (side)
     {
 	case Side::LEFT:
@@ -133,7 +133,7 @@ void make_goal_sensor(
 	Side side,
 	entity::fixture_name fixture_name)
 {
-    std::array<b2Vec2, 4> vertices;
+    std::array<ren::physics::vec2, 4> vertices;
     switch (side)
     {
 	case Side::LEFT:
@@ -196,22 +196,15 @@ ren::physics_ptr<ren::dynamics::body> make_goal(rru::ecs_db& db, Side side, cons
     return std::move(body);
 }
 
-ren::physics_ptr<ren::dynamics::body> make_field_sensor(
-	rru::ecs_db& db,
-	entity::fixture_name fixture_name,
-	const ren::physics::vec2& position,
-	const std::string& description)
+void make_field_sensor(
+	ren::physics& physics,
+	rru::ecs_db::entity_table_type::key_type entity_id,
+	ren::dynamics::body& body,
+	const ren::physics::vec2& position_to_body,
+	entity::fixture_name fixture_name)
 {
-    ren::physics& physics = ren::update_physics_instance(db);
-    ren::physics::body_def body_def;
-    body_def.type = ren::physics::body_type::b2_staticBody;
-    body_def.position.Set(position.x, position.y);
-    body_def.angle = 0;
-    rru::ecs_db::entity_table_type::key_type entity_id = db.insert_entity(description);
-    ren::physics_ptr<ren::dynamics::body> body = std::move(physics.make_body(entity_id, body_def));
-
     ren::physics::circle_shape shape;
-    shape.m_p.Set(0.0, 0.0);
+    shape.m_p.Set(position_to_body.x, position_to_body.y);
     shape.m_radius = 0.5;
     ren::contact_config<entity::collision_category> collision_config(ren::contact_result::pass_over, ren::contact_result::pass_over);
     collision_config.set(entity::collision_category::player_sensor, ren::contact_result::collide);
@@ -223,9 +216,27 @@ ren::physics_ptr<ren::dynamics::body> make_field_sensor(
     fixture_def.shape = &shape;
     fixture_def.density = 0;
     fixture_def.isSensor = true;
-    physics.make_fixture(*body, fixture_def);
+    physics.make_fixture(body, fixture_def);
+}
 
-    return std::move(body);
+ren::physics_ptr<ren::dynamics::body> make_center_circle(
+	rru::ecs_db& db,
+	float radius,
+	const ren::physics::vec2& position)
+{
+    ren::physics& physics = ren::update_physics_instance(db);
+    ren::physics::body_def body_def;
+    body_def.type = ren::physics::body_type::b2_staticBody;
+    body_def.position.Set(position.x, position.y);
+    body_def.angle = 0;
+    rru::ecs_db::entity_table_type::key_type entity_id = db.insert_entity("center circle");
+    ren::physics_ptr<ren::dynamics::body> body = std::move(physics.make_body(entity_id, body_def));
+
+    make_field_sensor(physics, entity_id, *body, ren::physics::vec2(0, 0), entity::fixture_name::center_circle_spot);
+    make_field_sensor(physics, entity_id, *body, ren::physics::vec2(0, radius), entity::fixture_name::center_circle_top);
+    make_field_sensor(physics, entity_id, *body, ren::physics::vec2(-radius, 0), entity::fixture_name::center_circle_left);
+    make_field_sensor(physics, entity_id, *body, ren::physics::vec2(radius, 0), entity::fixture_name::center_circle_right);
+    make_field_sensor(physics, entity_id, *body, ren::physics::vec2(0, -radius), entity::fixture_name::center_circle_bottom);
 }
 
 } // anonymous namespace
@@ -235,11 +246,7 @@ field make_field(rru::ecs_db& db)
     field result{
 	    make_goal(db, Side::LEFT, ren::physics::vec2(-480, 340)),
 	    make_goal(db, Side::RIGHT, ren::physics::vec2(480, 340)),
-	    make_field_sensor(db, entity::fixture_name::center_circle_spot, ren::physics::vec2(0, 340), "center circle spot"),
-	    make_field_sensor(db, entity::fixture_name::center_circle_top, ren::physics::vec2(0, 420), "center circle top"),
-	    make_field_sensor(db, entity::fixture_name::center_circle_left, ren::physics::vec2(-80, 340), "center circle left"),
-	    make_field_sensor(db, entity::fixture_name::center_circle_right, ren::physics::vec2(80, 340), "center circle right"),
-	    make_field_sensor(db, entity::fixture_name::center_circle_bottom, ren::physics::vec2(0, 260), "center circle bottom")};
+	    make_center_circle(db, 80.0, ren::physics::vec2(0, 340))};
     return std::move(result);
 }
 
