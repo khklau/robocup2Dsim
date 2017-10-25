@@ -13,14 +13,13 @@ enum class collision_category : std::uint8_t
     ball,
     goal_post,
     goal_net,
-    goal_sensor,
+    ball_sensor,
     player_torso,
     player_foot,
     player_head,
     player_sensor,
-    field_marker,
-    field_sensor,
-    max = field_sensor
+    marker_sensor,
+    max = marker_sensor
 };
 
 enum class fixture_name : std::uint16_t
@@ -36,7 +35,19 @@ enum class fixture_name : std::uint16_t
     center_circle_top,
     center_circle_left,
     center_circle_right,
-    center_circle_bottom
+    center_circle_bottom,
+    boundary_marker_top_left,
+    boundary_marker_top_center,
+    boundary_marker_top_right,
+    boundary_marker_bottom_left,
+    boundary_marker_bottom_center,
+    boundary_marker_bottom_right,
+    boundary_line_top,
+    boundary_line_bottom,
+    boundary_line_left_top,
+    boundary_line_left_bottom,
+    boundary_line_right_top,
+    boundary_line_right_bottom,
 };
 
 enum class team_id : uint8_t
