@@ -14,6 +14,8 @@ struct field
     robocup2Dsim::engine::physics_ptr<robocup2Dsim::engine::dynamics::body> right_goal;
     robocup2Dsim::engine::physics_ptr<robocup2Dsim::engine::dynamics::body> center_circle;
     robocup2Dsim::engine::physics_ptr<robocup2Dsim::engine::dynamics::body> boundary;
+    robocup2Dsim::engine::physics_ptr<robocup2Dsim::engine::dynamics::body> left_penalty_box;
+    robocup2Dsim::engine::physics_ptr<robocup2Dsim::engine::dynamics::body> right_penalty_box;
 };
 
 field make_field(robocup2Dsim::runtime::ecs_db& db);

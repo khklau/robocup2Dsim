@@ -149,7 +149,10 @@ void make_ball_sensor(
     physics.make_fixture(body, fixture_def);
 }
 
-ren::physics_ptr<ren::dynamics::body> make_goal(rru::ecs_db& db, Side side, const ren::physics::vec2& position)
+ren::physics_ptr<ren::dynamics::body> make_goal(
+	rru::ecs_db& db,
+	Side side,
+	const ren::physics::vec2& position)
 {
     const char* entity_name = nullptr;
     std::array<ren::physics::vec2, 4> vertices;
@@ -296,6 +299,49 @@ ren::physics_ptr<ren::dynamics::body> make_boundary(
     make_ball_sensor(physics, entity_id, *body, right_bottom_vertices, entity::fixture_name::right_bottom_line);
 }
 
+ren::physics_ptr<ren::dynamics::body> make_penalty_box(
+	rru::ecs_db& db,
+	Side side,
+	const ren::physics::vec2& goal_line_position)
+{
+    const char* entity_name = nullptr;
+    std::array<ren::physics::vec2, 5> markers;
+    switch (side)
+    {
+	case Side::LEFT:
+	    entity_name = "left penalty box";
+	    markers[0].Set(96.0, 0.0);
+	    markers[1].Set(0.0, 160.0);
+	    markers[2].Set(128.0, 160.0);
+	    markers[3].Set(0.0, -160.0);
+	    markers[4].Set(128.0, -160.0);
+	    break;
+	case Side::RIGHT:
+	    entity_name = "right penalty box";
+	    markers[0].Set(-96.0, 0.0);
+	    markers[1].Set(-128.0, 160.0);
+	    markers[2].Set(0.0, 160.0);
+	    markers[3].Set(-128.0, -160.0);
+	    markers[4].Set(0.0, -160.0);
+	    break;
+    }
+    ren::physics& physics = ren::update_physics_instance(db);
+    ren::physics::body_def body_def;
+    body_def.type = ren::physics::body_type::b2_staticBody;
+    body_def.position.Set(goal_line_position.x, goal_line_position.y);
+    body_def.angle = 0;
+    rru::ecs_db::entity_table_type::key_type entity_id = db.insert_entity(entity_name);
+    ren::physics_ptr<ren::dynamics::body> body = std::move(physics.make_body(entity_id, body_def));
+
+    make_marker_sensor(physics, entity_id, *body, markers[0], entity::fixture_name::center_marker);
+    make_marker_sensor(physics, entity_id, *body, markers[1], entity::fixture_name::top_left_marker);
+    make_marker_sensor(physics, entity_id, *body, markers[2], entity::fixture_name::top_right_marker);
+    make_marker_sensor(physics, entity_id, *body, markers[3], entity::fixture_name::bottom_left_marker);
+    make_marker_sensor(physics, entity_id, *body, markers[4], entity::fixture_name::bottom_right_marker);
+
+    return std::move(body);
+}
+
 } // anonymous namespace
 
 field make_field(rru::ecs_db& db)
@@ -304,7 +350,9 @@ field make_field(rru::ecs_db& db)
 	    make_goal(db, Side::LEFT, ren::physics::vec2(-480, 340)),
 	    make_goal(db, Side::RIGHT, ren::physics::vec2(480, 340)),
 	    make_center_circle(db, 80, ren::physics::vec2(0, 340)),
-	    make_boundary(db, 480 * 2, 340 * 2, ren::physics::vec2(0, 0))};
+	    make_boundary(db, 480 * 2, 340 * 2, ren::physics::vec2(0, 0)),
+	    make_penalty_box(db, Side::LEFT, ren::physics::vec2(-480, 340)),
+	    make_penalty_box(db, Side::RIGHT, ren::physics::vec2(480, 340))};
     return std::move(result);
 }
 
