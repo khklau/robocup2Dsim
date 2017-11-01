@@ -19,7 +19,8 @@ commonCapnpFiles=[
 publicHeaders = [
     'ball.hpp',
     'entity.hpp',
-    'field.hpp']
+    'field.hpp',
+    'player.hpp']
 
 def configure(confCtx):
     confCtx.env.component = Component.fromContext(confCtx, name(confCtx), confCtx.env.product)
@@ -67,7 +68,8 @@ def build(buildCtx):
 	    name='stlib_robocup2Dsim_common',
 	    source=commonCxxNodeList +
 		    [buildCtx.path.find_node('ball.cxx'),
-		    buildCtx.path.find_node('field.cxx')],
+		    buildCtx.path.find_node('field.cxx'),
+		    buildCtx.path.find_node('player.cxx')],
 	    target=os.path.join(buildCtx.env.component.build_tree.libPathFromBuild(buildCtx), 'robocup2Dsim_common'),
 	    includes=['.'] + buildCtx.env.component.include_path_list,
 	    libpath=buildCtx.env.component.lib_path_list,

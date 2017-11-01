@@ -14,9 +14,7 @@ enum class collision_category : std::uint8_t
     goal_post,
     goal_net,
     ball_sensor,
-    player_torso,
-    player_foot,
-    player_head,
+    player_body,
     player_sensor,
     marker_sensor,
     max = marker_sensor
@@ -47,7 +45,11 @@ enum class fixture_name : std::uint16_t
     left_top_line,
     left_bottom_line,
     right_top_line,
-    right_bottom_line
+    right_bottom_line,
+    torso,
+    foot,
+    head,
+    vision
 };
 
 enum class team_id : uint8_t
