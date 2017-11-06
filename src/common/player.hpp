@@ -13,6 +13,7 @@ namespace common {
 struct player_components
 {
     robocup2Dsim::engine::physics_ptr<robocup2Dsim::engine::dynamics::body> torso;
+    robocup2Dsim::engine::physics_ptr<robocup2Dsim::engine::dynamics::body> head;
 };
 
 player_components make_player(
