@@ -139,6 +139,50 @@ ren::physics_ptr<ren::dynamics::body> make_head(
     return std::move(body);
 }
 
+ren::physics_ptr<ren::dynamics::body> make_foot(
+	rru::ecs_db& db,
+	const std::string& player_name,
+	const ren::physics::vec2& position,
+	const std::uint16_t angle_degree)
+{
+    ren::physics& physics = ren::update_physics_instance(db);
+    ren::physics::body_def body_def;
+    body_def.type = ren::physics::body_type::b2_dynamicBody;
+    body_def.linearDamping = 0.15f;
+    body_def.angularDamping = 0.15f;
+    std::string torso_name(player_name);
+    torso_name.append(" torso");
+    rru::ecs_db::entity_table_type::key_type entity_id = db.insert_entity(torso_name);
+    ren::physics_ptr<ren::dynamics::body> body = std::move(physics.make_body(entity_id, body_def));
+
+    ren::physics::mass_data mass;
+    body->GetMassData(&mass);
+    mass.I = 1.0f;
+    body->SetMassData(&mass);
+    body->SetTransform(position, angle_degree * rem::deg2rad);
+
+    std::array<ren::physics::vec2, 4> vertices;
+    vertices[0].Set(1, 0.5);
+    vertices[1].Set(1, -0.5);
+    vertices[2].Set(-1, -0.5);
+    vertices[3].Set(-1, 0.5);
+    ren::physics::polygon_shape shape;
+    shape.Set(vertices.data(), vertices.max_size());
+
+    ren::contact_config<entity::collision_category> collision_config(ren::contact_result::collide, ren::contact_result::pass_over);
+    collision_config.set(entity::collision_category::ball_sensor, ren::contact_result::pass_over);
+    collision_config.set(entity::collision_category::marker_sensor, ren::contact_result::pass_over);
+    ren::physics::fixture_def fixture_def = physics.make_fixture_def(
+	    entity_id,
+	    static_cast<std::underlying_type<entity::fixture_name>::type>(entity::fixture_name::foot),
+	    entity::collision_category::player_body,
+	    collision_config);
+    fixture_def.shape = &shape;
+    physics.make_fixture(*body, fixture_def);
+
+    return std::move(body);
+}
+
 player_components make_player(
 	rru::ecs_db& db,
 	const std::string& name,
@@ -147,9 +191,11 @@ player_components make_player(
 {
     ren::physics_ptr<ren::dynamics::body> torso = make_torso(db, name, position, angle_degree);
     ren::physics_ptr<ren::dynamics::body> head = make_head(db, name, position, angle_degree, 360, 120);
+    ren::physics_ptr<ren::dynamics::body> foot = make_foot(db, name, position, angle_degree);
     player_components result{
 	    std::move(torso),
-	    std::move(head)};
+	    std::move(head),
+	    std::move(foot)};
     return std::move(result);
 }
 
