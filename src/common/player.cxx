@@ -104,9 +104,9 @@ ren::physics_ptr<ren::dynamics::body> make_head(
     body_def.type = ren::physics::body_type::b2_dynamicBody;
     body_def.linearDamping = 0.15f;
     body_def.angularDamping = 0.15f;
-    std::string torso_name(player_name);
-    torso_name.append(" head");
-    rru::ecs_db::entity_table_type::key_type entity_id = db.insert_entity(torso_name);
+    std::string head_name(player_name);
+    head_name.append(" head");
+    rru::ecs_db::entity_table_type::key_type entity_id = db.insert_entity(head_name);
     ren::physics_ptr<ren::dynamics::body> body = std::move(physics.make_body(entity_id, body_def));
 
     ren::physics::mass_data mass;
@@ -150,9 +150,9 @@ ren::physics_ptr<ren::dynamics::body> make_foot(
     body_def.type = ren::physics::body_type::b2_dynamicBody;
     body_def.linearDamping = 0.15f;
     body_def.angularDamping = 0.15f;
-    std::string torso_name(player_name);
-    torso_name.append(" torso");
-    rru::ecs_db::entity_table_type::key_type entity_id = db.insert_entity(torso_name);
+    std::string foot_name(player_name);
+    foot_name.append(" foot");
+    rru::ecs_db::entity_table_type::key_type entity_id = db.insert_entity(foot_name);
     ren::physics_ptr<ren::dynamics::body> body = std::move(physics.make_body(entity_id, body_def));
 
     ren::physics::mass_data mass;
