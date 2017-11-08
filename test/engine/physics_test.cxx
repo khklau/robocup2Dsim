@@ -78,7 +78,7 @@ TEST(physics_test, make_revolute_joint_basic)
     joint_def1.enableLimit = true;
     joint_def1.lowerAngle = -60 * deg2rad;
     joint_def1.upperAngle = 60 * deg2rad;
-    physics1->make_joint(0U, joint_def1);
+    physics1->make_joint(joint_def1);
 }
 
 TEST(physics_test, make_prismatic_joint_basic)
@@ -100,7 +100,7 @@ TEST(physics_test, make_prismatic_joint_basic)
     joint_def1.enableLimit = true;
     joint_def1.lowerTranslation = 0;
     joint_def1.upperTranslation = 2;
-    physics1->make_joint(0U, joint_def1);
+    physics1->make_joint(joint_def1);
 }
 
 TEST(physics_test, step_basic)

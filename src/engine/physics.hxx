@@ -165,12 +165,17 @@ typename physics::fixture_def physics::make_fixture_def(
 }
 
 template <class joint_t, class def_t>
-void physics::make_joint(
-	robocup2Dsim::runtime::ecs_db::entity_id_type entity_id,
-	const def_t& def)
+void physics::make_joint(const def_t& def)
 {
     joint_t* result = static_cast<joint_t*>(world_.CreateJoint(&def));
-    result->SetUserData(reinterpret_cast<void*>(static_cast<std::uintptr_t>(entity_id)));
+    for (const fixture* fix = result->GetBodyA()->GetFixtureList(); fix != nullptr; fix = fix->GetNext())
+    {
+	if (fix != nullptr)
+	{
+	    result->SetUserData(reinterpret_cast<void*>(static_cast<std::uintptr_t>(get_entity_id(*fix))));
+	    break;
+	}
+    }
 }
 
 template <typename collision_func_t, typename separation_func_t>

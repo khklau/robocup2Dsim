@@ -63,18 +63,14 @@ void physics::make_fixture(
     body.CreateFixture(&def);
 }
 
-void physics::make_joint(
-	rru::ecs_db::entity_id_type entity_id,
-	const revolute_joint_def& def)
+void physics::make_joint(const revolute_joint_def& def)
 {
-    make_joint<revolute_joint>(entity_id, def);
+    make_joint<revolute_joint>(def);
 }
 
-void physics::make_joint(
-	rru::ecs_db::entity_id_type entity_id,
-	const prismatic_joint_def& def)
+void physics::make_joint(const prismatic_joint_def& def)
 {
-    make_joint<prismatic_joint>(entity_id, def);
+    make_joint<prismatic_joint>(def);
 }
 
 void register_system(rru::ecs_db& db, std::unique_ptr<physics> phys)

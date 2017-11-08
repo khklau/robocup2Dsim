@@ -101,23 +101,18 @@ public:
     void make_fixture(
 	    dynamics::body& body,
 	    const fixture_def& def);
-    void make_joint(
-	    robocup2Dsim::runtime::ecs_db::entity_id_type entity_id,
-	    const revolute_joint_def& def);
-    void make_joint(
-	    robocup2Dsim::runtime::ecs_db::entity_id_type entity_id,
-	    const prismatic_joint_def& def);
+    void make_joint(const revolute_joint_def& def);
+    void make_joint(const prismatic_joint_def& def);
     template <typename collision_func_t, typename separation_func_t>
     void step(float time_step, collision_func_t&& on_collision, separation_func_t&& on_separation);
 private:
+    typedef b2World world;
     typedef b2Fixture fixture;
     typedef b2RevoluteJoint revolute_joint;
     typedef b2PrismaticJoint prismatic_joint;
     template <class joint_t, class def_t>
-    void make_joint(
-	    robocup2Dsim::runtime::ecs_db::entity_id_type entity_id,
-	    const def_t& def);
-    b2World world_;
+    void make_joint(const def_t& def);
+    world world_;
     solver_config solver_conf_;
 };
 
