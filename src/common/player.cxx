@@ -183,6 +183,26 @@ ren::physics_ptr<ren::dynamics::body> make_foot(
     return std::move(body);
 }
 
+void make_neck(
+	ren::physics& physics,
+	ren::dynamics::body& torso,
+	ren::dynamics::body& head,
+	const std::int16_t min_angle_degree,
+	const std::int16_t max_angle_degree)
+{
+    ren::physics::revolute_joint_def joint_def;
+    joint_def.bodyA = &torso;
+    joint_def.bodyB = &head;
+    joint_def.collideConnected = false;
+    joint_def.localAnchorA.Set(0, 0);
+    joint_def.localAnchorB.Set(0, 0);
+    joint_def.referenceAngle = 0;
+    joint_def.enableLimit = true;
+    joint_def.lowerAngle = min_angle_degree * rem::deg2rad;
+    joint_def.upperAngle = max_angle_degree * rem::deg2rad;
+    physics.make_joint(joint_def);
+}
+
 player_components make_player(
 	rru::ecs_db& db,
 	const std::string& name,
@@ -192,6 +212,7 @@ player_components make_player(
     ren::physics_ptr<ren::dynamics::body> torso = make_torso(db, name, position, angle_degree);
     ren::physics_ptr<ren::dynamics::body> head = make_head(db, name, position, angle_degree, 360, 120);
     ren::physics_ptr<ren::dynamics::body> foot = make_foot(db, name, position, angle_degree);
+    make_neck(ren::update_physics_instance(db), *torso, *head, -60, 60);
     player_components result{
 	    std::move(torso),
 	    std::move(head),
