@@ -8,7 +8,7 @@ namespace rru = robocup2Dsim::runtime;
 namespace robocup2Dsim {
 namespace common {
 
-ball make_ball(robocup2Dsim::runtime::ecs_db& db, const ren::physics::vec2& position)
+ball_components make_ball(robocup2Dsim::runtime::ecs_db& db, const ren::physics::vec2& position)
 {
     ren::physics& physics = ren::update_physics_instance(db);
     ren::physics::body_def body_def;
@@ -34,7 +34,7 @@ ball make_ball(robocup2Dsim::runtime::ecs_db& db, const ren::physics::vec2& posi
     fixture_def.shape = &shape;
     physics.make_fixture(*body, fixture_def);
 
-    ball result{std::move(body)};
+    ball_components result{std::move(body)};
     return std::move(result);
 }
 
