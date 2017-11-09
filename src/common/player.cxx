@@ -203,6 +203,26 @@ void make_neck(
     physics.make_joint(joint_def);
 }
 
+void make_hip(
+	ren::physics& physics,
+	ren::dynamics::body& torso,
+	ren::dynamics::body& foot,
+	const std::int16_t min_flex,
+	const std::int16_t max_flex)
+{
+    ren::physics::prismatic_joint_def joint_def;
+    joint_def.bodyA = &torso;
+    joint_def.bodyB = &foot;
+    joint_def.localAnchorA.Set(0, 0);
+    joint_def.localAnchorB.Set(0, 0);
+    joint_def.localAxisA.Set(1, 0);
+    joint_def.localAxisA.Normalize();
+    joint_def.enableLimit = true;
+    joint_def.lowerTranslation = min_flex;
+    joint_def.upperTranslation = max_flex;
+    physics.make_joint(joint_def);
+}
+
 player_components make_player(
 	rru::ecs_db& db,
 	const std::string& name,
@@ -213,6 +233,7 @@ player_components make_player(
     ren::physics_ptr<ren::dynamics::body> head = make_head(db, name, position, angle_degree, 360, 120);
     ren::physics_ptr<ren::dynamics::body> foot = make_foot(db, name, position, angle_degree);
     make_neck(ren::update_physics_instance(db), *torso, *head, -60, 60);
+    make_hip(ren::update_physics_instance(db), *torso, *foot, 0, 2);
     player_components result{
 	    std::move(torso),
 	    std::move(head),
