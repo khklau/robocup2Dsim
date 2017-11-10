@@ -29,7 +29,8 @@ namespace system_id {
 
 enum TURBO_SYMBOL_DECL type : std::uint16_t
 {
-    physics
+    physics,
+    inventory
 };
 
 } // namespace system_id
@@ -38,7 +39,8 @@ namespace component_id {
 
 enum TURBO_SYMBOL_DECL type : std::uint16_t
 {
-    body
+    body,
+    energy
 };
 
 } // namespace component_id

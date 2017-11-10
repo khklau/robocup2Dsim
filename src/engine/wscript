@@ -7,6 +7,7 @@ def name(context):
 
 publicHeaders = [
     'dynamics.hpp',
+    'inventory.hpp',
     'math.hpp',
     'physics.hpp',
     'physics.hxx']
@@ -30,6 +31,7 @@ def build(buildCtx):
     buildCtx.stlib(
 	    name='stlib_robocup2Dsim_engine',
 	    source=[buildCtx.path.find_node('physics.cxx'),
+		    buildCtx.path.find_node('inventory.cxx'),
 		    buildCtx.path.find_node('dynamics.cxx')],
 	    target=os.path.join(buildCtx.env.component.build_tree.libPathFromBuild(buildCtx), 'robocup2Dsim_engine'),
 	    includes=['.'] + buildCtx.env.component.include_path_list,
