@@ -78,11 +78,11 @@ void register_system(rru::ecs_db& db, std::unique_ptr<physics> phys)
     rru::ecs_db::system_table_type& sys_table = db.access<rru::ecs_db::system_table_type>(rru::table_id::system_registry);
     physics_table_type* table = new physics_table_type(default_physics_instance_id, "task_id", "physics_instance", "instance_name");
     table->emplace(0U, std::move(phys), "active_box2d");
-    sys_table.emplace(system_id::physics, make_unique_table(table), "physics");
+    sys_table.emplace(rru::system_id::physics, make_unique_table(table), "physics");
 
-    rru::ecs_db::component_system_table_type& comp_sys_map = db.access<ecs_db::component_system_table_type>(
-	    table_id::component_system_map);
-    comp_sys_map.auto_emplace(component_id::body, system_id::physics);
+    rru::ecs_db::component_system_table_type& comp_sys_map = db.access<rru::ecs_db::component_system_table_type>(
+	    rru::table_id::component_system_map);
+    comp_sys_map.auto_emplace(rru::component_id::body, rru::system_id::physics);
 }
 
 const physics& select_physics_instance(const robocup2Dsim::runtime::ecs_db& db)
