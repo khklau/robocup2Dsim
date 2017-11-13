@@ -3,19 +3,30 @@
 
 #include <cstdint>
 #include <robocup2Dsim/runtime/ecs_db.hpp>
+#include <robocup2Dsim/runtime/ram_db.hpp>
 
 namespace robocup2Dsim {
 namespace engine {
-namespace inventory {
 
 struct energy
 {
     std::uint8_t available;
 };
 
-void register_components(robocup2Dsim::runtime::ecs_db& db);
+class inventory
+{
+public:
+private:
+};
 
-} // namespace inventory
+typedef robocup2Dsim::runtime::table<
+		robocup2Dsim::runtime::primitives::key_16,
+		std::unique_ptr<inventory>,
+		robocup2Dsim::runtime::primitives::fixed_cstring_32>
+	inventory_table_type;
+
+void register_system(robocup2Dsim::runtime::ecs_db& db, std::unique_ptr<inventory> inv);
+
 } // namespace engine
 } // namespace robocup2Dsim
 
