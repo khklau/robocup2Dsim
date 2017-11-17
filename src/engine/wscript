@@ -8,6 +8,7 @@ def name(context):
 publicHeaders = [
     'dynamics.hpp',
     'inventory.hpp',
+    'inventory.hxx',
     'math.hpp',
     'physics.hpp',
     'physics.hxx']

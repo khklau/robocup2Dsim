@@ -2,18 +2,33 @@
 #define ROBOCUP2DSIM_ENGINE_INVENTORY_HPP
 
 #include <cstdint>
+#include <array>
+#include <turbo/memory/slab_allocator.hpp>
 #include <robocup2Dsim/runtime/ecs_db.hpp>
 #include <robocup2Dsim/runtime/ram_db.hpp>
 
 namespace robocup2Dsim {
 namespace engine {
 
-struct energy
+struct TURBO_SYMBOL_DECL energy
 {
     std::uint8_t available;
+    inline bool operator==(const energy& other) const
+    {
+	return this->available == other.available;
+    }
 };
 
-class inventory
+template <std::size_t length_c>
+turbo::memory::slab_unique_ptr<std::array<energy, length_c>> make_energy(energy initial_value);
+
+struct TURBO_SYMBOL_DECL inventory_config
+{
+    std::uint8_t min_energy;
+    std::uint8_t max_energy;
+};
+
+class TURBO_SYMBOL_DECL inventory
 {
 public:
 private:
