@@ -12,26 +12,46 @@ namespace engine {
 
 struct TURBO_SYMBOL_DECL energy
 {
-    std::uint8_t available;
+    std::uint8_t quantity;
     inline bool operator==(const energy& other) const
     {
-	return this->available == other.available;
+	return this->quantity == other.quantity;
     }
 };
 
 template <std::size_t length_c>
 turbo::memory::slab_unique_ptr<std::array<energy, length_c>> make_energy(energy initial_value);
 
-struct TURBO_SYMBOL_DECL inventory_config
+struct TURBO_SYMBOL_DECL inventory_policy
 {
-    std::uint8_t min_energy;
-    std::uint8_t max_energy;
+    energy minimum;
+    energy maximum;
 };
 
 class TURBO_SYMBOL_DECL inventory
 {
 public:
+    enum class accrue_result
+    {
+	success,
+	oversupply
+    };
+    enum class spend_result
+    {
+	success,
+	understock
+    };
+    inventory(const inventory_policy& policy);
+    template <class item_t, std::size_t length_c>
+    std::array<accrue_result, length_c> accrue(
+	    std::array<item_t, length_c>& stock,
+	    const std::array<item_t, length_c>& amount);
+    template <class item_t, std::size_t length_c>
+    std::array<spend_result, length_c> spend(
+	    std::array<item_t, length_c>& stock,
+	    const std::array<item_t, length_c>& amount);
 private:
+    inventory_policy policy_;
 };
 
 typedef robocup2Dsim::runtime::table<

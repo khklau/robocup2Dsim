@@ -13,6 +13,11 @@ static constexpr rru::primitives::key_16 default_inventory_instance_id = 0U;
 
 } // anonyous namespace
 
+inventory::inventory(const inventory_policy& policy)
+    :
+	policy_(policy)
+{ }
+
 void register_system(rru::ecs_db& db, std::unique_ptr<inventory> inv)
 {
     rru::ecs_db::system_table_type& sys_table = db.access<rru::ecs_db::system_table_type>(rru::table_id::system_registry);
