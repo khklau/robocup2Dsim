@@ -73,6 +73,16 @@ void physics::make_joint(const prismatic_joint_def& def)
     make_joint<prismatic_joint>(def);
 }
 
+void physics::apply_linear_impulse(dynamics::body& body, const vec2& impulse)
+{
+    body.ApplyLinearImpulse(impulse, body.GetWorldCenter(), true);
+}
+
+void physics::apply_angular_impulse(dynamics::body& body, float impulse)
+{
+    body.ApplyAngularImpulse(impulse, true);
+}
+
 void register_system(rru::ecs_db& db, std::unique_ptr<physics> phys)
 {
     rru::ecs_db::system_table_type& sys_table = db.access<rru::ecs_db::system_table_type>(rru::table_id::system_registry);
