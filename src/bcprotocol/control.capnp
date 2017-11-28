@@ -6,29 +6,28 @@ $Cxx.namespace("robocup2Dsim::bcprotocol");
 using CommonControl = import "/common/control.capnp";
 using Physics = import "/common/physics.capnp";
 
-struct DashAction
+struct RunAction
 {
-    power @0 :Physics.Newton;
-}
-
-struct TurnBodyAction
-{
-    direction @0 :Physics.Degree;
+    velocity @0 :Physics.MetresPerHour;
 }
 
 struct TurnHeadAction
 {
-    direction @0 :Physics.Degree;
+    velocity @0 :Physics.DegreesPerSecond;
+}
+
+struct TurnTorsoAction
+{
+    velocity @0 :Physics.DegreesPerSecond;
 }
 
 struct Control
 {
     union
     {
-	catch @0 :CommonControl.CatchAction;
-	dash @1 :DashAction;
-	kick @2 :CommonControl.KickAction;
-	turnBody @3 :TurnBodyAction;
-	turnHead @4 :TurnHeadAction;
+	moveFoot @0 :CommonControl.MoveFootAction;
+	run @1 :RunAction;
+	turnHead @2 :TurnHeadAction;
+	turnTorso @3 :TurnTorsoAction;
     }
 }

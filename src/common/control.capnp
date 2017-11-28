@@ -5,22 +5,21 @@ $Cxx.namespace("robocup2Dsim::common");
 
 using Physics = import "physics.capnp";
 
-struct CatchAction
+struct MoveFootAction
 {
-    direction @0 :Physics.Degree;
+    velocity @0 :Physics.MetresPerHour;
 }
 
-struct KickAction
+struct CatchAction
 {
-    power @0 :Physics.Newton;
-    direction @1 :Physics.Degree;
+    velocity @0 :Physics.MetresPerHour;
 }
 
 struct Control
 {
     union
     {
-	catch @0 :CatchAction;
-	kick @1 :KickAction;
+	moveFoot @0 :MoveFootAction;
+	catch @1 :CatchAction;
     }
 }

@@ -44,7 +44,7 @@ struct Player
     effort @4 :Physics.KiloJoule;
     bodyDirection @5 :Physics.Degree;
     headDirection @6 :Physics.Degree;
-    velocity @7 :Physics.MilliMetrePerSecond;
+    velocity @7 :Physics.MetresPerHour;
 }
 
 enum ParticipantType
@@ -59,5 +59,5 @@ struct Ball
 {
     position @0 :Physics.Position;
     direction @1 :Physics.Degree;
-    velocity @2 :Physics.MilliMetrePerSecond;
+    velocity @2 :Physics.MetresPerHour;
 }
