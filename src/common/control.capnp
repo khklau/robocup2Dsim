@@ -15,6 +15,21 @@ struct CatchAction
     velocity @0 :Physics.MetresPerHour;
 }
 
+struct RunAction
+{
+    velocity @0 :Physics.MetresPerHour;
+}
+
+struct TurnHeadAction
+{
+    velocity @0 :Physics.DegreesPerSecond;
+}
+
+struct TurnTorsoAction
+{
+    velocity @0 :Physics.DegreesPerSecond;
+}
+
 struct Control
 {
     union
