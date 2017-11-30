@@ -7,7 +7,7 @@ def name(context):
 
 commonCapnpFiles=[
 	'command.capnp',
-	'control.capnp',
+	'action.capnp',
 	'entity.capnp',
 	'error.capnp',
 	'field.capnp',

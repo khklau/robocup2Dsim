@@ -30,7 +30,7 @@ struct TurnTorsoAction
     velocity @0 :Physics.DegreesPerSecond;
 }
 
-struct Control
+struct PlayerAction
 {
     union
     {

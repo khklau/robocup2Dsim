@@ -106,7 +106,7 @@ handle<state::nobot_onbench>&& bot_crashed(handle<state::withbot_onbench>&& inpu
 handle<state::withbot_unregistered>&& disconnected(handle<state::withbot_onbench>&& input);
 
 handle<state::withbot_playing>&& received_snapshot(handle<state::withbot_playing>&&, const robocup2Dsim::csprotocol::ServerStatus::Reader& reader);
-handle<state::withbot_playing>&& control_actioned(handle<state::withbot_playing>&&, const robocup2Dsim::bcprotocol::Control::Reader& reader);
+handle<state::withbot_playing>&& control_actioned(handle<state::withbot_playing>&&, const robocup2Dsim::bcprotocol::PlayerAction::Reader& reader);
 handle<state::withbot_playing>&& query_requested(handle<state::withbot_playing>&&, const robocup2Dsim::bcprotocol::QueryRequest::Reader& reader);
 handle<state::withbot_playing>&& play_judged(handle<state::withbot_playing>&&, const robocup2Dsim::common::PlayJudgement::Reader& reader);
 handle<state::withbot_playing>&& simulation_timedout(handle<state::withbot_playing>&& input);

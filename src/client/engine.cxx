@@ -122,7 +122,7 @@ handle<state::withbot_playing>&& received_snapshot(handle<state::withbot_playing
     return std::move(output);
 }
 
-handle<state::withbot_playing>&& control_actioned(handle<state::withbot_playing>&& input, const rbc::Control::Reader& reader)
+handle<state::withbot_playing>&& control_actioned(handle<state::withbot_playing>&& input, const rbc::PlayerAction::Reader& reader)
 {
     handle<state::withbot_playing> output(std::move(input));
     return std::move(output);

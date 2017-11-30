@@ -101,7 +101,7 @@ handle<state::withref_waiting>&& disconnected(handle<state::withref_waiting>&& i
 handle<state::noref_waiting>&& ref_crashed(handle<state::withref_waiting>&& input);
 
 handle<state::withref_playing>&& status_uploaded(handle<state::withref_playing>&&, const robocup2Dsim::csprotocol::ClientStatus::Reader& reader);
-handle<state::withref_playing>&& control_actioned(handle<state::withref_playing>&&, const robocup2Dsim::common::Control::Reader& reader);
+handle<state::withref_playing>&& control_actioned(handle<state::withref_playing>&&, const robocup2Dsim::common::PlayerAction::Reader& reader);
 handle<state::withref_playing>&& play_judged(handle<state::withref_playing>&&, const robocup2Dsim::common::PlayJudgement::Reader& reader);
 handle<state::withref_playing>&& simulation_timedout(handle<state::withref_playing>&& input);
 handle<state::withref_playing>&& snapshot_timedout(handle<state::withref_playing>&& input);
@@ -113,7 +113,7 @@ handle<state::withref_waiting>&& match_aborted(handle<state::withref_playing>&& 
 
 handle<state::withref_playing>&& ref_ready(handle<state::noref_playing>&&);
 handle<state::noref_playing>&& status_uploaded(handle<state::noref_playing>&&, const robocup2Dsim::csprotocol::ClientStatus::Reader& reader);
-handle<state::noref_playing>&& control_actioned(handle<state::noref_playing>&&, const robocup2Dsim::common::Control::Reader& reader);
+handle<state::noref_playing>&& control_actioned(handle<state::noref_playing>&&, const robocup2Dsim::common::PlayerAction::Reader& reader);
 handle<state::noref_playing>&& simulation_timedout(handle<state::noref_playing>&& input);
 handle<state::noref_playing>&& snapshot_timedout(handle<state::noref_playing>&& input);
 handle<state::noref_playing>&& registration_requested(handle<state::noref_playing>&& input, const robocup2Dsim::csprotocol::RegistrationRequest::Reader& reader);

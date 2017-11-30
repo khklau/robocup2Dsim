@@ -98,7 +98,7 @@ handle<state::withref_playing>&& status_uploaded(handle<state::withref_playing>&
     return std::move(output);
 }
 
-handle<state::withref_playing>&& control_actioned(handle<state::withref_playing>&& input, const rco::Control::Reader& reader)
+handle<state::withref_playing>&& control_actioned(handle<state::withref_playing>&& input, const rco::PlayerAction::Reader& reader)
 {
     handle<state::withref_playing> output(std::move(input));
     return std::move(output);
@@ -164,7 +164,7 @@ handle<state::noref_playing>&& status_uploaded(handle<state::noref_playing>&& in
     return std::move(output);
 }
 
-handle<state::noref_playing>&& control_actioned(handle<state::noref_playing>&& input, const rco::Control::Reader& reader)
+handle<state::noref_playing>&& control_actioned(handle<state::noref_playing>&& input, const rco::PlayerAction::Reader& reader)
 {
     handle<state::noref_playing> output(std::move(input));
     return std::move(output);
