@@ -15,13 +15,15 @@
 #include <kj/main.h>
 #include <kj/string.h>
 #include <glog/logging.h>
-#include <robocup2Dsim/csprotocol/protocol.hpp>
-#include <robocup2Dsim/srprotocol/protocol.hpp>
 #include <turbo/container/spsc_ring_queue.hpp>
 #include <turbo/container/spsc_ring_queue.hxx>
 #include <turbo/ipc/posix/pipe.hpp>
 #include <turbo/ipc/posix/signal_notifier.hpp>
 #include <turbo/process/posix/spawn.hpp>
+#include <robocup2Dsim/csprotocol/protocol.hpp>
+#include <robocup2Dsim/srprotocol/protocol.hpp>
+#include <robocup2Dsim/runtime/db_access.hpp>
+#include <robocup2Dsim/engine/physics.hpp>
 #include "client_io.hpp"
 #include "config.hpp"
 #include "engine.hpp"
@@ -32,6 +34,8 @@ namespace bme = beam::message;
 namespace tip = turbo::ipc::posix;
 namespace tpp = turbo::process::posix;
 namespace rcs = robocup2Dsim::csprotocol;
+namespace ren = robocup2Dsim::engine;
+namespace rru = robocup2Dsim::runtime;
 namespace rse = robocup2Dsim::server;
 namespace rsr = robocup2Dsim::srprotocol;
 
@@ -90,19 +94,19 @@ void parse_cmd_args(int argc, char* argv[], rse::config& conf)
 class server
 {
 public:
-    server(const rse::config&& config, tpp::child&& ref);
+    server(const rse::config& config, tpp::child&& ref);
     void run();
 private:
     const rse::config config_;
     rse::engine::basic_handle handle_;
     tip::signal_notifier notifier_;
-    tpp::child&& ref_;
+    tpp::child ref_;
     rse::ref_io ref_io_;
     rse::client_io client_io_;
 };
 
-server::server(const rse::config&& config, tpp::child&& ref) :
-	config_(std::move(config)),
+server::server(const rse::config& config, tpp::child&& ref) :
+	config_(config),
 	handle_
 	{
 	    std::move(std::unique_ptr<rsr::ref_input_queue_type>(new rsr::ref_input_queue_type(config_.ref_msg_queue_length))),
@@ -124,6 +128,8 @@ server::server(const rse::config&& config, tpp::child&& ref) :
 		config_)
 {
     // TODO: setup SIGCHLD handling
+    std::unique_ptr<ren::physics> physics(new ren::physics());
+    ren::register_system(rru::update_local_db(), std::move(physics));
 }
 
 void server::run()
@@ -246,11 +252,11 @@ void server::run()
 	    }
 	    if (handle_.engine_state == rse::engine::state::withref_playing)
 	    {
-		if (client_trans->get_reader().isControl())
+		if (client_trans->get_reader().isAction())
 		{
 		    handle_ = std::move(rse::engine::up_cast(rse::engine::control_actioned(
 			    rse::engine::down_cast<rse::engine::state::withref_playing>(std::move(handle_)),
-			    client_trans->get_reader().getControl())));
+			    client_trans->get_reader().getAction())));
 		}
 		if (client_trans->get_reader().isRegistration())
 		{
@@ -266,11 +272,11 @@ void server::run()
 	    }
 	    if (handle_.engine_state == rse::engine::state::noref_playing)
 	    {
-		if (client_trans->get_reader().isControl())
+		if (client_trans->get_reader().isAction())
 		{
 		    handle_ = std::move(rse::engine::up_cast(rse::engine::control_actioned(
 			    rse::engine::down_cast<rse::engine::state::noref_playing>(std::move(handle_)),
-			    client_trans->get_reader().getControl())));
+			    client_trans->get_reader().getAction())));
 		}
 		if (client_trans->get_reader().isRegistration())
 		{
@@ -325,7 +331,7 @@ int main(int argc, char* argv[])
 {
     rse::config conf;
     parse_cmd_args(argc, argv, conf);
-    tpp::child&& ref = tpp::spawn(conf.ref_path.c_str(), &argv[conf.ref_arg_offset], {}, 2 << 16);
+    tpp::child ref = tpp::spawn(conf.ref_path.c_str(), &argv[conf.ref_arg_offset], {}, 2 << 16);
     google::InitGoogleLogging(argv[0]);
     FLAGS_logtostderr = true;
     FLAGS_minloglevel = (kj::_::Debug::shouldLog(kj::_::Debug::Severity::INFO)) ? 0 : 1;

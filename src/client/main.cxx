@@ -15,13 +15,15 @@
 #include <kj/main.h>
 #include <kj/string.h>
 #include <glog/logging.h>
-#include <robocup2Dsim/bcprotocol/protocol.hpp>
-#include <robocup2Dsim/csprotocol/protocol.hpp>
 #include <turbo/container/spsc_ring_queue.hpp>
 #include <turbo/container/spsc_ring_queue.hxx>
 #include <turbo/ipc/posix/pipe.hpp>
 #include <turbo/ipc/posix/signal_notifier.hpp>
 #include <turbo/process/posix/spawn.hpp>
+#include <robocup2Dsim/bcprotocol/protocol.hpp>
+#include <robocup2Dsim/csprotocol/protocol.hpp>
+#include <robocup2Dsim/runtime/db_access.hpp>
+#include <robocup2Dsim/engine/physics.hpp>
 #include "bot_io.hpp"
 #include "config.hpp"
 #include "engine.hpp"
@@ -34,6 +36,8 @@ namespace tpp = turbo::process::posix;
 namespace rbc = robocup2Dsim::bcprotocol;
 namespace rcl = robocup2Dsim::client;
 namespace rcs = robocup2Dsim::csprotocol;
+namespace ren = robocup2Dsim::engine;
+namespace rru = robocup2Dsim::runtime;
 
 void parse_cmd_args(int argc, char* argv[], rcl::config& conf)
 {
@@ -122,19 +126,19 @@ void parse_cmd_args(int argc, char* argv[], rcl::config& conf)
 class client
 {
 public:
-    client(const rcl::config&& config, tpp::child&& bot);
+    client(const rcl::config& config, tpp::child&& bot);
     void run();
 private:
     const rcl::config config_;
     rcl::engine::basic_handle handle_;
     tip::signal_notifier notifier_;
-    tpp::child&& bot_;
+    tpp::child bot_;
     rcl::bot_io bot_io_;
     rcl::server_io server_io_;
 };
 
-client::client(const rcl::config&& config, tpp::child&& bot) :
-	config_(std::move(config)),
+client::client(const rcl::config& config, tpp::child&& bot) :
+	config_(config),
 	handle_
 	{
 	    std::move(std::unique_ptr<rbc::bot_input_queue_type>(new rbc::bot_input_queue_type(config_.bot_msg_queue_length))),
@@ -156,6 +160,8 @@ client::client(const rcl::config&& config, tpp::child&& bot) :
 		config_)
 {
     // TODO: setup SIGCHLD handling
+    std::unique_ptr<ren::physics> physics(new ren::physics());
+    ren::register_system(rru::update_local_db(), std::move(physics));
 }
 
 void client::run()
@@ -176,11 +182,11 @@ void client::run()
 	{
 	    if (handle_.engine_state == rcl::engine::state::withbot_playing)
 	    {
-		if (bot_output->get_reader().isControl())
+		if (bot_output->get_reader().isAction())
 		{
 		    handle_ = std::move(rcl::engine::up_cast(rcl::engine::control_actioned(
 			    rcl::engine::down_cast<rcl::engine::state::withbot_playing>(std::move(handle_)),
-			    bot_output->get_reader().getControl())));
+			    bot_output->get_reader().getAction())));
 		}
 		else if (bot_output->get_reader().isQuery())
 		{
@@ -334,7 +340,7 @@ int main(int argc, char* argv[])
 {
     rcl::config conf;
     parse_cmd_args(argc, argv, conf);
-    tpp::child&& bot = tpp::spawn(conf.bot_path.c_str(), &argv[conf.bot_arg_offset], {}, 2 << 16);
+    tpp::child bot = tpp::spawn(conf.bot_path.c_str(), &argv[conf.bot_arg_offset], {}, 2 << 16);
     google::InitGoogleLogging(argv[0]);
     FLAGS_logtostderr = true;
     FLAGS_minloglevel = (kj::_::Debug::shouldLog(kj::_::Debug::Severity::INFO)) ? 0 : 1;
