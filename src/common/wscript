@@ -67,7 +67,8 @@ def build(buildCtx):
     buildCtx.stlib(
 	    name='stlib_robocup2Dsim_common',
 	    source=commonCxxNodeList +
-		    [buildCtx.path.find_node('ball.cxx'),
+		    [buildCtx.path.find_node('action.cxx'),
+		    buildCtx.path.find_node('ball.cxx'),
 		    buildCtx.path.find_node('field.cxx'),
 		    buildCtx.path.find_node('player.cxx')],
 	    target=os.path.join(buildCtx.env.component.build_tree.libPathFromBuild(buildCtx), 'robocup2Dsim_common'),
