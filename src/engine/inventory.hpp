@@ -42,6 +42,10 @@ public:
 	understock
     };
     inventory(const inventory_policy& policy);
+    template <class item_t>
+    inline accrue_result accrue(item_t& stock, const item_t& amount) const;
+    template <class item_t>
+    inline spend_result spend(item_t& stock, const item_t& amount) const;
     template <class item_t, std::size_t length_c>
     std::array<accrue_result, length_c> accrue(
 	    std::array<item_t, length_c>& stock,

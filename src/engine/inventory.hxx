@@ -25,28 +25,49 @@ turbo::memory::slab_unique_ptr<std::array<energy, length_c>> make_energy(energy 
     }
 }
 
+template <class item_t>
+inventory::accrue_result inventory::accrue(item_t& stock, const item_t& amount) const
+{
+    // Need to be careful of potential over flow
+    if (amount.quantity <= policy_.maximum.quantity - stock.quantity)
+    {
+	stock.quantity += amount.quantity;
+	return accrue_result::success;
+    }
+    else
+    {
+	return accrue_result::oversupply;
+    }
+}
+
+template <class item_t>
+inventory::spend_result inventory::spend(item_t& stock, const item_t& amount) const
+{
+    // Need to be careful of potential under flow
+    if (amount.quantity <= stock.quantity - policy_.minimum.quantity)
+    {
+	stock.quantity -= amount.quantity;
+	return spend_result::success;
+    }
+    else
+    {
+	return spend_result::understock;
+    }
+}
+
 template <class item_t, std::size_t length_c>
 std::array<inventory::accrue_result, length_c> inventory::accrue(
 	std::array<item_t, length_c>& stock,
 	const std::array<item_t, length_c>& amount) const
 {
     std::array<accrue_result, length_c> result;
-    std::fill_n(result.begin(), result.max_size(), accrue_result::success);
     auto stock_iter = stock.begin();
     auto amount_iter = amount.cbegin();
     auto result_iter = result.begin();
     for (; stock_iter != stock.end() && amount_iter != amount.cend() && result_iter != result.end();
 	    ++stock_iter, ++amount_iter, ++result_iter)
     {
-	// Need to be careful of potential over flow
-	if (amount_iter->quantity <= policy_.maximum.quantity - stock_iter->quantity)
-	{
-	    stock_iter->quantity += amount_iter->quantity;
-	}
-	else
-	{
-	    *result_iter = accrue_result::oversupply;
-	}
+	*result_iter = accrue(*stock_iter, *amount_iter);
     }
     return std::move(result);
 }
@@ -57,22 +78,13 @@ std::array<inventory::spend_result, length_c> inventory::spend(
 	const std::array<item_t, length_c>& amount) const
 {
     std::array<spend_result, length_c> result;
-    std::fill_n(result.begin(), result.max_size(), spend_result::success);
     auto stock_iter = stock.begin();
     auto amount_iter = amount.cbegin();
     auto result_iter = result.begin();
     for (; stock_iter != stock.end() && amount_iter != amount.cend() && result_iter != result.end();
 	    ++stock_iter, ++amount_iter, ++result_iter)
     {
-	// Need to be careful of potential under flow
-	if (amount_iter->quantity <= stock_iter->quantity - policy_.minimum.quantity)
-	{
-	    stock_iter->quantity -= amount_iter->quantity;
-	}
-	else
-	{
-	    *result_iter = spend_result::understock;
-	}
+	*result_iter = spend(*stock_iter, *amount_iter);
     }
     return std::move(result);
 }
