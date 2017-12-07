@@ -45,11 +45,11 @@ public:
     template <class item_t, std::size_t length_c>
     std::array<accrue_result, length_c> accrue(
 	    std::array<item_t, length_c>& stock,
-	    const std::array<item_t, length_c>& amount);
+	    const std::array<item_t, length_c>& amount) const;
     template <class item_t, std::size_t length_c>
     std::array<spend_result, length_c> spend(
 	    std::array<item_t, length_c>& stock,
-	    const std::array<item_t, length_c>& amount);
+	    const std::array<item_t, length_c>& amount) const;
 private:
     inventory_policy policy_;
 };

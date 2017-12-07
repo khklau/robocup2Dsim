@@ -28,7 +28,7 @@ turbo::memory::slab_unique_ptr<std::array<energy, length_c>> make_energy(energy 
 template <class item_t, std::size_t length_c>
 std::array<inventory::accrue_result, length_c> inventory::accrue(
 	std::array<item_t, length_c>& stock,
-	const std::array<item_t, length_c>& amount)
+	const std::array<item_t, length_c>& amount) const
 {
     std::array<accrue_result, length_c> result;
     std::fill_n(result.begin(), result.max_size(), accrue_result::success);
@@ -54,7 +54,7 @@ std::array<inventory::accrue_result, length_c> inventory::accrue(
 template <class item_t, std::size_t length_c>
 std::array<inventory::spend_result, length_c> inventory::spend(
 	std::array<item_t, length_c>& stock,
-	const std::array<item_t, length_c>& amount)
+	const std::array<item_t, length_c>& amount) const
 {
     std::array<spend_result, length_c> result;
     std::fill_n(result.begin(), result.max_size(), spend_result::success);
