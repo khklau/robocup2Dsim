@@ -5,7 +5,7 @@ $Cxx.namespace("robocup2Dsim::common");
 
 using Day = UInt32;
 using Degree = Int16;
-using KiloJoule = UInt16;
+using KiloJoule = UInt8;
 using MetresPerHour = Int16;
 using DegreesPerSecond = Int16;
 using MilliMetre = Float32;

@@ -105,8 +105,8 @@ public:
     void make_joint(const prismatic_joint_def& def);
     template <typename collision_func_t, typename separation_func_t>
     void step(float time_step, collision_func_t&& on_collision, separation_func_t&& on_separation);
-    void apply_linear_impulse(dynamics::body& body, const vec2& impulse);
-    void apply_angular_impulse(dynamics::body& body, float impulse);
+    void apply_linear_impulse(dynamics::body& body, const vec2& impulse) const;
+    void apply_angular_impulse(dynamics::body& body, float impulse) const;
 private:
     typedef b2World world;
     typedef b2Fixture fixture;

@@ -73,12 +73,12 @@ void physics::make_joint(const prismatic_joint_def& def)
     make_joint<prismatic_joint>(def);
 }
 
-void physics::apply_linear_impulse(dynamics::body& body, const vec2& impulse)
+void physics::apply_linear_impulse(dynamics::body& body, const vec2& impulse) const
 {
     body.ApplyLinearImpulse(impulse, body.GetWorldCenter(), true);
 }
 
-void physics::apply_angular_impulse(dynamics::body& body, float impulse)
+void physics::apply_angular_impulse(dynamics::body& body, float impulse) const
 {
     body.ApplyAngularImpulse(impulse, true);
 }
