@@ -17,6 +17,7 @@ commonCapnpFiles=[
 	'rule.capnp']
 
 publicHeaders = [
+    'action.hpp',
     'ball.hpp',
     'entity.hpp',
     'field.hpp',

@@ -9,7 +9,9 @@
 namespace robocup2Dsim {
 namespace common {
 
-void act(
+robocup2Dsim::engine::inventory::spend_result act(
+	const robocup2Dsim::engine::inventory& inventory,
+	robocup2Dsim::engine::energy& stock,
 	const robocup2Dsim::engine::physics& physics,
 	const robocup2Dsim::engine::dynamics::body& torso,
 	robocup2Dsim::engine::dynamics::body& foot,

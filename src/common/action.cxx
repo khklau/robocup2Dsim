@@ -1,21 +1,40 @@
 #include "action.hpp"
 #include <cmath>
+#include <cstdlib>
+#include <algorithm>
+#include <robocup2Dsim/engine/physics.hxx>
+#include <robocup2Dsim/engine/inventory.hxx>
 
 namespace ren = robocup2Dsim::engine;
 
 namespace robocup2Dsim {
 namespace common {
 
-void act(
+ren::inventory::spend_result act(
+	const ren::inventory& inventory,
+	ren::energy& stock,
 	const ren::physics& physics,
 	const ren::dynamics::body& torso,
 	ren::dynamics::body& foot,
 	const MoveFootAction::Reader& action)
 {
-    ren::physics::vec2 target(0, 0);
-    target.x = action.getVelocity() / VELOCITY_SCALE_FACTOR * std::cos(torso.GetAngle());
-    target.y = action.getVelocity() / VELOCITY_SCALE_FACTOR * std::sin(torso.GetAngle());
-    physics.apply_linear_impulse(foot, target);
+    // Need to work around a strange unary minus return type bug in Gcc
+    decltype(MoveFootAction::MAX_VELOCITY) velocity = (action.getVelocity() > 0)
+	    ? std::min(action.getVelocity(), MoveFootAction::MAX_VELOCITY)
+	    : std::max(action.getVelocity(), static_cast<decltype(MoveFootAction::MAX_VELOCITY)>(-MoveFootAction::MAX_VELOCITY));
+    // Need to be careful to avoid overflow
+    robocup2Dsim::engine::energy cost{std::lround(
+	    (std::abs(velocity) / static_cast<double>(MoveFootAction::MAX_VELOCITY))
+	    * static_cast<double>(MoveFootAction::MAX_COST))};
+    auto result = inventory.spend(stock, cost);
+    if (result == ren::inventory::spend_result::success)
+    {
+	ren::physics::vec2 target(0, 0);
+	target.x = velocity / VELOCITY_SCALE_FACTOR * std::cos(torso.GetAngle());
+	target.y = velocity / VELOCITY_SCALE_FACTOR * std::sin(torso.GetAngle());
+	physics.apply_linear_impulse(foot, target);
+    }
+    return result;
 }
 
 void act(
