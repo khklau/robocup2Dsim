@@ -21,6 +21,10 @@ struct CatchAction
 
 struct RunAction
 {
+    const maxForwardVelocity :Physics.MetresPerHour = 16000;
+    const maxForwardCost :Physics.KiloJoule = 100;
+    const maxBackwardVelocity :Physics.MetresPerHour = -8000;
+    const maxBackwardCost :Physics.KiloJoule = 200;
     velocity @0 :Physics.MetresPerHour;
 }
 
