@@ -89,14 +89,29 @@ ren::inventory::spend_result act(
     return result;
 }
 
-void act(
+ren::inventory::spend_result act(
+	const robocup2Dsim::engine::inventory& inventory,
+	robocup2Dsim::engine::energy& stock,
 	const robocup2Dsim::engine::physics& physics,
 	robocup2Dsim::engine::dynamics::body& torso,
 	robocup2Dsim::engine::dynamics::body& foot,
 	const TurnTorsoAction::Reader& action)
 {
-    physics.apply_angular_impulse(torso, action.getVelocity() / VELOCITY_SCALE_FACTOR);
-    physics.apply_angular_impulse(foot, action.getVelocity() / VELOCITY_SCALE_FACTOR);
+    // Need to work around a strange unary minus return type bug in Gcc
+    decltype(TurnTorsoAction::MAX_VELOCITY) velocity = (action.getVelocity() > 0)
+	    ? std::min(action.getVelocity(), TurnTorsoAction::MAX_VELOCITY)
+	    : std::max(action.getVelocity(), static_cast<decltype(TurnTorsoAction::MAX_VELOCITY)>(-TurnTorsoAction::MAX_VELOCITY));
+    // Need to be careful to avoid overflow
+    robocup2Dsim::engine::energy cost{static_cast<decltype(cost.quantity)>(std::lround(
+	    (std::abs(velocity) / static_cast<double>(TurnTorsoAction::MAX_VELOCITY))
+	    * static_cast<double>(TurnTorsoAction::MAX_COST)))};
+    ren::inventory::spend_result result = inventory.spend(stock, cost);
+    if (result == ren::inventory::spend_result::success)
+    {
+	physics.apply_angular_impulse(torso, action.getVelocity() / VELOCITY_SCALE_FACTOR);
+	physics.apply_angular_impulse(foot, action.getVelocity() / VELOCITY_SCALE_FACTOR);
+    }
+    return result;
 }
 
 } // namespace common

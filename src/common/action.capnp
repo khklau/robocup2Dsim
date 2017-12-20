@@ -37,6 +37,8 @@ struct TurnHeadAction
 
 struct TurnTorsoAction
 {
+    const maxVelocity :Physics.DegreesPerSecond = 200;
+    const maxCost :Physics.KiloJoule = 40;
     velocity @0 :Physics.DegreesPerSecond;
 }
 
