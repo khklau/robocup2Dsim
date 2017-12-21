@@ -48,5 +48,8 @@ struct PlayerAction
     {
 	moveFoot @0 :MoveFootAction;
 	catch @1 :CatchAction;
+	run @2 :RunAction;
+	turnHead @3 :TurnHeadAction;
+	turnTorso @4 :TurnTorsoAction;
     }
 }

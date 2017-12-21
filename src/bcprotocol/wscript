@@ -6,7 +6,6 @@ def name(context):
     return os.path.basename(str(context.path))
 
 bcprotocolCapnpFiles=[
-	'action.capnp',
 	'info.capnp',
 	'protocol.capnp',
 	'sensor.capnp']

@@ -5,7 +5,7 @@ $Cxx.namespace("robocup2Dsim::bcprotocol");
 
 using Command = import "/common/command.capnp";
 using CommonJudgement = import "/common/judgement.capnp";
-using Action = import "action.capnp";
+using CommonAction = import "/common/action.capnp";
 using Error = import "/common/error.capnp";
 using Info = import "info.capnp";
 using Sensor = import "sensor.capnp";
@@ -14,7 +14,7 @@ struct BotOutput
 {
     union
     {
-	action @0 :Action.PlayerAction;
+	action @0 :CommonAction.PlayerAction;
 	query @1 :Info.QueryRequest;
 	shutDown @2 :Void;
 	crash @3 :Void;
