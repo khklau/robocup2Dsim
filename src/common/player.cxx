@@ -223,7 +223,7 @@ void make_hip(
     physics.make_joint(joint_def);
 }
 
-player_components make_player(
+player_body make_player(
 	rru::ecs_db& db,
 	const std::string& name,
 	const ren::physics::vec2& position,
@@ -234,7 +234,7 @@ player_components make_player(
     ren::physics_ptr<ren::dynamics::body> foot = make_foot(db, name, position, angle_degree);
     make_neck(ren::update_physics_instance(db), *torso, *head, -60, 60);
     make_hip(ren::update_physics_instance(db), *torso, *foot, 0, 2);
-    player_components result{
+    player_body result{
 	    std::move(torso),
 	    std::move(head),
 	    std::move(foot)};

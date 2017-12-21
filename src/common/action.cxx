@@ -14,8 +14,7 @@ ren::inventory::spend_result act(
 	const ren::inventory& inventory,
 	ren::energy& stock,
 	const ren::physics& physics,
-	const ren::dynamics::body& torso,
-	ren::dynamics::body& foot,
+	player_body& body,
 	const MoveFootAction::Reader& action)
 {
     // Need to work around a strange unary minus return type bug in Gcc
@@ -30,9 +29,9 @@ ren::inventory::spend_result act(
     if (result == ren::inventory::spend_result::success)
     {
 	ren::physics::vec2 target(0, 0);
-	target.x = velocity / VELOCITY_SCALE_FACTOR * std::cos(torso.GetAngle());
-	target.y = velocity / VELOCITY_SCALE_FACTOR * std::sin(torso.GetAngle());
-	physics.apply_linear_impulse(foot, target);
+	target.x = velocity / VELOCITY_SCALE_FACTOR * std::cos(body.torso->GetAngle());
+	target.y = velocity / VELOCITY_SCALE_FACTOR * std::sin(body.torso->GetAngle());
+	physics.apply_linear_impulse(*(body.foot), target);
     }
     return result;
 }
@@ -41,9 +40,7 @@ ren::inventory::spend_result act(
 	const ren::inventory& inventory,
 	ren::energy& stock,
 	const robocup2Dsim::engine::physics& physics,
-	robocup2Dsim::engine::dynamics::body& torso,
-	robocup2Dsim::engine::dynamics::body& head,
-	robocup2Dsim::engine::dynamics::body& foot,
+	player_body& body,
 	const RunAction::Reader& action)
 {
     decltype(RunAction::MAX_FORWARD_VELOCITY) velocity = (action.getVelocity() > 0)
@@ -57,11 +54,11 @@ ren::inventory::spend_result act(
     if (result == ren::inventory::spend_result::success)
     {
 	ren::physics::vec2 target(0, 0);
-	target.x = velocity / VELOCITY_SCALE_FACTOR * std::cos(torso.GetAngle());
-	target.y = velocity / VELOCITY_SCALE_FACTOR * std::sin(torso.GetAngle());
-	physics.apply_linear_impulse(torso, target);
-	physics.apply_linear_impulse(head, target);
-	physics.apply_linear_impulse(foot, target);
+	target.x = velocity / VELOCITY_SCALE_FACTOR * std::cos(body.torso->GetAngle());
+	target.y = velocity / VELOCITY_SCALE_FACTOR * std::sin(body.torso->GetAngle());
+	physics.apply_linear_impulse(*(body.torso), target);
+	physics.apply_linear_impulse(*(body.head), target);
+	physics.apply_linear_impulse(*(body.foot), target);
     }
     return result;
 }
@@ -70,7 +67,7 @@ ren::inventory::spend_result act(
 	const robocup2Dsim::engine::inventory& inventory,
 	robocup2Dsim::engine::energy& stock,
 	const robocup2Dsim::engine::physics& physics,
-	robocup2Dsim::engine::dynamics::body& head,
+	player_body& body,
 	const TurnHeadAction::Reader& action)
 {
     // Need to work around a strange unary minus return type bug in Gcc
@@ -84,7 +81,7 @@ ren::inventory::spend_result act(
     ren::inventory::spend_result result = inventory.spend(stock, cost);
     if (result == ren::inventory::spend_result::success)
     {
-	physics.apply_angular_impulse(head, velocity / VELOCITY_SCALE_FACTOR);
+	physics.apply_angular_impulse(*(body.head), velocity / VELOCITY_SCALE_FACTOR);
     }
     return result;
 }
@@ -93,8 +90,7 @@ ren::inventory::spend_result act(
 	const robocup2Dsim::engine::inventory& inventory,
 	robocup2Dsim::engine::energy& stock,
 	const robocup2Dsim::engine::physics& physics,
-	robocup2Dsim::engine::dynamics::body& torso,
-	robocup2Dsim::engine::dynamics::body& foot,
+	player_body& body,
 	const TurnTorsoAction::Reader& action)
 {
     // Need to work around a strange unary minus return type bug in Gcc
@@ -108,8 +104,8 @@ ren::inventory::spend_result act(
     ren::inventory::spend_result result = inventory.spend(stock, cost);
     if (result == ren::inventory::spend_result::success)
     {
-	physics.apply_angular_impulse(torso, action.getVelocity() / VELOCITY_SCALE_FACTOR);
-	physics.apply_angular_impulse(foot, action.getVelocity() / VELOCITY_SCALE_FACTOR);
+	physics.apply_angular_impulse(*(body.torso), action.getVelocity() / VELOCITY_SCALE_FACTOR);
+	physics.apply_angular_impulse(*(body.foot), action.getVelocity() / VELOCITY_SCALE_FACTOR);
     }
     return result;
 }
