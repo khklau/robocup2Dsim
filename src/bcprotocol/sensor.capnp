@@ -32,7 +32,7 @@ struct Communication
 
 struct PlayerVisual1
 {
-    id @0 :Entity.PlayerId;
+    uniform @0 :Entity.PlayerUniform;
     direction @1 :Physics.Degree;
     distance @2 :Physics.MilliMetre;
     body @3 :Physics.Degree;

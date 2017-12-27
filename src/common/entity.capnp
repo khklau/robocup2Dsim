@@ -29,7 +29,7 @@ enum UniformNumber
     eleven @10;
 }
 
-struct PlayerId
+struct PlayerUniform
 {
     side @0 :Field.Side;
     uniform @1 :UniformNumber;
@@ -37,7 +37,7 @@ struct PlayerId
 
 struct Player
 {
-    id @0 :PlayerId;
+    id @0 :PlayerUniform;
     type @1 :PlayerType;
     position @2 :Physics.Position;
     stamina @3 :Physics.KiloJoule;
