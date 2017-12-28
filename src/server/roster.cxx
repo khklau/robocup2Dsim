@@ -108,13 +108,13 @@ roster::registration_result roster::register_client(const rcs::client_id& client
 	team->second[detail.getUniform()] = client;
 	if (is_finalised())
 	{
-	    if (detail.getTeamName() == get_team_name(rce::team_id::alpha))
+	    if (detail.getTeamName() == get_team_name(rce::TeamId::ALPHA))
 	    {
-		index_.emplace(client, rce::player_id{ detail.getUniform(), rce::team_id::alpha });
+		index_.emplace(client, rce::player_id{ detail.getUniform(), rce::TeamId::ALPHA });
 	    }
 	    else
 	    {
-		index_.emplace(client, rce::player_id{ detail.getUniform(), rce::team_id::beta });
+		index_.emplace(client, rce::player_id{ detail.getUniform(), rce::TeamId::BETA });
 	    }
 	}
 	return roster::registration_result::success;
@@ -160,7 +160,7 @@ roster::finalisation_result roster::finalise()
     }
     else
     {
-	for (auto id: ttu::enum_iterator<rce::team_id, rce::team_id::alpha, rce::team_id::beta>())
+	for (auto id: ttu::enum_iterator<rce::TeamId, rce::TeamId::ALPHA, rce::TeamId::BETA>())
 	{
 	    team& team_roster = roster_.find(get_team_name(id))->second;
 	    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::ONE, rce::UniformNumber::ELEVEN>())
@@ -224,11 +224,11 @@ robocup2Dsim::common::entity::player_id roster::get_player(const robocup2Dsim::c
     }
 }
 
-std::string roster::get_team_name(const rce::team_id& team) const
+std::string roster::get_team_name(const rce::TeamId& team) const
 {
     switch (team)
     {
-	case rce::team_id::alpha:
+	case rce::TeamId::ALPHA:
 	    return roster_.cbegin()->first;
 	default:
 	    return roster_.crbegin()->first;

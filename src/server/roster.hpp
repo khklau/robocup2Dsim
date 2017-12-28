@@ -37,7 +37,7 @@ public:
     bool is_registered(const robocup2Dsim::csprotocol::client_id& client) const;
     robocup2Dsim::csprotocol::client_id get_client(const robocup2Dsim::common::entity::player_id& player) const;
     robocup2Dsim::common::entity::player_id get_player(const robocup2Dsim::csprotocol::client_id& client) const;
-    std::string get_team_name(const robocup2Dsim::common::entity::team_id& team) const;
+    std::string get_team_name(const robocup2Dsim::common::entity::TeamId& team) const;
 private:
     class team
     {

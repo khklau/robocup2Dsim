@@ -52,16 +52,10 @@ enum class fixture_name : std::uint16_t
     vision
 };
 
-enum class team_id : uint8_t
-{
-    alpha,
-    beta
-};
-
 struct player_id
 {
     UniformNumber uniform;
-    team_id team;
+    TeamId team;
     inline bool operator==(const player_id& other) const { return uniform == other.uniform && team == other.team; }
 };
 

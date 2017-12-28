@@ -29,10 +29,16 @@ enum UniformNumber
     eleven @10;
 }
 
+enum TeamId
+{
+    alpha @0;
+    beta @1;
+}
+
 struct PlayerUniform
 {
-    side @0 :Field.Side;
-    uniform @1 :UniformNumber;
+    uniform @0 :UniformNumber;
+    team @1 :TeamId;
 }
 
 struct Player
