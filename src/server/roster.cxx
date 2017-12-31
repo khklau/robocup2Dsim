@@ -110,11 +110,11 @@ roster::registration_result roster::register_client(const rcs::client_id& client
 	{
 	    if (detail.getTeamName() == get_team_name(rce::TeamId::ALPHA))
 	    {
-		index_.emplace(client, rce::player_id{ detail.getUniform(), rce::TeamId::ALPHA });
+		map_.emplace(client, rce::old_player_id{ detail.getUniform(), rce::TeamId::ALPHA });
 	    }
 	    else
 	    {
-		index_.emplace(client, rce::player_id{ detail.getUniform(), rce::TeamId::BETA });
+		map_.emplace(client, rce::old_player_id{ detail.getUniform(), rce::TeamId::BETA });
 	    }
 	}
 	return roster::registration_result::success;
@@ -133,7 +133,7 @@ void roster::deregister_client(const robocup2Dsim::csprotocol::client_id& client
 		*iter = rcs::no_client;
 		if (is_finalised())
 		{
-		    index_.erase(client);
+		    map_.erase(client);
 		}
 		finished = true;
 	    }
@@ -148,12 +148,12 @@ bool roster::is_complete() const
 
 bool roster::is_finalised() const
 {
-    return index_.size() != 0U;
+    return map_.size() != 0U;
 }
 
 roster::finalisation_result roster::finalise()
 {
-    index_type tmp;
+    client_player_map tmp;
     if (roster_.size() != 2U)
     {
 	return finalisation_result::roster_incomplete;
@@ -171,16 +171,16 @@ roster::finalisation_result roster::finalise()
 		}
 		else
 		{
-		    tmp.emplace(team_roster[uniform], rce::player_id{uniform, id});
+		    tmp.emplace(team_roster[uniform], rce::old_player_id{uniform, id});
 		}
 	    }
 	}
-	index_ = std::move(tmp);
+	map_ = std::move(tmp);
 	return finalisation_result::success;
     }
 }
 
-bool roster::is_registered(const robocup2Dsim::common::entity::player_id& player) const
+bool roster::is_registered(const robocup2Dsim::common::entity::old_player_id& player) const
 {
     auto iter = roster_.find(get_team_name(player.team));
     if (iter != roster_.end())
@@ -195,10 +195,10 @@ bool roster::is_registered(const robocup2Dsim::common::entity::player_id& player
 
 bool roster::is_registered(const robocup2Dsim::csprotocol::client_id& client) const
 {
-    return index_.find(client) != index_.end();
+    return map_.find(client) != map_.end();
 }
 
-robocup2Dsim::csprotocol::client_id roster::get_client(const robocup2Dsim::common::entity::player_id& player) const
+robocup2Dsim::csprotocol::client_id roster::get_client(const robocup2Dsim::common::entity::old_player_id& player) const
 {
     auto iter = roster_.find(get_team_name(player.team));
     if (iter != roster_.end())
@@ -211,10 +211,10 @@ robocup2Dsim::csprotocol::client_id roster::get_client(const robocup2Dsim::commo
     }
 }
 
-robocup2Dsim::common::entity::player_id roster::get_player(const robocup2Dsim::csprotocol::client_id& client) const
+robocup2Dsim::common::entity::old_player_id roster::get_player(const robocup2Dsim::csprotocol::client_id& client) const
 {
-    auto iter = index_.find(client);
-    if (iter != index_.end())
+    auto iter = map_.find(client);
+    if (iter != map_.end())
     {
 	return iter->second;
     }

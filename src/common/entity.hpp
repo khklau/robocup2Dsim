@@ -52,11 +52,13 @@ enum class fixture_name : std::uint16_t
     vision
 };
 
-struct player_id
+typedef std::uint8_t player_id;
+
+struct old_player_id
 {
     UniformNumber uniform;
     TeamId team;
-    inline bool operator==(const player_id& other) const { return uniform == other.uniform && team == other.team; }
+    inline bool operator==(const old_player_id& other) const { return uniform == other.uniform && team == other.team; }
 };
 
 } // namespace entity

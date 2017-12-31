@@ -33,10 +33,10 @@ public:
     bool is_complete() const;
     bool is_finalised() const;
     finalisation_result finalise();
-    bool is_registered(const robocup2Dsim::common::entity::player_id& player) const;
+    bool is_registered(const robocup2Dsim::common::entity::old_player_id& player) const;
     bool is_registered(const robocup2Dsim::csprotocol::client_id& client) const;
-    robocup2Dsim::csprotocol::client_id get_client(const robocup2Dsim::common::entity::player_id& player) const;
-    robocup2Dsim::common::entity::player_id get_player(const robocup2Dsim::csprotocol::client_id& client) const;
+    robocup2Dsim::csprotocol::client_id get_client(const robocup2Dsim::common::entity::old_player_id& player) const;
+    robocup2Dsim::common::entity::old_player_id get_player(const robocup2Dsim::csprotocol::client_id& client) const;
     std::string get_team_name(const robocup2Dsim::common::entity::TeamId& team) const;
 private:
     class team
@@ -55,9 +55,9 @@ private:
 	team_type team_;
     };
     typedef std::map<std::string, team> roster_type;
-    typedef std::map<robocup2Dsim::csprotocol::client_id, robocup2Dsim::common::entity::player_id> index_type;
+    typedef std::map<robocup2Dsim::csprotocol::client_id, robocup2Dsim::common::entity::old_player_id> client_player_map;
     roster_type roster_;
-    index_type index_;
+    client_player_map map_;
 };
 
 } // namespace server

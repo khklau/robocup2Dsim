@@ -229,24 +229,24 @@ TEST(roster_test, is_registered_player)
     {
 	for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::ONE, rce::UniformNumber::ELEVEN>())
 	{
-	    rce::player_id id{uniform, team};
+	    rce::old_player_id id{uniform, team};
 	    ASSERT_TRUE(roster1.is_registered(id)) << "player is not registered";
 	}
     }
 
-    rce::player_id player1{rce::UniformNumber::TWO, rce::TeamId::ALPHA};
+    rce::old_player_id player1{rce::UniformNumber::TWO, rce::TeamId::ALPHA};
     roster1.deregister_client(2U);
     ASSERT_FALSE(roster1.is_registered(player1)) << "player is still registered";
 
-    rce::player_id player2{rce::UniformNumber::TWO, rce::TeamId::BETA};
+    rce::old_player_id player2{rce::UniformNumber::TWO, rce::TeamId::BETA};
     roster1.deregister_client(13U);
     ASSERT_FALSE(roster1.is_registered(player2)) << "player is still registered";
 
-    rce::player_id player3{rce::UniformNumber::ELEVEN, rce::TeamId::ALPHA};
+    rce::old_player_id player3{rce::UniformNumber::ELEVEN, rce::TeamId::ALPHA};
     roster1.deregister_client(11U);
     ASSERT_FALSE(roster1.is_registered(player3)) << "player is still registered";
 
-    rce::player_id player4{rce::UniformNumber::ELEVEN, rce::TeamId::BETA};
+    rce::old_player_id player4{rce::UniformNumber::ELEVEN, rce::TeamId::BETA};
     roster1.deregister_client(22U);
     ASSERT_FALSE(roster1.is_registered(player4)) << "player is still registered";
 }
@@ -303,16 +303,16 @@ TEST(roster_test, get_client)
     }
     ASSERT_EQ(rse::roster::finalisation_result::success, roster1.finalise()) << "finalisation failed";
 
-    rce::player_id player1{rce::UniformNumber::FOUR, rce::TeamId::ALPHA};
+    rce::old_player_id player1{rce::UniformNumber::FOUR, rce::TeamId::ALPHA};
     EXPECT_EQ(4U, roster1.get_client(player1)) << "client not found";
 
-    rce::player_id player2{rce::UniformNumber::FOUR, rce::TeamId::BETA};
+    rce::old_player_id player2{rce::UniformNumber::FOUR, rce::TeamId::BETA};
     EXPECT_EQ(15U, roster1.get_client(player2)) << "client not found";
 
-    rce::player_id player3{rce::UniformNumber::NINE, rce::TeamId::ALPHA};
+    rce::old_player_id player3{rce::UniformNumber::NINE, rce::TeamId::ALPHA};
     EXPECT_EQ(9U, roster1.get_client(player3)) << "client not found";
 
-    rce::player_id player4{rce::UniformNumber::NINE, rce::TeamId::BETA};
+    rce::old_player_id player4{rce::UniformNumber::NINE, rce::TeamId::BETA};
     EXPECT_EQ(20U, roster1.get_client(player4)) << "client not found";
 }
 
@@ -333,15 +333,15 @@ TEST(roster_test, get_player)
     }
     ASSERT_EQ(rse::roster::finalisation_result::success, roster1.finalise()) << "finalisation failed";
 
-    rce::player_id player1{rce::UniformNumber::SIX, rce::TeamId::ALPHA};
+    rce::old_player_id player1{rce::UniformNumber::SIX, rce::TeamId::ALPHA};
     EXPECT_EQ(player1, roster1.get_player(6U)) << "player not found";
 
-    rce::player_id player2{rce::UniformNumber::SIX, rce::TeamId::BETA};
+    rce::old_player_id player2{rce::UniformNumber::SIX, rce::TeamId::BETA};
     EXPECT_EQ(player2, roster1.get_player(17U)) << "player not found";
 
-    rce::player_id player3{rce::UniformNumber::TEN, rce::TeamId::ALPHA};
+    rce::old_player_id player3{rce::UniformNumber::TEN, rce::TeamId::ALPHA};
     EXPECT_EQ(player3, roster1.get_player(10U)) << "player not found";
 
-    rce::player_id player4{rce::UniformNumber::TEN, rce::TeamId::BETA};
+    rce::old_player_id player4{rce::UniformNumber::TEN, rce::TeamId::BETA};
     EXPECT_EQ(player4, roster1.get_player(21U)) << "player not found";
 }
