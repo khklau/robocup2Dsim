@@ -60,6 +60,53 @@ private:
     client_player_map map_;
 };
 
+class enrollment
+{
+public:
+    enum class register_result
+    {
+	success,
+	version_mismatch,
+	team_slot_taken,
+	uniform_taken,
+	goalie_taken
+    };
+    enum class deregister_result
+    {
+	success,
+	client_not_found
+    };
+    register_result register_client(const robocup2Dsim::csprotocol::client_id& client, const robocup2Dsim::csprotocol::RegistrationRequest::Reader& request);
+    deregister_result deregister_client(const robocup2Dsim::csprotocol::client_id& client);
+    bool is_registered(const robocup2Dsim::csprotocol::client_id& client) const;
+    bool is_registered(const std::string& team, robocup2Dsim::common::entity::UniformNumber uniform) const;
+    bool is_full() const;
+private:
+    struct client
+    {
+	robocup2Dsim::csprotocol::client_id id;
+	robocup2Dsim::common::entity::PlayerType ptype;
+	inline client(robocup2Dsim::csprotocol::client_id i, robocup2Dsim::common::entity::PlayerType p)
+	    :
+		id(i), ptype(p)
+	{ }
+	inline bool operator==(const client& other) const { return id == other.id && ptype == other.ptype; }
+    };
+    struct player
+    {
+	std::string team_name;
+	robocup2Dsim::common::entity::UniformNumber uniform;
+	inline player(const std::string& name, robocup2Dsim::common::entity::UniformNumber number)
+	    :
+		team_name(name), uniform(number)
+	{ }
+	inline bool operator==(const player& other) const { return team_name == other.team_name && uniform == other.uniform; }
+    };
+    typedef std::map<robocup2Dsim::common::entity::UniformNumber, client> team;
+    std::map<std::string, team> enrollment_;
+    std::map<robocup2Dsim::csprotocol::client_id, player> client_player_map_;
+};
+
 } // namespace server
 } // namespace robocup2Dsim
 
