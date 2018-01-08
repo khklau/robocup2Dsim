@@ -3,6 +3,7 @@
 
 #include <robocup2Dsim/common/entity.capnp.h>
 #include <cstdint>
+#include <limits>
 
 namespace robocup2Dsim {
 namespace common {
@@ -53,6 +54,8 @@ enum class fixture_name : std::uint16_t
 };
 
 typedef std::uint8_t player_id;
+
+static const player_id no_player = std::numeric_limits<player_id>::max();
 
 struct old_player_id
 {

@@ -1,9 +1,13 @@
 #ifndef ROBOCUP2DSIM_SERVER_ROSTER_HPP
 #define ROBOCUP2DSIM_SERVER_ROSTER_HPP
 
+#include <algorithm>
 #include <array>
 #include <iterator>
 #include <map>
+#include <memory>
+#include <tuple>
+#include <turbo/type_utility/enum_metadata.hpp>
 #include <robocup2Dsim/common/command.capnp.h>
 #include <robocup2Dsim/common/entity.capnp.h>
 #include <robocup2Dsim/common/entity.hpp>
@@ -12,31 +16,46 @@
 namespace robocup2Dsim {
 namespace server {
 
+constexpr std::size_t MAX_CLUB_COUNT =  turbo::type_utility::enum_count(
+	robocup2Dsim::common::entity::TeamId::ALPHA,
+	robocup2Dsim::common::entity::TeamId::BETA);
+
+constexpr std::size_t MAX_TEAM_SIZE = turbo::type_utility::enum_count(
+	robocup2Dsim::common::entity::UniformNumber::ONE,
+	robocup2Dsim::common::entity::UniformNumber::ELEVEN);
+
+constexpr std::size_t MAX_ROSTER_SIZE = MAX_CLUB_COUNT * MAX_TEAM_SIZE;
+
 class roster
 {
 public:
-    enum class registration_result
+    enum find_result
     {
-	success,
-	version_mismatch,
-	team_slot_taken,
-	uniform_taken,
-	goalie_taken
+	found,
+	not_found
     };
-    enum class finalisation_result
+    roster(
+	    const std::array<robocup2Dsim::csprotocol::client_id, MAX_ROSTER_SIZE>& enrolled_players,
+	    const std::array<std::string, MAX_CLUB_COUNT>& enrolled_teams,
+	    const std::array<robocup2Dsim::common::entity::player_id, MAX_CLUB_COUNT> enrolled_goalies);
+    inline std::tuple<find_result, robocup2Dsim::csprotocol::client_id> find_client(robocup2Dsim::common::entity::player_id id) const
     {
-	success,
-	roster_incomplete
-    };
-    registration_result register_client(const robocup2Dsim::csprotocol::client_id& client, const robocup2Dsim::csprotocol::RegistrationRequest::Reader& request);
+	return (id < players_.max_size())
+		? std::make_tuple(find_result::found, players_[id])
+		: std::make_tuple(find_result::not_found, robocup2Dsim::csprotocol::no_client);
+    }
+    inline std::tuple<find_result, robocup2Dsim::common::entity::player_id> find_player(robocup2Dsim::csprotocol::client_id client) const
+    {
+	auto iter = std::find(players_.cbegin(), players_.cend(), client);
+	return (iter != players_.cend())
+		? std::make_tuple(find_result::found, static_cast<robocup2Dsim::common::entity::player_id>(iter - players_.cbegin()))
+		: std::make_tuple(find_result::not_found, robocup2Dsim::common::entity::no_player);
+    }
+    inline bool is_goalkeeper(robocup2Dsim::common::entity::player_id id)
+    {
+	return std::find(goalies_.cbegin(), goalies_.cend(), id) != goalies_.cend();
+    }
     void deregister_client(const robocup2Dsim::csprotocol::client_id& client);
-    bool is_complete() const;
-    bool is_finalised() const;
-    finalisation_result finalise();
-    bool is_registered(const robocup2Dsim::common::entity::old_player_id& player) const;
-    bool is_registered(const robocup2Dsim::csprotocol::client_id& client) const;
-    robocup2Dsim::csprotocol::client_id get_client(const robocup2Dsim::common::entity::old_player_id& player) const;
-    robocup2Dsim::common::entity::old_player_id get_player(const robocup2Dsim::csprotocol::client_id& client) const;
     std::string get_team_name(const robocup2Dsim::common::entity::TeamId& team) const;
 private:
     class team
@@ -58,6 +77,9 @@ private:
     typedef std::map<robocup2Dsim::csprotocol::client_id, robocup2Dsim::common::entity::old_player_id> client_player_map;
     roster_type roster_;
     client_player_map map_;
+    std::array<robocup2Dsim::csprotocol::client_id, MAX_ROSTER_SIZE> players_;
+    std::array<std::string, MAX_CLUB_COUNT> team_names_;
+    std::array<robocup2Dsim::common::entity::player_id, MAX_CLUB_COUNT> goalies_;
 };
 
 class enrollment
@@ -78,6 +100,7 @@ public:
     };
     register_result register_client(const robocup2Dsim::csprotocol::client_id& client, const robocup2Dsim::csprotocol::RegistrationRequest::Reader& request);
     deregister_result deregister_client(const robocup2Dsim::csprotocol::client_id& client);
+    std::unique_ptr<roster> finalise() const;
     bool is_registered(const robocup2Dsim::csprotocol::client_id& client) const;
     bool is_registered(const std::string& team, robocup2Dsim::common::entity::UniformNumber uniform) const;
     bool is_full() const;

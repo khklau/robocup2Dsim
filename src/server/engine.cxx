@@ -24,6 +24,8 @@ basic_handle::basic_handle(
 	client_trans_queue(std::move(client_trans)),
 	server_status_queue(std::move(server_status)),
 	server_trans_queue(std::move(server_trans)),
+	enrollment(new robocup2Dsim::server::enrollment()),
+	roster(),
 	engine_state(my_state)
 { }
 

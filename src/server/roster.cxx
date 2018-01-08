@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <stdexcept>
 #include <utility>
-#include <turbo/type_utility/enum_metadata.hpp>
 #include <turbo/type_utility/enum_iterator.hpp>
 #include <turbo/type_utility/enum_iterator.hxx>
 
@@ -85,41 +84,15 @@ bool roster::team::is_complete() const
     return std::find(team_.cbegin(), team_.cend(), rcs::no_client) == team_.cend();
 }
 
-roster::registration_result roster::register_client(const rcs::client_id& client, const rcs::RegistrationRequest::Reader& request)
+roster::roster(
+	const std::array<rcs::client_id, MAX_ROSTER_SIZE>& enrolled_players,
+	const std::array<std::string, MAX_CLUB_COUNT>& enrolled_teams,
+	const std::array<rce::player_id, MAX_CLUB_COUNT> enrolled_goalies)
 {
-    const rcc::Registration::Reader& detail = request.getDetails();
-    auto team = roster_.find(detail.getTeamName());
-    if (team == roster_.end())
-    {
-	if (roster_.size() == 2)
-	{
-	    return roster::registration_result::team_slot_taken;
-	}
-	else
-	{
-	    team = roster_.emplace(std::piecewise_construct, std::make_tuple(detail.getTeamName()), std::make_tuple()).first;
-	}
-    }
-    if (team->second[detail.getUniform()] != rcs::no_client)
-    {
-	return roster::registration_result::uniform_taken;
-    }
-    else
-    {
-	team->second[detail.getUniform()] = client;
-	if (is_finalised())
-	{
-	    if (detail.getTeamName() == get_team_name(rce::TeamId::ALPHA))
-	    {
-		map_.emplace(client, rce::old_player_id{ detail.getUniform(), rce::TeamId::ALPHA });
-	    }
-	    else
-	    {
-		map_.emplace(client, rce::old_player_id{ detail.getUniform(), rce::TeamId::BETA });
-	    }
-	}
-	return roster::registration_result::success;
-    }
+    std::copy_n(enrolled_players.cbegin(), enrolled_players.max_size(), players_.begin());
+    // not safe to use memcpy for arrays of strings
+    std::copy(enrolled_teams.cbegin(), enrolled_teams.cend(), team_names_.begin());
+    std::copy_n(enrolled_goalies.cbegin(), enrolled_goalies.max_size(), goalies_.begin());
 }
 
 void roster::deregister_client(const robocup2Dsim::csprotocol::client_id& client)
@@ -132,96 +105,9 @@ void roster::deregister_client(const robocup2Dsim::csprotocol::client_id& client
 	    if (client == *iter)
 	    {
 		*iter = rcs::no_client;
-		if (is_finalised())
-		{
-		    map_.erase(client);
-		}
 		finished = true;
 	    }
 	}
-    }
-}
-
-bool roster::is_complete() const
-{
-    return (roster_.size() == 2U) && roster_.cbegin()->second.is_complete() && roster_.crbegin()->second.is_complete();
-}
-
-bool roster::is_finalised() const
-{
-    return map_.size() != 0U;
-}
-
-roster::finalisation_result roster::finalise()
-{
-    client_player_map tmp;
-    if (roster_.size() != 2U)
-    {
-	return finalisation_result::roster_incomplete;
-    }
-    else
-    {
-	for (auto id: ttu::enum_iterator<rce::TeamId, rce::TeamId::ALPHA, rce::TeamId::BETA>())
-	{
-	    team& team_roster = roster_.find(get_team_name(id))->second;
-	    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::ONE, rce::UniformNumber::ELEVEN>())
-	    {
-		if (team_roster[uniform] == rcs::no_client)
-		{
-		    return finalisation_result::roster_incomplete;
-		}
-		else
-		{
-		    tmp.emplace(team_roster[uniform], rce::old_player_id{uniform, id});
-		}
-	    }
-	}
-	map_ = std::move(tmp);
-	return finalisation_result::success;
-    }
-}
-
-bool roster::is_registered(const robocup2Dsim::common::entity::old_player_id& player) const
-{
-    auto iter = roster_.find(get_team_name(player.team));
-    if (iter != roster_.end())
-    {
-	if (iter->second[player.uniform] != rcs::no_client)
-	{
-	    return true;
-	}
-    }
-    return false;
-}
-
-bool roster::is_registered(const robocup2Dsim::csprotocol::client_id& client) const
-{
-    return map_.find(client) != map_.end();
-}
-
-robocup2Dsim::csprotocol::client_id roster::get_client(const robocup2Dsim::common::entity::old_player_id& player) const
-{
-    auto iter = roster_.find(get_team_name(player.team));
-    if (iter != roster_.end())
-    {
-	return iter->second[player.uniform];
-    }
-    else
-    {
-	throw std::out_of_range("Player is not in roster");
-    }
-}
-
-robocup2Dsim::common::entity::old_player_id roster::get_player(const robocup2Dsim::csprotocol::client_id& client) const
-{
-    auto iter = map_.find(client);
-    if (iter != map_.end())
-    {
-	return iter->second;
-    }
-    else
-    {
-	throw std::out_of_range("Client is not in roster");
     }
 }
 
@@ -230,9 +116,9 @@ std::string roster::get_team_name(const rce::TeamId& team) const
     switch (team)
     {
 	case rce::TeamId::ALPHA:
-	    return roster_.cbegin()->first;
+	    return *(team_names_.cbegin());
 	default:
-	    return roster_.crbegin()->first;
+	    return *(team_names_.crbegin());
     }
 }
 
@@ -298,7 +184,40 @@ enrollment::deregister_result enrollment::deregister_client(const robocup2Dsim::
     }
 }
 
-bool enrollment::is_registered(const robocup2Dsim::csprotocol::client_id& client) const
+std::unique_ptr<roster> enrollment::finalise() const
+{
+    if (!is_full())
+    {
+	return std::move(std::unique_ptr<roster>());
+    }
+    std::array<rcs::client_id, MAX_ROSTER_SIZE> player_list;
+    std::array<rce::player_id, MAX_CLUB_COUNT> goalie_list;
+    rce::player_id player_index = 0U;
+    rce::player_id goalie_index = 0U;
+    for (const decltype(enrollment_)::value_type& enrolled: enrollment_)
+    {
+	for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::ONE, rce::UniformNumber::ELEVEN>())
+	{
+	    if (player_index < player_list.max_size())
+	    {
+		player_list[player_index] = enrolled.second.at(uniform).id;
+		if (goalie_index < goalie_list.max_size() && enrolled.second.at(uniform).ptype == rce::PlayerType::GOAL_KEEPER)
+		{
+		    goalie_list[goalie_index] = player_index;
+		    ++goalie_index;
+		}
+		++player_index;
+	    }
+	}
+    }
+    std::array<std::string, MAX_CLUB_COUNT> team_list{
+	    enrollment_.cbegin()->first,
+	    enrollment_.crbegin()->first};
+    std::unique_ptr<roster> result(new roster(player_list, team_list, goalie_list));
+    return std::move(result);
+}
+
+bool enrollment::is_registered(const rcs::client_id& client) const
 {
     return client_player_map_.find(client) != client_player_map_.cend();
 }
@@ -311,10 +230,10 @@ bool enrollment::is_registered(const std::string& team, robocup2Dsim::common::en
 
 bool enrollment::is_full() const
 {
-    bool is_team_full = (enrollment_.size() == ttu::enum_count(rce::TeamId::ALPHA, rce::TeamId::BETA));
+    bool is_team_full = (enrollment_.size() == MAX_CLUB_COUNT);
     for (auto pair: enrollment_)
     {
-	is_team_full &= (pair.second.size() == ttu::enum_count(rce::UniformNumber::ONE, rce::UniformNumber::ELEVEN));
+	is_team_full &= (pair.second.size() == MAX_TEAM_SIZE);
     }
     return is_team_full;
 }
