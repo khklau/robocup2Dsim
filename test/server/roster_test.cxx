@@ -1,4 +1,5 @@
 #include <robocup2Dsim/server/roster.hpp>
+#include <unordered_map>
 #include <capnp/message.h>
 #include <gtest/gtest.h>
 #include <turbo/type_utility/enum_iterator.hpp>
@@ -115,15 +116,15 @@ TEST(enrollment_test, register_client_basic)
     ASSERT_FALSE(enrollment1.is_registered("foo", rce::UniformNumber::ONE)) << "should not be registered";
     ASSERT_FALSE(enrollment1.is_full());
     EXPECT_EQ(rse::enrollment::register_result::success, register_client(1U, "foo", rce::UniformNumber::ONE, rce::PlayerType::GOAL_KEEPER, enrollment1)) << "reg failed";
-    EXPECT_TRUE(enrollment1.is_registered(1U)) << "should not be registered";
-    EXPECT_TRUE(enrollment1.is_registered("foo", rce::UniformNumber::ONE)) << "should not be registered";
+    EXPECT_TRUE(enrollment1.is_registered(1U)) << "is_registered return false on registered player";
+    EXPECT_TRUE(enrollment1.is_registered("foo", rce::UniformNumber::ONE)) << "is_registered return false on registered player";
     EXPECT_FALSE(enrollment1.is_full());
 }
 
 TEST(enrollment_test, register_client_full)
 {
     rse::enrollment enrollment1;
-    rcs::client_id client = 1U;
+    rcs::client_id client = 1000U;
     ASSERT_EQ(rse::enrollment::register_result::success, register_client(
 	    client,
 	    "foo",
@@ -159,6 +160,15 @@ TEST(enrollment_test, register_client_full)
 		enrollment1)) << "reg failed";
     }
     EXPECT_TRUE(enrollment1.is_full());
+    for (rcs::client_id client = 1000U; client < 1022U; ++client)
+    {
+	EXPECT_TRUE(enrollment1.is_registered(client)) << "is_registered return false on registered player";
+    }
+    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::ONE, rce::UniformNumber::ELEVEN>())
+    {
+	EXPECT_TRUE(enrollment1.is_registered("foo", uniform)) << "is_registered return false on registered player";
+	EXPECT_TRUE(enrollment1.is_registered("bar", uniform)) << "is_registered return false on registered player";
+    }
 }
 
 TEST(enrollment_test, deregister_client_invalid)
@@ -220,6 +230,160 @@ TEST(enrollment_test, register_and_deregister)
     EXPECT_EQ(rse::enrollment::deregister_result::success, enrollment1.deregister_client(1U))
 	    << "deregistered an existing client failed";
     EXPECT_FALSE(enrollment1.is_registered(1U)) << "should be registered";
+}
+
+TEST(enrollment_test, finalise_invalid)
+{
+    rse::enrollment enrollment1;
+    ASSERT_EQ(rse::enrollment::register_result::success, register_client(1U, "foo", rce::UniformNumber::ONE, rce::PlayerType::GOAL_KEEPER, enrollment1)) << "reg failed";
+    ASSERT_FALSE(enrollment1.is_full());
+    EXPECT_FALSE(enrollment1.finalise()) << "roster was produced from a not full enrollment";
+}
+
+TEST(enrollment_test, finalise_almost_full)
+{
+    rse::enrollment enrollment1;
+    rcs::client_id client = 1U;
+    ASSERT_EQ(rse::enrollment::register_result::success, register_client(
+	    client,
+	    "foo",
+	    rce::UniformNumber::ONE,
+	    rce::PlayerType::GOAL_KEEPER,
+	    enrollment1)) << "reg failed";
+    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::TWO, rce::UniformNumber::ELEVEN>())
+    {
+	++client;
+	ASSERT_EQ(rse::enrollment::register_result::success, register_client(
+		client,
+		"foo",
+		uniform,
+		rce::PlayerType::OUTFIELD,
+		enrollment1)) << "reg failed";
+    }
+    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::TWO, rce::UniformNumber::ELEVEN>())
+    {
+	++client;
+	ASSERT_EQ(rse::enrollment::register_result::success, register_client(
+		client,
+		"bar",
+		uniform,
+		rce::PlayerType::OUTFIELD,
+		enrollment1)) << "reg failed";
+    }
+    ASSERT_FALSE(enrollment1.is_full());
+    EXPECT_TRUE(enrollment1.finalise().get() == nullptr) << "roster was produced from a not full enrollment";
+}
+
+TEST(enrollment_test, finalise_basic)
+{
+    rse::enrollment enrollment1;
+    rcs::client_id client = 1000U;
+    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::TWO, rce::UniformNumber::ELEVEN>())
+    {
+	ASSERT_EQ(rse::enrollment::register_result::success, register_client(
+		client,
+		"foo",
+		uniform,
+		rce::PlayerType::OUTFIELD,
+		enrollment1)) << "reg failed";
+	++client;
+    }
+    ASSERT_EQ(rse::enrollment::register_result::success, register_client(
+	    client,
+	    "foo",
+	    rce::UniformNumber::ONE,
+	    rce::PlayerType::GOAL_KEEPER,
+	    enrollment1)) << "reg failed";
+    ++client;
+    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::TWO, rce::UniformNumber::ELEVEN>())
+    {
+	ASSERT_EQ(rse::enrollment::register_result::success, register_client(
+		client,
+		"bar",
+		uniform,
+		rce::PlayerType::OUTFIELD,
+		enrollment1)) << "reg failed";
+	++client;
+    }
+    ASSERT_EQ(rse::enrollment::register_result::success, register_client(
+	    client,
+	    "bar",
+	    rce::UniformNumber::ONE,
+	    rce::PlayerType::GOAL_KEEPER,
+	    enrollment1)) << "reg failed";
+    ASSERT_TRUE(enrollment1.is_full());
+    auto roster1 = enrollment1.finalise();
+    EXPECT_TRUE(roster1.get() != nullptr) << "finalise failed with full enrollment";
+    EXPECT_STREQ("bar", roster1->get_team_name(rce::TeamId::ALPHA).c_str()) << "finalised teams were not sorted alphabetically";
+    EXPECT_STREQ("foo", roster1->get_team_name(rce::TeamId::BETA).c_str()) << "finalised teams were not sorted alphabetically";
+    std::unordered_map<rcs::client_id, rce::player_id> player_ids;
+    for (client = 1000U; client < 1022U; ++client)
+    {
+	auto result = roster1->find_player(client);
+	EXPECT_EQ(rse::roster::find_result::found, std::get<0>(result)) << "find_player failed with client_id " << client;
+	player_ids[client] = std::get<1>(result);
+    }
+    EXPECT_TRUE(roster1->is_goalkeeper(player_ids[1010])) << "goalkeeper not finalised";
+    EXPECT_TRUE(roster1->is_goalkeeper(player_ids[1021])) << "goalkeeper not finalised";
+    EXPECT_FALSE(roster1->is_goalkeeper(player_ids[1009])) << "goalkeeper not finalised";
+    EXPECT_FALSE(roster1->is_goalkeeper(player_ids[1020])) << "goalkeeper not finalised";
+    EXPECT_EQ(player_ids[1021], 0) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[1011], 1) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[1012], 2) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[1013], 3) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[1014], 4) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[1015], 5) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[1016], 6) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[1017], 7) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[1018], 8) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[1019], 9) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[1020], 10) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[1010], 11) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[1000], 12) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[1001], 13) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[1002], 14) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[1003], 15) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[1004], 16) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[1005], 17) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[1006], 18) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[1007], 19) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[1008], 20) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[1009], 21) << "finalise did not designated the correct player_id";
+}
+
+TEST(enrollment_test, finalise_no_goalkeeper)
+{
+    rse::enrollment enrollment1;
+    rcs::client_id client = 1000U;
+    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::ONE, rce::UniformNumber::ELEVEN>())
+    {
+	ASSERT_EQ(rse::enrollment::register_result::success, register_client(
+		client,
+		"foo",
+		uniform,
+		rce::PlayerType::OUTFIELD,
+		enrollment1)) << "reg failed";
+	++client;
+    }
+    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::ONE, rce::UniformNumber::ELEVEN>())
+    {
+	ASSERT_EQ(rse::enrollment::register_result::success, register_client(
+		client,
+		"bar",
+		uniform,
+		rce::PlayerType::OUTFIELD,
+		enrollment1)) << "reg failed";
+	++client;
+    }
+    ASSERT_TRUE(enrollment1.is_full());
+    auto roster1 = enrollment1.finalise();
+    EXPECT_TRUE(roster1.get() != nullptr) << "finalise failed with full enrollment";
+    for (client = 1000U; client < 1022U; ++client)
+    {
+	auto result = roster1->find_player(client);
+	EXPECT_EQ(rse::roster::find_result::found, std::get<0>(result)) << "find_player failed with client_id " << client;
+	EXPECT_FALSE(roster1->is_goalkeeper(std::get<1>(result))) << "goalkeeper finalised when none were registered for client" << client;
+    }
 }
 
 TEST(roster_test, find_client_invalid)
