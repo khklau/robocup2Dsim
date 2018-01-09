@@ -194,6 +194,10 @@ std::unique_ptr<roster> enrollment::finalise() const
     std::array<rce::player_id, MAX_CLUB_COUNT> goalie_list;
     rce::player_id player_index = 0U;
     rce::player_id goalie_index = 0U;
+    for (rce::player_id& goalie: goalie_list)
+    {
+	goalie = rce::no_player;
+    }
     for (const decltype(enrollment_)::value_type& enrolled: enrollment_)
     {
 	for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::ONE, rce::UniformNumber::ELEVEN>())
