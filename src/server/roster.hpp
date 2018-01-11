@@ -26,6 +26,12 @@ constexpr std::size_t MAX_TEAM_SIZE = turbo::type_utility::enum_count(
 
 constexpr std::size_t MAX_ROSTER_SIZE = MAX_CLUB_COUNT * MAX_TEAM_SIZE;
 
+enum class deregister_result
+{
+    success,
+    client_not_found
+};
+
 class roster
 {
 public:
@@ -55,8 +61,8 @@ public:
     {
 	return std::find(goalies_.cbegin(), goalies_.cend(), id) != goalies_.cend();
     }
-    void deregister_client(const robocup2Dsim::csprotocol::client_id& client);
     std::string get_team_name(const robocup2Dsim::common::entity::TeamId& team) const;
+    deregister_result deregister_client(const robocup2Dsim::csprotocol::client_id& client);
 private:
     class team
     {
@@ -93,17 +99,12 @@ public:
 	uniform_taken,
 	goalie_taken
     };
-    enum class deregister_result
-    {
-	success,
-	client_not_found
-    };
-    register_result register_client(const robocup2Dsim::csprotocol::client_id& client, const robocup2Dsim::csprotocol::RegistrationRequest::Reader& request);
-    deregister_result deregister_client(const robocup2Dsim::csprotocol::client_id& client);
-    std::unique_ptr<roster> finalise() const;
     bool is_registered(const robocup2Dsim::csprotocol::client_id& client) const;
     bool is_registered(const std::string& team, robocup2Dsim::common::entity::UniformNumber uniform) const;
     bool is_full() const;
+    std::unique_ptr<roster> finalise() const;
+    register_result register_client(const robocup2Dsim::csprotocol::client_id& client, const robocup2Dsim::csprotocol::RegistrationRequest::Reader& request);
+    deregister_result deregister_client(const robocup2Dsim::csprotocol::client_id& client);
 private:
     struct client
     {

@@ -95,19 +95,23 @@ roster::roster(
     std::copy_n(enrolled_goalies.cbegin(), enrolled_goalies.max_size(), goalies_.begin());
 }
 
-void roster::deregister_client(const robocup2Dsim::csprotocol::client_id& client)
+deregister_result roster::deregister_client(const robocup2Dsim::csprotocol::client_id& client)
 {
-    bool finished = false;
-    for (auto team = roster_.begin(); !finished && team != roster_.end(); ++team)
+    auto result = find_player(client);
+    if (std::get<0>(result) == find_result::found)
     {
-	for (auto iter = team->second.begin(); !finished && iter != team->second.end(); ++iter)
+	auto iter = std::find(goalies_.begin(), goalies_.end(), std::get<1>(result));
+	if (iter != goalies_.end())
 	{
-	    if (client == *iter)
-	    {
-		*iter = rcs::no_client;
-		finished = true;
-	    }
+	    // deregister the goalie
+	    *iter = rce::no_player;
 	}
+	players_[std::get<1>(result)] = rce::no_player;
+	return deregister_result::success;
+    }
+    else
+    {
+	return deregister_result::client_not_found;
     }
 }
 
@@ -165,7 +169,7 @@ enrollment::register_result enrollment::register_client(
     }
 }
 
-enrollment::deregister_result enrollment::deregister_client(const robocup2Dsim::csprotocol::client_id& client)
+deregister_result enrollment::deregister_client(const robocup2Dsim::csprotocol::client_id& client)
 {
     auto iter = client_player_map_.find(client);
     if (iter != client_player_map_.cend())
@@ -176,11 +180,11 @@ enrollment::deregister_result enrollment::deregister_client(const robocup2Dsim::
 	    team->second.erase(iter->second.uniform);
 	}
 	client_player_map_.erase(iter);
-	return enrollment::deregister_result::success;
+	return deregister_result::success;
     }
     else
     {
-	return enrollment::deregister_result::client_not_found;
+	return deregister_result::client_not_found;
     }
 }
 

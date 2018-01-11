@@ -175,7 +175,7 @@ TEST(enrollment_test, deregister_client_invalid)
 {
     rse::enrollment enrollment1;
     ASSERT_FALSE(enrollment1.is_registered(1U)) << "should not be registered";
-    EXPECT_EQ(rse::enrollment::deregister_result::client_not_found, enrollment1.deregister_client(1U))
+    EXPECT_EQ(rse::deregister_result::client_not_found, enrollment1.deregister_client(1U))
 	    << "deregistered a non existing client";
     ASSERT_EQ(rse::enrollment::register_result::success, register_client(
 	    1U,
@@ -184,10 +184,10 @@ TEST(enrollment_test, deregister_client_invalid)
 	    rce::PlayerType::GOAL_KEEPER,
 	    enrollment1)) << "reg failed";
     ASSERT_TRUE(enrollment1.is_registered(1U)) << "should be registered";
-    ASSERT_EQ(rse::enrollment::deregister_result::success, enrollment1.deregister_client(1U))
+    ASSERT_EQ(rse::deregister_result::success, enrollment1.deregister_client(1U))
 	    << "deregistered an existing client failed";
     ASSERT_FALSE(enrollment1.is_registered(1U)) << "should be registered";
-    EXPECT_EQ(rse::enrollment::deregister_result::client_not_found, enrollment1.deregister_client(1U))
+    EXPECT_EQ(rse::deregister_result::client_not_found, enrollment1.deregister_client(1U))
 	    << "deregistering an already deregistered client succeeded";
 }
 
@@ -201,7 +201,7 @@ TEST(enrollment_test, deregister_client_basic)
 	    rce::PlayerType::GOAL_KEEPER,
 	    enrollment1)) << "reg failed";
     ASSERT_TRUE(enrollment1.is_registered(1U)) << "should be registered";
-    EXPECT_EQ(rse::enrollment::deregister_result::success, enrollment1.deregister_client(1U)) << "deregister failed";
+    EXPECT_EQ(rse::deregister_result::success, enrollment1.deregister_client(1U)) << "deregister failed";
     EXPECT_FALSE(enrollment1.is_registered(1U)) << "should not be registered";
 }
 
@@ -216,7 +216,7 @@ TEST(enrollment_test, register_and_deregister)
 	    rce::PlayerType::GOAL_KEEPER,
 	    enrollment1)) << "reg failed";
     ASSERT_TRUE(enrollment1.is_registered(1U)) << "should be registered";
-    ASSERT_EQ(rse::enrollment::deregister_result::success, enrollment1.deregister_client(1U))
+    ASSERT_EQ(rse::deregister_result::success, enrollment1.deregister_client(1U))
 	    << "deregistered an existing client failed";
     ASSERT_FALSE(enrollment1.is_registered(1U)) << "should be registered";
 
@@ -227,7 +227,7 @@ TEST(enrollment_test, register_and_deregister)
 	    rce::PlayerType::GOAL_KEEPER,
 	    enrollment1)) << "reg failed";
     ASSERT_TRUE(enrollment1.is_registered(1U)) << "should be registered";
-    EXPECT_EQ(rse::enrollment::deregister_result::success, enrollment1.deregister_client(1U))
+    EXPECT_EQ(rse::deregister_result::success, enrollment1.deregister_client(1U))
 	    << "deregistered an existing client failed";
     EXPECT_FALSE(enrollment1.is_registered(1U)) << "should be registered";
 }
@@ -490,101 +490,59 @@ TEST(roster_test, get_team_name_basic)
     ASSERT_EQ(BETA1, roster1.get_team_name(rce::TeamId::BETA)) << "incorrect team name";
 }
 
-/*
-TEST(roster_test, deregistration_basic)
+TEST(roster_test, deregister_client_invalid)
 {
-    rse::roster roster1;
-    ASSERT_EQ(rse::roster::registration_result::success, register_client(1U, "foo", rce::UniformNumber::ONE, rce::PlayerType::GOAL_KEEPER, roster1)) << "reg failed";
-    roster1.deregister_client(1U);
-    ASSERT_EQ(rse::roster::registration_result::success, register_client(1U, "foo", rce::UniformNumber::ONE, rce::PlayerType::GOAL_KEEPER, roster1)) << "reg failed";
+    std::array<rcs::client_id, rse::MAX_ROSTER_SIZE> player_list1{
+	    1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010,
+	    1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1019, 1020, 1021};
+    std::array<std::string, rse::MAX_CLUB_COUNT> team_list1{"foo", "bar"};
+    std::array<rce::player_id, rse::MAX_CLUB_COUNT> goalie_list1{0, 11};
+    rse::roster roster1(player_list1, team_list1, goalie_list1);
+    ASSERT_EQ(rse::roster::find_result::not_found, std::get<0>(roster1.find_player(1U))) << "should not be registered";
+    EXPECT_EQ(rse::deregister_result::client_not_found, roster1.deregister_client(1U))
+	    << "deregistered a non existing client";
+    ASSERT_EQ(rse::roster::find_result::found, std::get<0>(roster1.find_player(1010U))) << "should be registered";
+    EXPECT_EQ(rse::deregister_result::success, roster1.deregister_client(1010U))
+	    << "failed to deregistered an existing client";
+    EXPECT_EQ(rse::deregister_result::client_not_found, roster1.deregister_client(1010U))
+	    << "deregistered a client that had already been deregistered";
 }
 
-TEST(roster_test, deregistration_complete)
+TEST(roster_test, deregister_client_basic)
 {
-    rse::roster roster1;
-    rcs::client_id client = 1U;
-    ASSERT_EQ(rse::roster::registration_result::success, register_client(client, "foo", rce::UniformNumber::ONE, rce::PlayerType::GOAL_KEEPER, roster1)) << "reg failed";
-    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::TWO, rce::UniformNumber::ELEVEN>())
+    std::array<rcs::client_id, rse::MAX_ROSTER_SIZE> player_list1{
+	    1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010,
+	    1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1019, 1020, 1021};
+    std::array<std::string, rse::MAX_CLUB_COUNT> team_list1{"foo", "bar"};
+    std::array<rce::player_id, rse::MAX_CLUB_COUNT> goalie_list1{0, 11};
+    rse::roster roster1(player_list1, team_list1, goalie_list1);
+    for (rcs::client_id client = 1021; client >= 1000; --client)
     {
-	++client;
-	ASSERT_EQ(rse::roster::registration_result::success, register_client(client, "foo", uniform, rce::PlayerType::OUTFIELD, roster1)) << "reg failed";
+	ASSERT_EQ(rse::roster::find_result::found, std::get<0>(roster1.find_player(client))) << "should be registered";
+	EXPECT_EQ(rse::deregister_result::success, roster1.deregister_client(client))
+		<< "failed to deregistered an existing client";
+	EXPECT_EQ(rse::roster::find_result::not_found, std::get<0>(roster1.find_player(client))) << "should not be registered";
     }
-    ASSERT_FALSE(roster1.is_complete());
-    ++client;
-    ASSERT_EQ(rse::roster::registration_result::success, register_client(client, "bar", rce::UniformNumber::ONE, rce::PlayerType::GOAL_KEEPER, roster1)) << "reg failed";
-    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::TWO, rce::UniformNumber::ELEVEN>())
-    {
-	++client;
-	ASSERT_EQ(rse::roster::registration_result::success, register_client(client, "bar", uniform, rce::PlayerType::OUTFIELD, roster1)) << "reg failed";
-    }
-    ASSERT_TRUE(roster1.is_complete());
-    roster1.deregister_client(8U);
-    ASSERT_FALSE(roster1.is_complete());
 }
 
-TEST(roster_test, finalisation_complete)
+TEST(roster_test, deregister_client_goalkeeper)
 {
-    rse::roster roster1;
-    ASSERT_FALSE(roster1.is_finalised());
-    rcs::client_id client = 1U;
-    ASSERT_EQ(rse::roster::registration_result::success, register_client(client, "foo", rce::UniformNumber::ONE, rce::PlayerType::GOAL_KEEPER, roster1)) << "reg failed";
-    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::TWO, rce::UniformNumber::ELEVEN>())
+    std::array<rcs::client_id, rse::MAX_ROSTER_SIZE> player_list1{
+	    1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010,
+	    1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1019, 1020, 1021};
+    std::array<std::string, rse::MAX_CLUB_COUNT> team_list1{"foo", "bar"};
+    std::array<rce::player_id, rse::MAX_CLUB_COUNT> goalie_list1{0, 11};
+    rse::roster roster1(player_list1, team_list1, goalie_list1);
+    ASSERT_TRUE(roster1.is_goalkeeper(0)) << "should be a goalkeeper";
+    EXPECT_EQ(rse::deregister_result::success, roster1.deregister_client(player_list1[0]))
+	    << "failed to deregistered an existing client";
+    ASSERT_FALSE(roster1.is_goalkeeper(0)) << "goalkeeper should be deregistered";
+    ASSERT_TRUE(roster1.is_goalkeeper(11)) << "should be a goalkeeper";
+    EXPECT_EQ(rse::deregister_result::success, roster1.deregister_client(player_list1[11]))
+	    << "failed to deregistered an existing client";
+    ASSERT_FALSE(roster1.is_goalkeeper(11)) << "goalkeeper should be deregistered";
+    for (rce::player_id player = 0U; player < player_list1.max_size(); ++player)
     {
-	++client;
-	ASSERT_EQ(rse::roster::registration_result::success, register_client(client, "foo", uniform, rce::PlayerType::OUTFIELD, roster1)) << "reg failed";
+	ASSERT_FALSE(roster1.is_goalkeeper(player)) << "should not be a goalkeeper";
     }
-    ++client;
-    ASSERT_EQ(rse::roster::registration_result::success, register_client(client, "bar", rce::UniformNumber::ONE, rce::PlayerType::GOAL_KEEPER, roster1)) << "reg failed";
-    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::TWO, rce::UniformNumber::ELEVEN>())
-    {
-	++client;
-	ASSERT_EQ(rse::roster::registration_result::success, register_client(client, "bar", uniform, rce::PlayerType::OUTFIELD, roster1)) << "reg failed";
-    }
-    ASSERT_EQ(rse::roster::finalisation_result::success, roster1.finalise()) << "finalisation failed";
-    ASSERT_TRUE(roster1.is_finalised());
 }
-
-TEST(roster_test, finalisation_incomplete)
-{
-    rse::roster roster1;
-    ASSERT_FALSE(roster1.is_finalised());
-    rcs::client_id client1 = 1U;
-    ASSERT_EQ(rse::roster::registration_result::success, register_client(client1, "foo", rce::UniformNumber::ONE, rce::PlayerType::GOAL_KEEPER, roster1)) << "reg failed";
-    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::TWO, rce::UniformNumber::ELEVEN>())
-    {
-	++client1;
-	ASSERT_EQ(rse::roster::registration_result::success, register_client(client1, "foo", uniform, rce::PlayerType::OUTFIELD, roster1)) << "reg failed";
-    }
-    ++client1;
-    ASSERT_EQ(rse::roster::registration_result::success, register_client(client1, "bar", rce::UniformNumber::ONE, rce::PlayerType::GOAL_KEEPER, roster1)) << "reg failed";
-    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::THREE, rce::UniformNumber::ELEVEN>())
-    {
-	++client1;
-	ASSERT_EQ(rse::roster::registration_result::success, register_client(client1, "bar", uniform, rce::PlayerType::OUTFIELD, roster1)) << "reg failed";
-    }
-    ASSERT_FALSE(roster1.is_complete());
-    ASSERT_EQ(rse::roster::finalisation_result::roster_incomplete, roster1.finalise()) << "finalisation succeeded";
-    ASSERT_FALSE(roster1.is_finalised());
-
-    rse::roster roster2;
-    ASSERT_FALSE(roster2.is_finalised());
-    rcs::client_id client2 = 1U;
-    ASSERT_EQ(rse::roster::registration_result::success, register_client(client2, "foo", rce::UniformNumber::ONE, rce::PlayerType::GOAL_KEEPER, roster2)) << "reg failed";
-    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::TWO, rce::UniformNumber::ELEVEN>())
-    {
-	++client2;
-	ASSERT_EQ(rse::roster::registration_result::success, register_client(client2, "foo", uniform, rce::PlayerType::OUTFIELD, roster2)) << "reg failed";
-    }
-    ++client2;
-    ASSERT_EQ(rse::roster::registration_result::success, register_client(client2, "bar", rce::UniformNumber::ONE, rce::PlayerType::GOAL_KEEPER, roster2)) << "reg failed";
-    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::TWO, rce::UniformNumber::ELEVEN>())
-    {
-	++client2;
-	ASSERT_EQ(rse::roster::registration_result::success, register_client(client2, "bar", uniform, rce::PlayerType::OUTFIELD, roster2)) << "reg failed";
-    }
-    roster2.deregister_client(5U);
-    ASSERT_FALSE(roster2.is_complete());
-    ASSERT_EQ(rse::roster::finalisation_result::roster_incomplete, roster2.finalise()) << "finalisation succeeded";
-    ASSERT_FALSE(roster2.is_finalised());
-}
-*/
