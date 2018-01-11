@@ -64,25 +64,6 @@ public:
     std::string get_team_name(const robocup2Dsim::common::entity::TeamId& team) const;
     deregister_result deregister_client(const robocup2Dsim::csprotocol::client_id& client);
 private:
-    class team
-    {
-    public:
-	typedef std::array<robocup2Dsim::csprotocol::client_id, 11> team_type;
-	team();
-	robocup2Dsim::csprotocol::client_id& operator[](const robocup2Dsim::common::entity::UniformNumber& uniform);
-	const robocup2Dsim::csprotocol::client_id& operator[](const robocup2Dsim::common::entity::UniformNumber& uniform) const;
-	inline team_type::iterator begin() { return team_.begin(); }
-	inline team_type::iterator end() { return team_.end(); }
-	inline team_type::const_iterator cbegin() { return team_.cbegin(); }
-	inline team_type::const_iterator cend() { return team_.cend(); }
-	bool is_complete() const;
-    private:
-	team_type team_;
-    };
-    typedef std::map<std::string, team> roster_type;
-    typedef std::map<robocup2Dsim::csprotocol::client_id, robocup2Dsim::common::entity::old_player_id> client_player_map;
-    roster_type roster_;
-    client_player_map map_;
     std::array<robocup2Dsim::csprotocol::client_id, MAX_ROSTER_SIZE> players_;
     std::array<std::string, MAX_CLUB_COUNT> team_names_;
     std::array<robocup2Dsim::common::entity::player_id, MAX_CLUB_COUNT> goalies_;
