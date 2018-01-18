@@ -7,6 +7,7 @@ using Command = import "command.capnp";
 using CommonCommand = import "/common/command.capnp";
 using CommonAction = import "/common/action.capnp";
 using CommonJudgement = import "/common/judgement.capnp";
+using CommonMetadata = import "/common/metadata.capnp";
 using Error = import "/common/error.capnp";
 using Metadata = import "/common/metadata.capnp";
 
@@ -14,7 +15,8 @@ using RecipientId = UInt64;
 
 struct ClientStatus
 {
-    status @0 :AnyPointer;
+    frame @0 :CommonMetadata.FrameNumber;
+    status @1 :AnyPointer;
 }
 
 struct ClientTransaction
