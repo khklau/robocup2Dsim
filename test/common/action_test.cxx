@@ -1,4 +1,5 @@
 #include <robocup2Dsim/common/action.hpp>
+#include <robocup2Dsim/common/action.hxx>
 #include <robocup2Dsim/common/action.capnp.h>
 #include <utility>
 #include <capnp/message.h>
@@ -775,4 +776,100 @@ TEST(action_test, act_turn_torso_clockwise_excess_velocity)
     auto new_foot_angle1 = body1.foot->GetAngle();
     EXPECT_TRUE(new_torso_angle1 < original_torso_angle1 && new_foot_angle1 < original_foot_angle1)
 	    << "action had no effect on simulation";
+}
+
+TEST(action_test, vector_act_invalid_player)
+{
+    ren::energy original_energy1{rco::TurnTorsoAction::MAX_COST};
+    ren::inventory inventory1({0U, rco::TurnTorsoAction::MAX_COST});
+    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::array<ren::energy, 2U> stock1{original_energy1.quantity, original_energy1.quantity};
+    std::array<rco::player_body, 2U> body1{make_player_body(physics1), make_player_body(physics1)};
+    capnp::MallocMessageBuilder arena1;
+    rco::PlayerAction::Builder action1 = arena1.initRoot<rco::PlayerAction>();
+    std::vector<rco::client_action> action_list1;
+    action_list1.emplace_back(action1.asReader(), body1.max_size());
+    action_list1.emplace_back(action1.asReader(), body1.max_size() + 1);
+    std::vector<ren::inventory::spend_result> result_list1;
+    act(inventory1, stock1, physics1, body1, action_list1, result_list1);
+    for (ren::inventory::spend_result result: result_list1)
+    {
+	EXPECT_EQ(ren::inventory::spend_result::understock, result) << "vector act with invalid player_id succeeded";
+    }
+}
+
+TEST(action_test, vector_act_understock)
+{
+    ren::energy original_energy1{rco::RunAction::MAX_FORWARD_COST / 2U};
+    ren::inventory inventory1({0U, rco::MoveFootAction::MAX_COST});
+    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::array<ren::energy, 2U> stock1{original_energy1.quantity, original_energy1.quantity};
+    std::array<rco::player_body, 2U> body1{make_player_body(physics1), make_player_body(physics1)};
+    std::vector<rco::client_action> action_list1;
+    capnp::MallocMessageBuilder arena1a;
+    rco::PlayerAction::Builder action1a = arena1a.initRoot<rco::PlayerAction>();
+    rco::RunAction::Builder run1a =  action1a.getAction().initRun();
+    run1a.setVelocity(rco::RunAction::MAX_FORWARD_VELOCITY);
+    action_list1.emplace_back(action1a.asReader(), 0U);
+    capnp::MallocMessageBuilder arena1b;
+    rco::PlayerAction::Builder action1b = arena1b.initRoot<rco::PlayerAction>();
+    rco::MoveFootAction::Builder move1b =  action1b.getAction().initMoveFoot();
+    move1b.setVelocity(rco::MoveFootAction::MAX_VELOCITY);
+    action_list1.emplace_back(action1b.asReader(), 1U);
+    std::vector<ren::inventory::spend_result> result_list1;
+    act(inventory1, stock1, physics1, body1, action_list1, result_list1);
+    for (ren::inventory::spend_result result: result_list1)
+    {
+	EXPECT_EQ(ren::inventory::spend_result::understock, result) << "vector act succeeded with insufficient stock";
+    }
+}
+
+TEST(action_test, vector_act_half_success)
+{
+    ASSERT_TRUE(rco::MoveFootAction::MAX_COST < rco::RunAction::MAX_BACKWARD_COST) << "Wrong action mix picked";
+    ren::energy original_energy1{rco::MoveFootAction::MAX_COST};
+    ren::inventory inventory1({0U, rco::RunAction::MAX_BACKWARD_COST});
+    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::array<ren::energy, 2U> stock1{original_energy1.quantity, original_energy1.quantity};
+    std::array<rco::player_body, 2U> body1{make_player_body(physics1), make_player_body(physics1)};
+    std::vector<rco::client_action> action_list1;
+    capnp::MallocMessageBuilder arena1a;
+    rco::PlayerAction::Builder action1a = arena1a.initRoot<rco::PlayerAction>();
+    rco::RunAction::Builder run1a =  action1a.getAction().initRun();
+    run1a.setVelocity(rco::RunAction::MAX_BACKWARD_VELOCITY);
+    action_list1.emplace_back(action1a.asReader(), 0U);
+    capnp::MallocMessageBuilder arena1b;
+    rco::PlayerAction::Builder action1b = arena1b.initRoot<rco::PlayerAction>();
+    rco::MoveFootAction::Builder move1b =  action1b.getAction().initMoveFoot();
+    move1b.setVelocity(rco::MoveFootAction::MAX_VELOCITY);
+    action_list1.emplace_back(action1b.asReader(), 1U);
+    std::vector<ren::inventory::spend_result> result_list1;
+    act(inventory1, stock1, physics1, body1, action_list1, result_list1);
+    EXPECT_EQ(ren::inventory::spend_result::understock, result_list1[0]) << "vector act succeeded on action with insufficient stock";
+    EXPECT_EQ(ren::inventory::spend_result::success, result_list1[1]) << "vector act failed on action with sufficient stock";
+}
+
+TEST(action_test, vector_act_all_success)
+{
+    ASSERT_TRUE(rco::TurnHeadAction::MAX_COST < rco::TurnTorsoAction::MAX_COST) << "Wrong action mix picked";
+    ren::energy original_energy1{rco::TurnTorsoAction::MAX_COST};
+    ren::inventory inventory1({0U, rco::TurnTorsoAction::MAX_COST});
+    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::array<ren::energy, 2U> stock1{original_energy1.quantity, original_energy1.quantity};
+    std::array<rco::player_body, 2U> body1{make_player_body(physics1), make_player_body(physics1)};
+    std::vector<rco::client_action> action_list1;
+    capnp::MallocMessageBuilder arena1a;
+    rco::PlayerAction::Builder action1a = arena1a.initRoot<rco::PlayerAction>();
+    rco::TurnTorsoAction::Builder turn_torso1a =  action1a.getAction().initTurnTorso();
+    turn_torso1a.setVelocity(rco::TurnTorsoAction::MAX_VELOCITY);
+    action_list1.emplace_back(action1a.asReader(), 0U);
+    capnp::MallocMessageBuilder arena1b;
+    rco::PlayerAction::Builder action1b = arena1b.initRoot<rco::PlayerAction>();
+    rco::TurnHeadAction::Builder turn_head1b =  action1b.getAction().initTurnHead();
+    turn_head1b.setVelocity(rco::TurnHeadAction::MAX_VELOCITY);
+    action_list1.emplace_back(action1b.asReader(), 1U);
+    std::vector<ren::inventory::spend_result> result_list1;
+    act(inventory1, stock1, physics1, body1, action_list1, result_list1);
+    EXPECT_EQ(ren::inventory::spend_result::success, result_list1[0]) << "vector act failed on action with sufficient stock";
+    EXPECT_EQ(ren::inventory::spend_result::success, result_list1[1]) << "vector act failed on action with sufficient stock";
 }

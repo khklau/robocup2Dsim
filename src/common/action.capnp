@@ -3,6 +3,7 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("robocup2Dsim::common");
 
+using Metadata = import "metadata.capnp";
 using Physics = import "physics.capnp";
 
 const velocityScaleFactor :Float32 = 1000.0;
@@ -44,7 +45,7 @@ struct TurnTorsoAction
 
 struct PlayerAction
 {
-    union
+    action :union
     {
 	moveFoot @0 :MoveFootAction;
 	catch @1 :CatchAction;
@@ -52,4 +53,5 @@ struct PlayerAction
 	turnHead @3 :TurnHeadAction;
 	turnTorso @4 :TurnTorsoAction;
     }
+    frame @5 :Metadata.FrameNumber = 0;
 }
