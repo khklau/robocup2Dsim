@@ -1,5 +1,5 @@
-#ifndef ROBOCUP2DSIM_CLIENT_ENGINE_HPP
-#define ROBOCUP2DSIM_CLIENT_ENGINE_HPP
+#ifndef ROBOCUP2DSIM_CLIENT_EVENT_HPP
+#define ROBOCUP2DSIM_CLIENT_EVENT_HPP
 
 #include <cstdint>
 #include <functional>
@@ -15,7 +15,7 @@
 
 namespace robocup2Dsim {
 namespace client {
-namespace engine {
+namespace event {
 
 enum class state : uint8_t
 {
@@ -35,7 +35,7 @@ public:
     std::unique_ptr<robocup2Dsim::csprotocol::client_trans_queue_type> client_trans_queue;
     std::unique_ptr<robocup2Dsim::csprotocol::server_status_queue_type> server_status_queue;
     std::unique_ptr<robocup2Dsim::csprotocol::server_trans_queue_type> server_trans_queue;
-    state engine_state;
+    state client_state;
     basic_handle(
 	    decltype(bot_input_queue) bot_in,
 	    decltype(bot_output_queue) bot_out,
@@ -80,7 +80,7 @@ inline basic_handle&& up_cast(handle<state_value>&& from)
 template <state state_value>
 inline handle<state_value>&& down_cast(basic_handle&& from)
 {
-    if (TURBO_LIKELY(from.engine_state == state_value))
+    if (TURBO_LIKELY(from.client_state == state_value))
     {
 	return static_cast<handle<state_value>&&>(from);
     }
@@ -117,7 +117,7 @@ handle<state::withbot_unregistered>&& match_aborted(handle<state::withbot_playin
 handle<state::nobot_onbench>&& bot_crashed(handle<state::withbot_playing>&& input);
 handle<state::withbot_unregistered>&& disconnected(handle<state::withbot_playing>&& input);
 
-} // namespace engine
+} // namespace event
 } // namespace client
 } // namespace robocup2Dsim
 

@@ -1,5 +1,5 @@
-#include "engine.hpp"
-#include "engine.hxx"
+#include "event.hpp"
+#include "event.hxx"
 
 namespace rbc = robocup2Dsim::bcprotocol;
 namespace rco = robocup2Dsim::common;
@@ -7,7 +7,7 @@ namespace rcs = robocup2Dsim::csprotocol;
 
 namespace robocup2Dsim {
 namespace client {
-namespace engine {
+namespace event {
 
 basic_handle::basic_handle(
 	decltype(bot_input_queue) bot_in,
@@ -24,7 +24,7 @@ basic_handle::basic_handle(
 	client_trans_queue(std::move(client_trans)),
 	server_status_queue(std::move(server_status)),
 	server_trans_queue(std::move(server_trans)),
-	engine_state(my_state)
+	client_state(my_state)
 { }
 
 
@@ -35,7 +35,7 @@ basic_handle::basic_handle(basic_handle&& other) :
 	client_trans_queue(std::move(other.client_trans_queue)),
 	server_status_queue(std::move(other.server_status_queue)),
 	server_trans_queue(std::move(other.server_trans_queue)),
-	engine_state(other.engine_state)
+	client_state(other.client_state)
 { }
 
 basic_handle& basic_handle::operator=(basic_handle&& other)
@@ -46,7 +46,7 @@ basic_handle& basic_handle::operator=(basic_handle&& other)
     client_trans_queue = std::move(other.client_trans_queue);
     server_status_queue = std::move(other.server_status_queue);
     server_trans_queue = std::move(other.server_trans_queue);
-    engine_state = other.engine_state;
+    client_state = other.client_state;
     return *this;
 }
 
@@ -182,6 +182,6 @@ handle<state::withbot_unregistered>&& disconnected(handle<state::withbot_playing
     return std::move(output);
 }
 
-} // namespace engine
+} // namespace event
 } // namespace client
 } // namespace robocup2Dsim
