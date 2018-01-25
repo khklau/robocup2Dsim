@@ -21,6 +21,7 @@
 #include <turbo/ipc/posix/signal_notifier.hpp>
 #include <turbo/process/posix/spawn.hpp>
 #include <robocup2Dsim/bcprotocol/protocol.hpp>
+#include <robocup2Dsim/common/metadata.hpp>
 #include <robocup2Dsim/csprotocol/protocol.hpp>
 #include <robocup2Dsim/runtime/db_access.hpp>
 #include <robocup2Dsim/engine/physics.hpp>
@@ -35,6 +36,7 @@ namespace tip = turbo::ipc::posix;
 namespace tpp = turbo::process::posix;
 namespace rbc = robocup2Dsim::bcprotocol;
 namespace rcl = robocup2Dsim::client;
+namespace rco = robocup2Dsim::common;
 namespace rcs = robocup2Dsim::csprotocol;
 namespace ren = robocup2Dsim::engine;
 namespace rru = robocup2Dsim::runtime;
@@ -169,14 +171,14 @@ void client::run()
     std::unique_ptr<bme::capnproto<rbc::BotOutput>> bot_output;
     std::unique_ptr<bme::capnproto<rcs::ServerStatus>> server_status;
     std::unique_ptr<bme::capnproto<rcs::ServerTransaction>> server_trans;
-    std::chrono:: high_resolution_clock::time_point next_tick = std::chrono::high_resolution_clock::now() + config_.tick_rate;
+    std::chrono:: high_resolution_clock::time_point next_frame_time = std::chrono::high_resolution_clock::now() + config_.frame_duration;
     asio::io_service service;
     asio::high_resolution_timer timer(service);
-    std::size_t tick_count = 0;
+    rco::frame_number frame = 0U;
     bool should_run = true;
     while (should_run)
     {
-	timer.expires_at(next_tick);
+	timer.expires_at(next_frame_time);
 	timer.wait();
 	if (handle_.bot_output_queue->get_consumer().try_dequeue_move(bot_output) == rbc::bot_output_queue_type::consumer::result::success)
 	{
@@ -310,29 +312,29 @@ void client::run()
 	}
 	if (handle_.client_state == rcl::event::state::withbot_playing)
 	{
-	    if (tick_count % config_.simulation_frequency == config_.simulation_start_tick)
+	    if (frame % config_.simulation_frequency == config_.simulation_start_frame)
 	    {
 		handle_ = std::move(rcl::event::up_cast(rcl::event::simulation_timedout(
 			rcl::event::down_cast<rcl::event::state::withbot_playing>(std::move(handle_)))));
 	    }
-	    if (tick_count % config_.sensor_frequency == config_.sensor_start_tick)
+	    if (frame % config_.sensor_frequency == config_.sensor_start_frame)
 	    {
 		handle_ = std::move(rcl::event::up_cast(rcl::event::sensor_timedout(
 			rcl::event::down_cast<rcl::event::state::withbot_playing>(std::move(handle_)))));
 	    }
-	    if (tick_count % config_.upload_frequency == config_.upload_start_tick)
+	    if (frame % config_.upload_frequency == config_.upload_start_frame)
 	    {
 		handle_ = std::move(rcl::event::up_cast(rcl::event::upload_timedout(
 			rcl::event::down_cast<rcl::event::state::withbot_playing>(std::move(handle_)))));
 	    }
 	}
-	next_tick += config_.tick_rate;
-	if (TURBO_UNLIKELY(std::chrono::high_resolution_clock::now() > next_tick))
+	next_frame_time += config_.frame_duration;
+	if (TURBO_UNLIKELY(std::chrono::high_resolution_clock::now() > next_frame_time))
 	{
-	    std::time_t time = std::chrono::high_resolution_clock::to_time_t(next_tick);
-	    LOG(WARNING) << "Tick at " << ctime(&time) << " missed";
+	    std::time_t time = std::chrono::high_resolution_clock::to_time_t(next_frame_time);
+	    LOG(WARNING) << "Frame number " << frame << " at " << ctime(&time) << " missed";
 	}
-	++tick_count;
+	++frame;
     }
 }
 

@@ -22,6 +22,7 @@ publicHeaders = [
     'ball.hpp',
     'entity.hpp',
     'field.hpp',
+    'metadata.hpp',
     'player.hpp']
 
 def configure(confCtx):
