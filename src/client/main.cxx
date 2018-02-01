@@ -22,6 +22,7 @@
 #include <turbo/process/posix/spawn.hpp>
 #include <robocup2Dsim/bcprotocol/protocol.hpp>
 #include <robocup2Dsim/common/metadata.hpp>
+#include <robocup2Dsim/common/entity.hpp>
 #include <robocup2Dsim/csprotocol/protocol.hpp>
 #include <robocup2Dsim/runtime/db_access.hpp>
 #include <robocup2Dsim/engine/physics.hpp>
@@ -35,6 +36,7 @@ namespace bme = beam::message;
 namespace tip = turbo::ipc::posix;
 namespace tpp = turbo::process::posix;
 namespace rbc = robocup2Dsim::bcprotocol;
+namespace rce = robocup2Dsim::common::entity;
 namespace rcl = robocup2Dsim::client;
 namespace rco = robocup2Dsim::common;
 namespace rcs = robocup2Dsim::csprotocol;
@@ -88,21 +90,17 @@ void parse_cmd_args(int argc, char* argv[], rcl::config& conf)
 	})
 	.expectArg("uniform", [&] (kj::StringPtr arg)
 	{
-	    int tmp = atoi(arg.cStr());
-	    if (std::numeric_limits<decltype(conf.uniform)>::min() <= tmp && 
-		    tmp <= std::numeric_limits<decltype(conf.uniform)>::max())
+	    try
 	    {
-		conf.uniform = static_cast<decltype(conf.uniform)>(tmp);
+		unsigned long tmp = std::stoul(arg.cStr());
+		rce::UniformNumber uniform = rce::uint_to_uniform(tmp);
+		conf.uniform = uniform;
 		++conf.bot_arg_offset;
 		return kj::MainBuilder::Validity(true);
 	    }
-	    else
+	    catch (std::out_of_range&)
 	    {
-		return kj::MainBuilder::Validity(kj::str(
-			"uniform number must be in the range ",
-			std::numeric_limits<decltype(conf.uniform)>::min(),
-			" to ",
-			std::numeric_limits<decltype(conf.uniform)>::max()));
+		return kj::MainBuilder::Validity(kj::str("uniform number must be in the range 1 to 11"));
 	    }
 	})
 	.expectArg("bot_path", [&] (kj::StringPtr arg)
@@ -149,7 +147,9 @@ client::client(const rcl::config& config, tpp::child&& bot) :
 	    std::move(std::unique_ptr<rcs::client_trans_queue_type>(new rcs::client_trans_queue_type(config_.server_msg_queue_length))),
 	    std::move(std::unique_ptr<rcs::server_status_queue_type>(new rcs::server_status_queue_type(config_.server_msg_queue_length))),
 	    std::move(std::unique_ptr<rcs::server_trans_queue_type>(new rcs::server_trans_queue_type(config_.server_msg_queue_length))),
-	    rcl::event::state::withbot_unregistered
+	    std::move(kj::heapArray<capnp::word>(config_.bot_msg_buffer_length)),
+	    std::move(kj::heapArray<capnp::word>(config_.server_msg_buffer_length)),
+	    rcl::event::state::nobot_unregistered
 	},
 	notifier_(),
 	bot_(std::move(bot)),
@@ -168,6 +168,9 @@ client::client(const rcl::config& config, tpp::child&& bot) :
 
 void client::run()
 {
+    handle_ = std::move(rcl::event::up_cast(rcl::event::spawned(
+	    rcl::event::down_cast<rcl::event::state::nobot_unregistered>(std::move(handle_)),
+	    config_)));
     std::unique_ptr<bme::capnproto<rbc::BotOutput>> bot_output;
     std::unique_ptr<bme::capnproto<rcs::ServerStatus>> server_status;
     std::unique_ptr<bme::capnproto<rcs::ServerTransaction>> server_trans;

@@ -99,13 +99,13 @@ TEST(enrollment_test, register_client_uniform_taken)
 	    3U,
 	    "foo",
 	    rce::UniformNumber::FIVE,
-	    rce::PlayerType::OUTFIELD,
+	    rce::PlayerType::OUT_FIELD,
 	    enrollment1)) << "reg suceeded";
     EXPECT_EQ(rse::enrollment::register_result::uniform_taken, register_client(
 	    4U,
 	    "bar",
 	    rce::UniformNumber::FOUR,
-	    rce::PlayerType::OUTFIELD,
+	    rce::PlayerType::OUT_FIELD,
 	    enrollment1)) << "reg suceeded";
 }
 
@@ -138,7 +138,7 @@ TEST(enrollment_test, register_client_full)
 		client,
 		"foo",
 		uniform,
-		rce::PlayerType::OUTFIELD,
+		rce::PlayerType::OUT_FIELD,
 		enrollment1)) << "reg failed";
     }
     ASSERT_FALSE(enrollment1.is_full());
@@ -156,7 +156,7 @@ TEST(enrollment_test, register_client_full)
 		client,
 		"bar",
 		uniform,
-		rce::PlayerType::OUTFIELD,
+		rce::PlayerType::OUT_FIELD,
 		enrollment1)) << "reg failed";
     }
     EXPECT_TRUE(enrollment1.is_full());
@@ -257,7 +257,7 @@ TEST(enrollment_test, finalise_almost_full)
 		client,
 		"foo",
 		uniform,
-		rce::PlayerType::OUTFIELD,
+		rce::PlayerType::OUT_FIELD,
 		enrollment1)) << "reg failed";
     }
     for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::TWO, rce::UniformNumber::ELEVEN>())
@@ -267,7 +267,7 @@ TEST(enrollment_test, finalise_almost_full)
 		client,
 		"bar",
 		uniform,
-		rce::PlayerType::OUTFIELD,
+		rce::PlayerType::OUT_FIELD,
 		enrollment1)) << "reg failed";
     }
     ASSERT_FALSE(enrollment1.is_full());
@@ -284,7 +284,7 @@ TEST(enrollment_test, finalise_basic)
 		client,
 		"foo",
 		uniform,
-		rce::PlayerType::OUTFIELD,
+		rce::PlayerType::OUT_FIELD,
 		enrollment1)) << "reg failed";
 	++client;
     }
@@ -301,7 +301,7 @@ TEST(enrollment_test, finalise_basic)
 		client,
 		"bar",
 		uniform,
-		rce::PlayerType::OUTFIELD,
+		rce::PlayerType::OUT_FIELD,
 		enrollment1)) << "reg failed";
 	++client;
     }
@@ -361,7 +361,7 @@ TEST(enrollment_test, finalise_no_goalkeeper)
 		client,
 		"foo",
 		uniform,
-		rce::PlayerType::OUTFIELD,
+		rce::PlayerType::OUT_FIELD,
 		enrollment1)) << "reg failed";
 	++client;
     }
@@ -371,7 +371,7 @@ TEST(enrollment_test, finalise_no_goalkeeper)
 		client,
 		"bar",
 		uniform,
-		rce::PlayerType::OUTFIELD,
+		rce::PlayerType::OUT_FIELD,
 		enrollment1)) << "reg failed";
 	++client;
     }

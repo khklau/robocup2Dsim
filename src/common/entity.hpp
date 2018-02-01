@@ -4,6 +4,7 @@
 #include <robocup2Dsim/common/entity.capnp.h>
 #include <cstdint>
 #include <limits>
+#include <stdexcept>
 
 namespace robocup2Dsim {
 namespace common {
@@ -63,6 +64,17 @@ struct old_player_id
     TeamId team;
     inline bool operator==(const old_player_id& other) const { return uniform == other.uniform && team == other.team; }
 };
+
+inline UniformNumber uint_to_uniform(unsigned int number)
+{
+    switch (number)
+    {
+	case 1:
+	    return UniformNumber::ONE;
+	default:
+	    throw std::out_of_range("Not a valid uniform number");
+    }
+}
 
 } // namespace entity
 } // namespace common

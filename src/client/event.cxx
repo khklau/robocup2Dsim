@@ -1,7 +1,14 @@
 #include "event.hpp"
 #include "event.hxx"
+#include <robocup2Dsim/common/command.capnp.h>
+#include <robocup2Dsim/common/entity.capnp.h>
+#include <robocup2Dsim/common/metadata.capnp.h>
+#include <robocup2Dsim/csprotocol/command.capnp.h>
+#include <robocup2Dsim/csprotocol/protocol.capnp.h>
 
 namespace rbc = robocup2Dsim::bcprotocol;
+namespace rce = robocup2Dsim::common::entity;
+namespace rcl = robocup2Dsim::client;
 namespace rco = robocup2Dsim::common;
 namespace rcs = robocup2Dsim::csprotocol;
 
@@ -16,6 +23,8 @@ basic_handle::basic_handle(
 	decltype(client_trans_queue) client_trans,
 	decltype(server_status_queue) server_status,
 	decltype(server_trans_queue) server_trans,
+	decltype(bot_msg_buffer) bot_msg,
+	decltype(server_msg_buffer) server_msg,
 	state my_state)
     :
 	bot_input_queue(std::move(bot_in)),
@@ -24,6 +33,8 @@ basic_handle::basic_handle(
 	client_trans_queue(std::move(client_trans)),
 	server_status_queue(std::move(server_status)),
 	server_trans_queue(std::move(server_trans)),
+	bot_msg_buffer(std::move(bot_msg)),
+	server_msg_buffer(std::move(server_msg)),
 	client_state(my_state)
 { }
 
@@ -35,6 +46,8 @@ basic_handle::basic_handle(basic_handle&& other) :
 	client_trans_queue(std::move(other.client_trans_queue)),
 	server_status_queue(std::move(other.server_status_queue)),
 	server_trans_queue(std::move(other.server_trans_queue)),
+	bot_msg_buffer(std::move(other.bot_msg_buffer)),
+	server_msg_buffer(std::move(other.server_msg_buffer)),
 	client_state(other.client_state)
 { }
 
@@ -46,12 +59,26 @@ basic_handle& basic_handle::operator=(basic_handle&& other)
     client_trans_queue = std::move(other.client_trans_queue);
     server_status_queue = std::move(other.server_status_queue);
     server_trans_queue = std::move(other.server_trans_queue);
+    bot_msg_buffer = std::move(other.bot_msg_buffer);
+    server_msg_buffer = std::move(other.server_msg_buffer);
     client_state = other.client_state;
     return *this;
 }
 
-handle<state::withbot_unregistered>&& spawned(handle<state::nobot_unregistered>&& input)
+handle<state::withbot_unregistered>&& spawned(handle<state::nobot_unregistered>&& input, const rcl::config& conf)
 {
+    capnp::MallocMessageBuilder builder(input.server_msg_buffer.asPtr());
+    rcs::ClientTransaction::Builder trans = builder.initRoot<rcs::ClientTransaction>();
+    rcs::RegistrationRequest::Builder request = trans.initRegistration();
+    rco::command::Registration::Builder reg = request.initDetails();
+    rco::metadata::Version::Builder version = reg.initVersion();
+    version.setNumberA(1);
+    version.setNumberB(0);
+    version.setNumberC(0);
+    version.setNumberD(0);
+    reg.setTeamName(conf.team);
+    reg.setUniform(conf.uniform);
+    reg.setPlayerType(conf.goalie ? rce::PlayerType::GOAL_KEEPER : rce::PlayerType::OUT_FIELD);
     handle<state::withbot_unregistered> output(std::move(input));
     return std::move(output);
 }

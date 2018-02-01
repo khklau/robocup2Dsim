@@ -16,7 +16,9 @@ handle<state_value>::handle(
 	decltype(client_status_queue) client_status,
 	decltype(client_trans_queue) client_trans,
 	decltype(server_status_queue) server_status,
-	decltype(server_trans_queue) server_trans)
+	decltype(server_trans_queue) server_trans,
+	decltype(bot_msg_buffer) bot_msg,
+	decltype(server_msg_buffer) server_msg)
     :
 	basic_handle
 	{
@@ -26,6 +28,8 @@ handle<state_value>::handle(
 	    std::move(client_trans_queue),
 	    std::move(server_status_queue),
 	    std::move(server_trans_queue),
+	    std::move(bot_msg),
+	    std::move(server_msg),
 	    state_value
 	}
 { }
@@ -41,6 +45,8 @@ handle<state_value>::handle(handle<other_value>&& other) :
 	    std::move(other.client_trans_queue),
 	    std::move(other.server_status_queue),
 	    std::move(other.server_trans_queue),
+	    std::move(other.bot_msg_buffer),
+	    std::move(other.server_msg_buffer),
 	    other_value
 	}
 { }

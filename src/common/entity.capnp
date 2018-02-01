@@ -10,7 +10,7 @@ using TeamName = Text;
 
 enum PlayerType
 {
-    outfield @0;
+    outField @0;
     goalKeeper @1;
 }
 
