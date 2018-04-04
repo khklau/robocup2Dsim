@@ -21,7 +21,8 @@ struct config
 	    bot_arg_offset(0),
 	    bot_msg_queue_length(128U),
 	    bot_msg_per_sec_limit(16U),
-	    bot_msg_buffer_length(496U),
+	    bot_msg_word_length(64U),
+	    bot_msg_buffer_capacity(64U),
 	    frame_duration(10),
 	    simulation_frequency(2),
 	    sensor_frequency(2),
@@ -32,7 +33,8 @@ struct config
 	    connection_timeout(15000),
 	    server_msg_queue_length(128U),
 	    server_wait_amount(1U),
-	    server_msg_buffer_length(496U),
+	    server_msg_word_length(124U),
+	    server_msg_buffer_capacity(64U),
 	    download_bytes_per_sec(0U),
 	    upload_bytes_per_sec(0U)
     { }
@@ -46,7 +48,8 @@ struct config
     uint8_t bot_arg_offset;
     uint16_t bot_msg_queue_length;
     uint16_t bot_msg_per_sec_limit;
-    uint16_t bot_msg_buffer_length;
+    uint16_t bot_msg_word_length;
+    uint16_t bot_msg_buffer_capacity;
     std::chrono::milliseconds frame_duration;
     std::size_t simulation_frequency;
     std::size_t sensor_frequency;
@@ -57,7 +60,8 @@ struct config
     std::chrono::milliseconds connection_timeout;
     uint16_t server_msg_queue_length;
     std::chrono::milliseconds server_wait_amount;
-    uint16_t server_msg_buffer_length;
+    uint16_t server_msg_word_length;
+    uint16_t server_msg_buffer_capacity;
     std::size_t download_bytes_per_sec;
     std::size_t upload_bytes_per_sec;
 };

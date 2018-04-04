@@ -6,11 +6,13 @@
 #include <asio/error_code.hpp>
 #include <asio/io_service.hpp>
 #include <asio/posix/stream_descriptor.hpp>
+#include <beam/message/buffer_pool.hpp>
 #include <beam/message/capnproto.hpp>
 #include <turbo/container/spsc_ring_queue.hpp>
 #include <turbo/ipc/posix/pipe.hpp>
 #include <robocup2Dsim/bcprotocol/protocol.capnp.h>
 #include <robocup2Dsim/bcprotocol/protocol.hpp>
+#include "config.hpp"
 
 namespace robocup2Dsim {
 namespace client {
@@ -19,6 +21,7 @@ class bot_io
 {
 public:
     bot_io(
+	    const config& conf,
 	    turbo::ipc::posix::pipe::back& bot_stdin,
 	    turbo::ipc::posix::pipe::front& bot_stdout,
 	    robocup2Dsim::bcprotocol::bot_input_queue_type::consumer& consumer,
@@ -34,6 +37,8 @@ private:
     void run();
     void send();
     void receive(const asio::error_code& error, std::size_t bytes_received);
+    config config_;
+    beam::message::buffer_pool pool_;
     turbo::ipc::posix::pipe::back& bot_stdin_;
     turbo::ipc::posix::pipe::front& bot_stdout_;
     robocup2Dsim::bcprotocol::bot_input_queue_type::consumer& consumer_;

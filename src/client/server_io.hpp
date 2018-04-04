@@ -6,6 +6,7 @@
 #include <asio/strand.hpp>
 #include <beam/duplex/unordered_mixed.hpp>
 #include <beam/internet/ipv4.hpp>
+#include <beam/message/buffer_pool.hpp>
 #include <beam/message/capnproto.hpp>
 #include <robocup2Dsim/csprotocol/protocol.capnp.h>
 #include <robocup2Dsim/csprotocol/protocol.hpp>
@@ -37,8 +38,10 @@ private:
     void handle_client_msg(out_connection_type& connection);
     void on_connect(const in_connection_type& connection);
     void on_disconnect(const in_connection_type& connection);
-    void on_receive_server_status(const in_connection_type&, std::unique_ptr<beam::message::capnproto<robocup2Dsim::csprotocol::ServerStatus>> message);
-    void on_receive_server_trans(const in_connection_type&, std::unique_ptr<beam::message::capnproto<robocup2Dsim::csprotocol::ServerTransaction>> message);
+    void on_receive_server_status(const in_connection_type&, beam::message::capnproto::payload<robocup2Dsim::csprotocol::ServerStatus>&& message);
+    void on_receive_server_trans(const in_connection_type&, beam::message::capnproto::payload<robocup2Dsim::csprotocol::ServerTransaction>&& message);
+    config config_;
+    beam::message::buffer_pool pool_;
     robocup2Dsim::csprotocol::server_status_queue_type::producer& server_status_;
     robocup2Dsim::csprotocol::server_trans_queue_type::producer& server_trans_;
     robocup2Dsim::csprotocol::client_status_queue_type::consumer& client_status_;

@@ -11,10 +11,10 @@
 namespace robocup2Dsim {
 namespace csprotocol {
 
-typedef turbo::container::spsc_ring_queue<std::unique_ptr<beam::message::capnproto<robocup2Dsim::csprotocol::ClientStatus>>> client_status_queue_type;
-typedef turbo::container::spsc_ring_queue<std::unique_ptr<beam::message::capnproto<robocup2Dsim::csprotocol::ClientTransaction>>> client_trans_queue_type;
-typedef turbo::container::spsc_ring_queue<std::unique_ptr<beam::message::capnproto<robocup2Dsim::csprotocol::ServerStatus>>> server_status_queue_type;
-typedef turbo::container::spsc_ring_queue<std::unique_ptr<beam::message::capnproto<robocup2Dsim::csprotocol::ServerTransaction>>> server_trans_queue_type;
+typedef turbo::container::spsc_ring_queue<beam::message::capnproto::payload<robocup2Dsim::csprotocol::ClientStatus>> client_status_queue_type;
+typedef turbo::container::spsc_ring_queue<beam::message::capnproto::payload<robocup2Dsim::csprotocol::ClientTransaction>> client_trans_queue_type;
+typedef turbo::container::spsc_ring_queue<beam::message::capnproto::payload<robocup2Dsim::csprotocol::ServerStatus>> server_status_queue_type;
+typedef turbo::container::spsc_ring_queue<beam::message::capnproto::payload<robocup2Dsim::csprotocol::ServerTransaction>> server_trans_queue_type;
 
 typedef std::uint64_t client_id;
 

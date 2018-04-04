@@ -6,7 +6,7 @@
 #include <turbo/toolset/extension.hpp>
 #include <turbo/container/spsc_ring_queue.hxx>
 
-namespace bme = beam::message;
+namespace bmc = beam::message::capnproto;
 namespace rbc = robocup2Dsim::bcprotocol;
 namespace tip = turbo::ipc::posix;
 
@@ -14,11 +14,14 @@ namespace robocup2Dsim {
 namespace client {
 
 bot_io::bot_io(
+	const config& conf,
 	tip::pipe::back& bot_stdin,
 	tip::pipe::front& bot_stdout,
 	rbc::bot_input_queue_type::consumer& consumer,
 	rbc::bot_output_queue_type::producer& producer)
     :
+	config_(conf),
+	pool_(config_.bot_msg_word_length, config_.bot_msg_buffer_capacity),
 	bot_stdin_(bot_stdin),
 	bot_stdout_(bot_stdout),
 	consumer_(consumer),
@@ -78,7 +81,7 @@ void bot_io::send()
     rbc::bot_input_queue_type::consumer::value_type message;
     while (consumer_.try_dequeue_move(message) != rbc::bot_input_queue_type::consumer::result::queue_empty)
     {
-	capnp::writeMessageToFd(bot_stdin_.get_handle(), message->get_segments());
+	bmc::write(bot_stdin_.get_handle(), std::move(message));
     }
     service_.post(std::bind(&bot_io::send, this));
 }
@@ -89,9 +92,8 @@ void bot_io::receive(const asio::error_code& error, std::size_t bytes_received)
     // More than 1 message may be available, so we need to consume all of them
     while (!error.value() && bytes_received > 0 && bot_stdout_.available() > 0)
     {
-	kj::FdInputStream input(bot_stdout_.get_handle());
-	std::unique_ptr<bme::capnproto<rbc::BotOutput>> message(new bme::capnproto<rbc::BotOutput>(input));
-	result = producer_.try_enqueue_move(std::move(message));
+	bmc::payload<rbc::BotOutput> payload = std::move(bmc::read<rbc::BotOutput>(bot_stdout_.get_handle(), config_.bot_msg_word_length, pool_));
+	result = producer_.try_enqueue_move(std::move(payload));
 	if (TURBO_UNLIKELY(result != rbc::bot_output_queue_type::producer::result::success))
 	{
 	    LOG(WARNING) << "bot processing queue is full: message dropped!";
