@@ -8,6 +8,7 @@
 #include <vector>
 #include <asio/high_resolution_timer.hpp>
 #include <asio/io_service.hpp>
+#include <beam/message/buffer_pool.hpp>
 #include <beam/message/capnproto.hpp>
 #include <beam/message/capnproto.hxx>
 #include <kj/common.h>
@@ -32,6 +33,7 @@
 #include "event.hxx"
 #include "server_io.hpp"
 
+namespace bmc = beam::message::capnproto;
 namespace bme = beam::message;
 namespace tip = turbo::ipc::posix;
 namespace tpp = turbo::process::posix;
@@ -130,6 +132,18 @@ public:
     void run();
 private:
     const rcl::config config_;
+    rbc::bot_input_queue_type bot_input_queue_;
+    rbc::bot_output_queue_type bot_output_queue_;
+    rcs::client_status_queue_type client_status_queue_;
+    rcs::client_trans_queue_type client_trans_queue_;
+    rcs::server_status_queue_type server_status_queue_;
+    rcs::server_trans_queue_type server_trans_queue_;
+    rbc::bot_input_queue_type::producer& bot_input_producer_;
+    rbc::bot_output_queue_type::consumer& bot_output_consumer_;
+    rcs::client_status_queue_type::producer& client_status_producer_;
+    rcs::client_trans_queue_type::producer& client_trans_producer_;
+    rcs::server_status_queue_type::consumer& server_status_consumer_;
+    rcs::server_trans_queue_type::consumer& server_trans_consumer_;
     rcl::event::basic_handle handle_;
     tip::signal_notifier notifier_;
     tpp::child bot_;
@@ -139,26 +153,40 @@ private:
 
 client::client(const rcl::config& config, tpp::child&& bot) :
 	config_(config),
+	bot_input_queue_(config_.bot_msg_queue_length),
+	bot_output_queue_(config_.bot_msg_queue_length),
+	client_status_queue_(config_.server_msg_queue_length),
+	client_trans_queue_(config_.server_msg_queue_length),
+	server_status_queue_(config_.server_msg_queue_length),
+	server_trans_queue_(config_.server_msg_queue_length),
+	bot_input_producer_(bot_input_queue_.get_producer()),
+	bot_output_consumer_(bot_output_queue_.get_consumer()),
+	client_status_producer_(client_status_queue_.get_producer()),
+	client_trans_producer_(client_trans_queue_.get_producer()),
+	server_status_consumer_(server_status_queue_.get_consumer()),
+	server_trans_consumer_(server_trans_queue_.get_consumer()),
 	handle_
 	{
-	    std::move(std::unique_ptr<rbc::bot_input_queue_type>(new rbc::bot_input_queue_type(config_.bot_msg_queue_length))),
-	    std::move(std::unique_ptr<rbc::bot_output_queue_type>(new rbc::bot_output_queue_type(config_.bot_msg_queue_length))),
-	    std::move(std::unique_ptr<rcs::client_status_queue_type>(new rcs::client_status_queue_type(config_.server_msg_queue_length))),
-	    std::move(std::unique_ptr<rcs::client_trans_queue_type>(new rcs::client_trans_queue_type(config_.server_msg_queue_length))),
-	    std::move(std::unique_ptr<rcs::server_status_queue_type>(new rcs::server_status_queue_type(config_.server_msg_queue_length))),
-	    std::move(std::unique_ptr<rcs::server_trans_queue_type>(new rcs::server_trans_queue_type(config_.server_msg_queue_length))),
-	    std::move(kj::heapArray<capnp::word>(config_.bot_msg_buffer_length)),
-	    std::move(kj::heapArray<capnp::word>(config_.server_msg_buffer_length)),
+	    &bot_input_producer_,
+	    &bot_output_consumer_,
+	    &client_status_producer_,
+	    &client_trans_producer_,
+	    &server_status_consumer_,
+	    &server_trans_consumer_,
+	    std::move(std::unique_ptr<bme::buffer_pool>(new bme::buffer_pool(config_.bot_msg_word_length, config_.bot_msg_buffer_capacity))),
+	    std::move(std::unique_ptr<bme::buffer_pool>(new bme::buffer_pool(config_.bot_msg_word_length, config_.bot_msg_buffer_capacity))),
+	    std::move(std::unique_ptr<bme::buffer_pool>(new bme::buffer_pool(config_.server_msg_word_length, config_.server_msg_buffer_capacity))),
+	    std::move(std::unique_ptr<bme::buffer_pool>(new bme::buffer_pool(config_.server_msg_word_length, config_.server_msg_buffer_capacity))),
 	    rcl::event::state::nobot_unregistered
 	},
 	notifier_(),
 	bot_(std::move(bot)),
-	bot_io_(bot_.in, bot_.out, handle_.bot_input_queue->get_consumer(), handle_.bot_output_queue->get_producer()),
+	bot_io_(config_, bot_.in, bot_.out, bot_input_queue_.get_consumer(), bot_output_queue_.get_producer()),
 	server_io_(
-		handle_.server_status_queue->get_producer(),
-		handle_.server_trans_queue->get_producer(),
-		handle_.client_status_queue->get_consumer(),
-		handle_.client_trans_queue->get_consumer(),
+		server_status_queue_.get_producer(),
+		server_trans_queue_.get_producer(),
+		client_status_queue_.get_consumer(),
+		client_trans_queue_.get_consumer(),
 		config_)
 {
     // TODO: setup SIGCHLD handling
@@ -171,9 +199,9 @@ void client::run()
     handle_ = std::move(rcl::event::up_cast(rcl::event::spawned(
 	    rcl::event::down_cast<rcl::event::state::nobot_unregistered>(std::move(handle_)),
 	    config_)));
-    std::unique_ptr<bme::capnproto<rbc::BotOutput>> bot_output;
-    std::unique_ptr<bme::capnproto<rcs::ServerStatus>> server_status;
-    std::unique_ptr<bme::capnproto<rcs::ServerTransaction>> server_trans;
+    bmc::payload<rbc::BotOutput> bot_payload;
+    bmc::payload<rcs::ServerStatus> status_payload;
+    bmc::payload<rcs::ServerTransaction> trans_payload;
     std::chrono:: high_resolution_clock::time_point next_frame_time = std::chrono::high_resolution_clock::now() + config_.frame_duration;
     asio::io_service service;
     asio::high_resolution_timer timer(service);
@@ -183,23 +211,24 @@ void client::run()
     {
 	timer.expires_at(next_frame_time);
 	timer.wait();
-	if (handle_.bot_output_queue->get_consumer().try_dequeue_move(bot_output) == rbc::bot_output_queue_type::consumer::result::success)
+	if (bot_output_consumer_.try_dequeue_move(bot_payload) == rbc::bot_output_queue_type::consumer::result::success)
 	{
+	    bmc::statement<rbc::BotOutput> bot_output(std::move(bot_payload));
 	    if (handle_.client_state == rcl::event::state::withbot_playing)
 	    {
-		if (bot_output->get_reader().isAction())
+		if (bot_output.read().isAction())
 		{
 		    handle_ = std::move(rcl::event::up_cast(rcl::event::control_actioned(
 			    rcl::event::down_cast<rcl::event::state::withbot_playing>(std::move(handle_)),
-			    bot_output->get_reader().getAction())));
+			    bot_output.read().getAction())));
 		}
-		else if (bot_output->get_reader().isQuery())
+		else if (bot_output.read().isQuery())
 		{
 		    handle_ = std::move(rcl::event::up_cast(rcl::event::query_requested(
 			    rcl::event::down_cast<rcl::event::state::withbot_playing>(std::move(handle_)),
-			    bot_output->get_reader().getQuery())));
+			    bot_output.read().getQuery())));
 		}
-		else if (bot_output->get_reader().isCrash())
+		else if (bot_output.read().isCrash())
 		{
 		    handle_ = std::move(rcl::event::up_cast(rcl::event::bot_crashed(
 			    rcl::event::down_cast<rcl::event::state::withbot_playing>(std::move(handle_)))));
@@ -207,13 +236,13 @@ void client::run()
 	    }
 	    else if (handle_.client_state == rcl::event::state::withbot_onbench)
 	    {
-		if (bot_output->get_reader().isQuery())
+		if (bot_output.read().isQuery())
 		{
 		    handle_ = std::move(rcl::event::up_cast(rcl::event::query_requested(
 			    rcl::event::down_cast<rcl::event::state::withbot_onbench>(std::move(handle_)),
-			    bot_output->get_reader().getQuery())));
+			    bot_output.read().getQuery())));
 		}
-		else if (bot_output->get_reader().isCrash())
+		else if (bot_output.read().isCrash())
 		{
 		    handle_ = std::move(rcl::event::up_cast(rcl::event::bot_crashed(
 			    rcl::event::down_cast<rcl::event::state::withbot_onbench>(std::move(handle_)))));
@@ -221,50 +250,52 @@ void client::run()
 	    }
 	    else if (handle_.client_state == rcl::event::state::withbot_unregistered)
 	    {
-		if (bot_output->get_reader().isShutDown())
+		if (bot_output.read().isShutDown())
 		{
 		    handle_ = std::move(rcl::event::up_cast(rcl::event::bot_terminated(
 			    rcl::event::down_cast<rcl::event::state::withbot_unregistered>(std::move(handle_)))));
 		}
-		else if (bot_output->get_reader().isCrash())
+		else if (bot_output.read().isCrash())
 		{
 		    handle_ = std::move(rcl::event::up_cast(rcl::event::bot_crashed(
 			    rcl::event::down_cast<rcl::event::state::withbot_unregistered>(std::move(handle_)))));
 		}
 	    }
 	}
-	if (handle_.server_status_queue->get_consumer().try_dequeue_move(server_status) == rcs::server_status_queue_type::consumer::result::success)
+	if (server_status_consumer_.try_dequeue_move(status_payload) == rcs::server_status_queue_type::consumer::result::success)
 	{
+	    bmc::statement<rcs::ServerStatus> server_status(std::move(status_payload));
 	    if (handle_.client_state == rcl::event::state::withbot_playing)
 	    {
 		handle_ = std::move(rcl::event::up_cast(rcl::event::received_snapshot(
 			rcl::event::down_cast<rcl::event::state::withbot_playing>(std::move(handle_)),
-			server_status->get_reader())));
+			server_status.read())));
 	    }
 	}
-	if (handle_.server_trans_queue->get_consumer().try_dequeue_move(server_trans) == rcs::server_trans_queue_type::consumer::result::success)
+	if (server_trans_consumer_.try_dequeue_move(trans_payload) == rcs::server_trans_queue_type::consumer::result::success)
 	{
+	    bmc::statement<rcs::ServerTransaction> server_trans(std::move(trans_payload));
 	    if (handle_.client_state == rcl::event::state::withbot_playing)
 	    {
-		if (server_trans->get_reader().isPlayJudgement())
+		if (server_trans.read().isPlayJudgement())
 		{
 		    handle_ = std::move(rcl::event::up_cast(rcl::event::play_judged(
 			    rcl::event::down_cast<rcl::event::state::withbot_playing>(std::move(handle_)),
-			    server_trans->get_reader().getPlayJudgement())));
+			    server_trans.read().getPlayJudgement())));
 		}
-		else if (server_trans->get_reader().isMatchClose())
+		else if (server_trans.read().isMatchClose())
 		{
 		    handle_ = std::move(rcl::event::up_cast(rcl::event::match_closed(
 			    rcl::event::down_cast<rcl::event::state::withbot_playing>(std::move(handle_)),
-			    server_trans->get_reader().getMatchClose())));
+			    server_trans.read().getMatchClose())));
 		}
-		else if (server_trans->get_reader().isMatchAbort())
+		else if (server_trans.read().isMatchAbort())
 		{
 		    handle_ = std::move(rcl::event::up_cast(rcl::event::match_aborted(
 			    rcl::event::down_cast<rcl::event::state::withbot_playing>(std::move(handle_)),
-			    server_trans->get_reader().getMatchAbort())));
+			    server_trans.read().getMatchAbort())));
 		}
-		else if (server_trans->get_reader().isDisconnect())
+		else if (server_trans.read().isDisconnect())
 		{
 		    handle_ = std::move(rcl::event::up_cast(rcl::event::disconnected(
 			    rcl::event::down_cast<rcl::event::state::withbot_playing>(std::move(handle_)))));
@@ -272,19 +303,19 @@ void client::run()
 	    }
 	    else if (handle_.client_state == rcl::event::state::withbot_onbench)
 	    {
-		if (server_trans->get_reader().isFieldOpen())
+		if (server_trans.read().isFieldOpen())
 		{
 		    handle_ = std::move(rcl::event::up_cast(rcl::event::field_opened(
 			    rcl::event::down_cast<rcl::event::state::withbot_onbench>(std::move(handle_)),
-			    server_trans->get_reader().getFieldOpen())));
+			    server_trans.read().getFieldOpen())));
 		}
-		else if (server_trans->get_reader().isMatchAbort())
+		else if (server_trans.read().isMatchAbort())
 		{
 		    handle_ = std::move(rcl::event::up_cast(rcl::event::match_aborted(
 			    rcl::event::down_cast<rcl::event::state::withbot_onbench>(std::move(handle_)),
-			    server_trans->get_reader().getMatchAbort())));
+			    server_trans.read().getMatchAbort())));
 		}
-		else if (server_trans->get_reader().isDisconnect())
+		else if (server_trans.read().isDisconnect())
 		{
 		    handle_ = std::move(rcl::event::up_cast(rcl::event::disconnected(
 			    rcl::event::down_cast<rcl::event::state::withbot_onbench>(std::move(handle_)))));
@@ -292,7 +323,7 @@ void client::run()
 	    }
 	    else if (handle_.client_state == rcl::event::state::nobot_onbench)
 	    {
-		if (server_trans->get_reader().isDisconnect())
+		if (server_trans.read().isDisconnect())
 		{
 		    handle_ = std::move(rcl::event::up_cast(rcl::event::disconnected(
 			    rcl::event::down_cast<rcl::event::state::nobot_onbench>(std::move(handle_)))));
@@ -300,16 +331,16 @@ void client::run()
 	    }
 	    else if (handle_.client_state == rcl::event::state::withbot_unregistered)
 	    {
-		if (server_trans->get_reader().isRegSuccess())
+		if (server_trans.read().isRegSuccess())
 		{
 		    handle_ = std::move(rcl::event::up_cast(rcl::event::registration_succeeded(
 			    rcl::event::down_cast<rcl::event::state::withbot_unregistered>(std::move(handle_)))));
 		}
-		else if (server_trans->get_reader().isRegError())
+		else if (server_trans.read().isRegError())
 		{
 		    handle_ = std::move(rcl::event::up_cast(rcl::event::registration_failed(
 			    rcl::event::down_cast<rcl::event::state::withbot_unregistered>(std::move(handle_)),
-			    server_trans->get_reader().getRegError())));
+			    server_trans.read().getRegError())));
 		}
 	    }
 	}

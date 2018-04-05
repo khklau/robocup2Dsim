@@ -5,70 +5,95 @@
 #include <robocup2Dsim/common/metadata.capnp.h>
 #include <robocup2Dsim/csprotocol/command.capnp.h>
 #include <robocup2Dsim/csprotocol/protocol.capnp.h>
+#include <turbo/algorithm/recovery.hpp>
+#include <turbo/algorithm/recovery.hxx>
 
+namespace bmc = beam::message::capnproto;
 namespace rbc = robocup2Dsim::bcprotocol;
 namespace rce = robocup2Dsim::common::entity;
 namespace rcl = robocup2Dsim::client;
 namespace rco = robocup2Dsim::common;
 namespace rcs = robocup2Dsim::csprotocol;
+namespace tar = turbo::algorithm::recovery;
 
 namespace robocup2Dsim {
 namespace client {
 namespace event {
 
 basic_handle::basic_handle(
-	decltype(bot_input_queue) bot_in,
-	decltype(bot_output_queue) bot_out,
-	decltype(client_status_queue) client_status,
-	decltype(client_trans_queue) client_trans,
-	decltype(server_status_queue) server_status,
-	decltype(server_trans_queue) server_trans,
-	decltype(bot_msg_buffer) bot_msg,
-	decltype(server_msg_buffer) server_msg,
+	decltype(bot_input_producer) bot_in,
+	decltype(bot_output_consumer) bot_out,
+	decltype(client_status_producer) client_status,
+	decltype(client_trans_producer) client_trans,
+	decltype(server_status_consumer) server_status,
+	decltype(server_trans_consumer) server_trans,
+	decltype(bot_inbound_buffer_pool)&& bot_inbound_pool,
+	decltype(bot_outbound_buffer_pool)&& bot_outbound_pool,
+	decltype(client_outbound_buffer_pool)&& client_outbound_pool,
+	decltype(server_inbound_buffer_pool)&& server_inbound_pool,
 	state my_state)
     :
-	bot_input_queue(std::move(bot_in)),
-	bot_output_queue(std::move(bot_out)),
-	client_status_queue(std::move(client_status)),
-	client_trans_queue(std::move(client_trans)),
-	server_status_queue(std::move(server_status)),
-	server_trans_queue(std::move(server_trans)),
-	bot_msg_buffer(std::move(bot_msg)),
-	server_msg_buffer(std::move(server_msg)),
+	bot_input_producer(bot_in),
+	bot_output_consumer(bot_out),
+	client_status_producer(client_status),
+	client_trans_producer(client_trans),
+	server_status_consumer(server_status),
+	server_trans_consumer(server_trans),
+	bot_inbound_buffer_pool(std::move(bot_inbound_pool)),
+	bot_outbound_buffer_pool(std::move(bot_outbound_pool)),
+	client_outbound_buffer_pool(std::move(client_outbound_buffer_pool)),
+	server_inbound_buffer_pool(std::move(server_inbound_pool)),
 	client_state(my_state)
 { }
 
 
 basic_handle::basic_handle(basic_handle&& other) :
-	bot_input_queue(std::move(other.bot_input_queue)),
-	bot_output_queue(std::move(other.bot_output_queue)),
-	client_status_queue(std::move(other.client_status_queue)),
-	client_trans_queue(std::move(other.client_trans_queue)),
-	server_status_queue(std::move(other.server_status_queue)),
-	server_trans_queue(std::move(other.server_trans_queue)),
-	bot_msg_buffer(std::move(other.bot_msg_buffer)),
-	server_msg_buffer(std::move(other.server_msg_buffer)),
+	bot_input_producer(other.bot_input_producer),
+	bot_output_consumer(other.bot_output_consumer),
+	client_status_producer(other.client_status_producer),
+	client_trans_producer(other.client_trans_producer),
+	server_status_consumer(other.server_status_consumer),
+	server_trans_consumer(other.server_trans_consumer),
+	bot_inbound_buffer_pool(std::move(other.bot_inbound_buffer_pool)),
+	bot_outbound_buffer_pool(std::move(other.bot_outbound_buffer_pool)),
+	client_outbound_buffer_pool(std::move(other.client_outbound_buffer_pool)),
+	server_inbound_buffer_pool(std::move(other.server_inbound_buffer_pool)),
 	client_state(other.client_state)
-{ }
+{
+    other.bot_input_producer = nullptr;
+    other.bot_output_consumer = nullptr;
+    other.client_status_producer = nullptr;
+    other.client_trans_producer = nullptr;
+    other.server_status_consumer = nullptr;
+    other.server_trans_consumer = nullptr;
+}
 
 basic_handle& basic_handle::operator=(basic_handle&& other)
 {
-    bot_input_queue = std::move(other.bot_input_queue);
-    bot_output_queue = std::move(other.bot_output_queue);
-    client_status_queue = std::move(other.client_status_queue);
-    client_trans_queue = std::move(other.client_trans_queue);
-    server_status_queue = std::move(other.server_status_queue);
-    server_trans_queue = std::move(other.server_trans_queue);
-    bot_msg_buffer = std::move(other.bot_msg_buffer);
-    server_msg_buffer = std::move(other.server_msg_buffer);
+    bot_input_producer = other.bot_input_producer;
+    bot_output_consumer = other.bot_output_consumer;
+    client_status_producer = other.client_status_producer;
+    client_trans_producer = other.client_trans_producer;
+    server_status_consumer = other.server_status_consumer;
+    server_trans_consumer = other.server_trans_consumer;
+    bot_inbound_buffer_pool = std::move(other.bot_inbound_buffer_pool);
+    bot_outbound_buffer_pool = std::move(other.bot_outbound_buffer_pool);
+    client_outbound_buffer_pool = std::move(other.client_outbound_buffer_pool);
+    server_inbound_buffer_pool = std::move(other.server_inbound_buffer_pool);
     client_state = other.client_state;
+    other.bot_input_producer = nullptr;
+    other.bot_output_consumer = nullptr;
+    other.client_status_producer = nullptr;
+    other.client_trans_producer = nullptr;
+    other.server_status_consumer = nullptr;
+    other.server_trans_consumer = nullptr;
     return *this;
 }
 
 handle<state::withbot_unregistered>&& spawned(handle<state::nobot_unregistered>&& input, const rcl::config& conf)
 {
-    capnp::MallocMessageBuilder builder(input.server_msg_buffer.asPtr());
-    rcs::ClientTransaction::Builder trans = builder.initRoot<rcs::ClientTransaction>();
+    bmc::form<rcs::ClientTransaction> form(std::move(input.client_outbound_buffer_pool->borrow()));
+    rcs::ClientTransaction::Builder trans = form.build();
     rcs::RegistrationRequest::Builder request = trans.initRegistration();
     rco::command::Registration::Builder reg = request.initDetails();
     rco::metadata::Version::Builder version = reg.initVersion();
@@ -79,6 +104,18 @@ handle<state::withbot_unregistered>&& spawned(handle<state::nobot_unregistered>&
     reg.setTeamName(conf.team);
     reg.setUniform(conf.uniform);
     reg.setPlayerType(conf.goalie ? rce::PlayerType::GOAL_KEEPER : rce::PlayerType::OUT_FIELD);
+    bmc::payload<rcs::ClientTransaction> payload(std::move(bmc::serialise(*(input.client_outbound_buffer_pool), form)));
+    tar::retry_with_random_backoff([&]()
+    {
+	if (input.client_trans_producer->try_enqueue_move(std::move(payload)) == rcs::client_trans_queue_type::producer::result::success)
+	{
+	    return tar::try_state::done;
+	}
+	else
+	{
+	    return tar::try_state::retry;
+	}
+    });
     handle<state::withbot_unregistered> output(std::move(input));
     return std::move(output);
 }
