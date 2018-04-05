@@ -233,6 +233,8 @@ ren::physics_ptr<ren::dynamics::body> make_center_circle(
     make_marker_sensor(physics, entity_id, *body, ren::physics::vec2(-radius, 0), entity::fixture_name::left_marker);
     make_marker_sensor(physics, entity_id, *body, ren::physics::vec2(radius, 0), entity::fixture_name::right_marker);
     make_marker_sensor(physics, entity_id, *body, ren::physics::vec2(0, -radius), entity::fixture_name::bottom_marker);
+
+    return std::move(body);
 }
 
 ren::physics_ptr<ren::dynamics::body> make_boundary(
@@ -297,6 +299,8 @@ ren::physics_ptr<ren::dynamics::body> make_boundary(
     right_bottom_vertices[2].Set(484, 16);
     right_bottom_vertices[3].Set(482, 16);
     make_ball_sensor(physics, entity_id, *body, right_bottom_vertices, entity::fixture_name::right_bottom_line);
+
+    return std::move(body);
 }
 
 ren::physics_ptr<ren::dynamics::body> make_penalty_box(
