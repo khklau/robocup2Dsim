@@ -237,10 +237,13 @@ ren::physics_ptr<ren::dynamics::body> make_center_circle(
     return std::move(body);
 }
 
+///
+/// FIXME: use the length and width parameters
+///
 ren::physics_ptr<ren::dynamics::body> make_boundary(
 	rru::ecs_db& db,
-	float length,
-	float width,
+	float,
+	float,
 	const ren::physics::vec2& position)
 {
     ren::physics& physics = ren::update_physics_instance(db);
