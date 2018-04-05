@@ -41,7 +41,7 @@ basic_handle::basic_handle(
 	server_trans_consumer(server_trans),
 	bot_inbound_buffer_pool(std::move(bot_inbound_pool)),
 	bot_outbound_buffer_pool(std::move(bot_outbound_pool)),
-	client_outbound_buffer_pool(std::move(client_outbound_buffer_pool)),
+	client_outbound_buffer_pool(std::move(client_outbound_pool)),
 	server_inbound_buffer_pool(std::move(server_inbound_pool)),
 	client_state(my_state)
 { }
