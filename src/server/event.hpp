@@ -1,5 +1,5 @@
-#ifndef ROBOCUP2DSIM_SERVER_ENGINE_HPP
-#define ROBOCUP2DSIM_SERVER_ENGINE_HPP
+#ifndef ROBOCUP2DSIM_SERVER_EVENT_HPP
+#define ROBOCUP2DSIM_SERVER_EVENT_HPP
 
 #include <cstdint>
 #include <functional>
@@ -16,7 +16,7 @@
 
 namespace robocup2Dsim {
 namespace server {
-namespace engine {
+namespace event {
 
 enum class state : uint8_t
 {
@@ -37,7 +37,7 @@ public:
     std::unique_ptr<robocup2Dsim::csprotocol::server_trans_queue_type> server_trans_queue;
     std::unique_ptr<robocup2Dsim::server::enrollment> enrollment;
     std::unique_ptr<robocup2Dsim::server::roster> roster;
-    state engine_state;
+    state event_state;
     basic_handle(
 	    decltype(ref_input_queue) ref_in,
 	    decltype(ref_output_queue) ref_out,
@@ -82,7 +82,7 @@ inline basic_handle&& up_cast(handle<state_value>&& from)
 template <state state_value>
 inline handle<state_value>&& down_cast(basic_handle&& from)
 {
-    if (TURBO_LIKELY(from.engine_state == state_value))
+    if (TURBO_LIKELY(from.event_state == state_value))
     {
 	return static_cast<handle<state_value>&&>(from);
     }
@@ -120,7 +120,7 @@ handle<state::noref_playing>&& snapshot_timedout(handle<state::noref_playing>&& 
 handle<state::noref_playing>&& registration_requested(handle<state::noref_playing>&& input, const robocup2Dsim::csprotocol::RegistrationRequest::Reader& reader);
 handle<state::noref_playing>&& disconnected(handle<state::noref_playing>&& input);
 
-} // namespace engine
+} // namespace event
 } // namespace server
 } // namespace robocup2Dsim
 

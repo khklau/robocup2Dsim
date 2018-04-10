@@ -1,13 +1,13 @@
-#ifndef ROBOCUP2DSIM_SERVER_ENGINE_HXX
-#define ROBOCUP2DSIM_SERVER_ENGINE_HXX
+#ifndef ROBOCUP2DSIM_SERVER_EVENT_HXX
+#define ROBOCUP2DSIM_SERVER_EVENT_HXX
 
-#include "engine.hpp"
+#include "event.hpp"
 #include <beam/message/capnproto.hxx>
 #include <turbo/container/spsc_ring_queue.hxx>
 
 namespace robocup2Dsim {
 namespace server {
-namespace engine {
+namespace event {
 
 template <state state_value>
 handle<state_value>::handle(
@@ -45,7 +45,7 @@ handle<state_value>::handle(handle<other_value>&& other) :
 	}
 { }
 
-} // namespace engine
+} // namespace event
 } // namespace server
 } // namespace robocup2Dsim
 

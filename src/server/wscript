@@ -41,7 +41,7 @@ def build(buildCtx):
     buildCtx.program(
 	    name='exe_robocup2Dsim_server',
 	    source=[buildCtx.path.find_node('main.cxx'),
-		    buildCtx.path.find_node('engine.cxx'),
+		    buildCtx.path.find_node('event.cxx'),
 		    buildCtx.path.find_node('client_io.cxx'),
 		    buildCtx.path.find_node('ref_io.cxx')],
 	    target=os.path.join(buildCtx.env.component.build_tree.binPathFromBuild(buildCtx), 'robocup2Dsim_server'),

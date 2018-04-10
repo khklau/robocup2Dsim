@@ -27,8 +27,8 @@
 #include <robocup2Dsim/engine/physics.hpp>
 #include "client_io.hpp"
 #include "config.hpp"
-#include "engine.hpp"
-#include "engine.hxx"
+#include "event.hpp"
+#include "event.hxx"
 #include "ref_io.hpp"
 
 namespace bme = beam::message;
@@ -100,7 +100,7 @@ public:
     void run();
 private:
     const rse::config config_;
-    rse::engine::basic_handle handle_;
+    rse::event::basic_handle handle_;
     tip::signal_notifier notifier_;
     tpp::child ref_;
     rse::ref_io ref_io_;
@@ -117,7 +117,7 @@ server::server(const rse::config& config, tpp::child&& ref) :
 	    std::move(std::unique_ptr<rcs::client_trans_queue_type>(new rcs::client_trans_queue_type(config_.client_msg_queue_length))),
 	    std::move(std::unique_ptr<rcs::server_status_queue_type>(new rcs::server_status_queue_type(config_.client_msg_queue_length))),
 	    std::move(std::unique_ptr<rcs::server_trans_queue_type>(new rcs::server_trans_queue_type(config_.client_msg_queue_length))),
-	    rse::engine::state::withref_waiting
+	    rse::event::state::withref_waiting
 	},
 	notifier_(),
 	ref_(std::move(ref)),
@@ -150,173 +150,173 @@ void server::run()
 	timer.wait();
 	if (handle_.ref_output_queue->get_consumer().try_dequeue_move(ref_output) == rsr::ref_output_queue_type::consumer::result::success)
 	{
-	    if (handle_.engine_state == rse::engine::state::noref_waiting)
+	    if (handle_.event_state == rse::event::state::noref_waiting)
 	    {
 		if (ref_output->get_reader().isRefReady())
 		{
-		    handle_ = std::move(rse::engine::up_cast(rse::engine::ref_ready(
-			    rse::engine::down_cast<rse::engine::state::noref_waiting>(std::move(handle_)))));
+		    handle_ = std::move(rse::event::up_cast(rse::event::ref_ready(
+			    rse::event::down_cast<rse::event::state::noref_waiting>(std::move(handle_)))));
 		}
 	    }
-	    if (handle_.engine_state == rse::engine::state::withref_waiting)
+	    if (handle_.event_state == rse::event::state::withref_waiting)
 	    {
 		if (ref_output->get_reader().isFieldOpen())
 		{
-		    handle_ = std::move(rse::engine::up_cast(rse::engine::field_opened(
-			    rse::engine::down_cast<rse::engine::state::withref_waiting>(std::move(handle_)),
+		    handle_ = std::move(rse::event::up_cast(rse::event::field_opened(
+			    rse::event::down_cast<rse::event::state::withref_waiting>(std::move(handle_)),
 			    ref_output->get_reader().getFieldOpen())));
 		}
 		if (ref_output->get_reader().isRefCrashed())
 		{
-		    handle_ = std::move(rse::engine::up_cast(rse::engine::ref_crashed(
-			    rse::engine::down_cast<rse::engine::state::withref_waiting>(std::move(handle_)))));
+		    handle_ = std::move(rse::event::up_cast(rse::event::ref_crashed(
+			    rse::event::down_cast<rse::event::state::withref_waiting>(std::move(handle_)))));
 		}
 	    }
-	    if (handle_.engine_state == rse::engine::state::withref_playing)
+	    if (handle_.event_state == rse::event::state::withref_playing)
 	    {
 		if (ref_output->get_reader().isPlayJudgement())
 		{
-		    handle_ = std::move(rse::engine::up_cast(rse::engine::play_judged(
-			    rse::engine::down_cast<rse::engine::state::withref_playing>(std::move(handle_)),
+		    handle_ = std::move(rse::event::up_cast(rse::event::play_judged(
+			    rse::event::down_cast<rse::event::state::withref_playing>(std::move(handle_)),
 			    ref_output->get_reader().getPlayJudgement())));
 		}
 		if (ref_output->get_reader().isMatchClose())
 		{
-		    handle_ = std::move(rse::engine::up_cast(rse::engine::match_closed(
-			    rse::engine::down_cast<rse::engine::state::withref_playing>(std::move(handle_)),
+		    handle_ = std::move(rse::event::up_cast(rse::event::match_closed(
+			    rse::event::down_cast<rse::event::state::withref_playing>(std::move(handle_)),
 			    ref_output->get_reader().getMatchClose())));
 		}
 		if (ref_output->get_reader().isMatchAbort())
 		{
-		    handle_ = std::move(rse::engine::up_cast(rse::engine::match_aborted(
-			    rse::engine::down_cast<rse::engine::state::withref_playing>(std::move(handle_)),
+		    handle_ = std::move(rse::event::up_cast(rse::event::match_aborted(
+			    rse::event::down_cast<rse::event::state::withref_playing>(std::move(handle_)),
 			    ref_output->get_reader().getMatchAbort())));
 		}
 		if (ref_output->get_reader().isRefCrashed())
 		{
-		    handle_ = std::move(rse::engine::up_cast(rse::engine::ref_crashed(
-			    rse::engine::down_cast<rse::engine::state::withref_playing>(std::move(handle_)))));
+		    handle_ = std::move(rse::event::up_cast(rse::event::ref_crashed(
+			    rse::event::down_cast<rse::event::state::withref_playing>(std::move(handle_)))));
 		}
 	    }
-	    if (handle_.engine_state == rse::engine::state::noref_playing)
+	    if (handle_.event_state == rse::event::state::noref_playing)
 	    {
 		if (ref_output->get_reader().isRefReady())
 		{
-		    handle_ = std::move(rse::engine::up_cast(rse::engine::ref_ready(
-			    rse::engine::down_cast<rse::engine::state::noref_playing>(std::move(handle_)))));
+		    handle_ = std::move(rse::event::up_cast(rse::event::ref_ready(
+			    rse::event::down_cast<rse::event::state::noref_playing>(std::move(handle_)))));
 		}
 	    }
 	}
 	if (handle_.client_status_queue->get_consumer().try_dequeue_move(client_status) == rcs::client_status_queue_type::consumer::result::success)
 	{
-	    if (handle_.engine_state == rse::engine::state::withref_playing)
+	    if (handle_.event_state == rse::event::state::withref_playing)
 	    {
-		handle_ = std::move(rse::engine::up_cast(rse::engine::status_uploaded(
-			rse::engine::down_cast<rse::engine::state::withref_playing>(std::move(handle_)),
+		handle_ = std::move(rse::event::up_cast(rse::event::status_uploaded(
+			rse::event::down_cast<rse::event::state::withref_playing>(std::move(handle_)),
 			client_status->get_reader())));
 	    }
-	    if (handle_.engine_state == rse::engine::state::noref_playing)
+	    if (handle_.event_state == rse::event::state::noref_playing)
 	    {
-		handle_ = std::move(rse::engine::up_cast(rse::engine::status_uploaded(
-			rse::engine::down_cast<rse::engine::state::noref_playing>(std::move(handle_)),
+		handle_ = std::move(rse::event::up_cast(rse::event::status_uploaded(
+			rse::event::down_cast<rse::event::state::noref_playing>(std::move(handle_)),
 			client_status->get_reader())));
 	    }
 	}
 	if (handle_.client_trans_queue->get_consumer().try_dequeue_move(client_trans) == rcs::client_trans_queue_type::consumer::result::success)
 	{
-	    if (handle_.engine_state == rse::engine::state::noref_waiting)
+	    if (handle_.event_state == rse::event::state::noref_waiting)
 	    {
 		if (client_trans->get_reader().isRegistration())
 		{
-		    handle_ = std::move(rse::engine::up_cast(rse::engine::registration_requested(
-			    rse::engine::down_cast<rse::engine::state::noref_waiting>(std::move(handle_)),
+		    handle_ = std::move(rse::event::up_cast(rse::event::registration_requested(
+			    rse::event::down_cast<rse::event::state::noref_waiting>(std::move(handle_)),
 			    client_trans->get_reader().getRegistration())));
 		}
 		if (client_trans->get_reader().isDisconnect())
 		{
-		    handle_ = std::move(rse::engine::up_cast(rse::engine::disconnected(
-			    rse::engine::down_cast<rse::engine::state::noref_waiting>(std::move(handle_)))));
+		    handle_ = std::move(rse::event::up_cast(rse::event::disconnected(
+			    rse::event::down_cast<rse::event::state::noref_waiting>(std::move(handle_)))));
 		}
 	    }
-	    if (handle_.engine_state == rse::engine::state::withref_waiting)
+	    if (handle_.event_state == rse::event::state::withref_waiting)
 	    {
 		if (client_trans->get_reader().isRegistration())
 		{
-		    handle_ = std::move(rse::engine::up_cast(rse::engine::registration_requested(
-			    rse::engine::down_cast<rse::engine::state::withref_waiting>(std::move(handle_)),
+		    handle_ = std::move(rse::event::up_cast(rse::event::registration_requested(
+			    rse::event::down_cast<rse::event::state::withref_waiting>(std::move(handle_)),
 			    client_trans->get_reader().getRegistration())));
 		}
 		if (client_trans->get_reader().isDisconnect())
 		{
-		    handle_ = std::move(rse::engine::up_cast(rse::engine::disconnected(
-			    rse::engine::down_cast<rse::engine::state::withref_waiting>(std::move(handle_)))));
+		    handle_ = std::move(rse::event::up_cast(rse::event::disconnected(
+			    rse::event::down_cast<rse::event::state::withref_waiting>(std::move(handle_)))));
 		}
 	    }
-	    if (handle_.engine_state == rse::engine::state::withref_playing)
+	    if (handle_.event_state == rse::event::state::withref_playing)
 	    {
 		if (client_trans->get_reader().isAction())
 		{
-		    handle_ = std::move(rse::engine::up_cast(rse::engine::control_actioned(
-			    rse::engine::down_cast<rse::engine::state::withref_playing>(std::move(handle_)),
+		    handle_ = std::move(rse::event::up_cast(rse::event::control_actioned(
+			    rse::event::down_cast<rse::event::state::withref_playing>(std::move(handle_)),
 			    client_trans->get_reader().getAction())));
 		}
 		if (client_trans->get_reader().isRegistration())
 		{
-		    handle_ = std::move(rse::engine::up_cast(rse::engine::registration_requested(
-			    rse::engine::down_cast<rse::engine::state::withref_playing>(std::move(handle_)),
+		    handle_ = std::move(rse::event::up_cast(rse::event::registration_requested(
+			    rse::event::down_cast<rse::event::state::withref_playing>(std::move(handle_)),
 			    client_trans->get_reader().getRegistration())));
 		}
 		if (client_trans->get_reader().isDisconnect())
 		{
-		    handle_ = std::move(rse::engine::up_cast(rse::engine::disconnected(
-			    rse::engine::down_cast<rse::engine::state::withref_playing>(std::move(handle_)))));
+		    handle_ = std::move(rse::event::up_cast(rse::event::disconnected(
+			    rse::event::down_cast<rse::event::state::withref_playing>(std::move(handle_)))));
 		}
 	    }
-	    if (handle_.engine_state == rse::engine::state::noref_playing)
+	    if (handle_.event_state == rse::event::state::noref_playing)
 	    {
 		if (client_trans->get_reader().isAction())
 		{
-		    handle_ = std::move(rse::engine::up_cast(rse::engine::control_actioned(
-			    rse::engine::down_cast<rse::engine::state::noref_playing>(std::move(handle_)),
+		    handle_ = std::move(rse::event::up_cast(rse::event::control_actioned(
+			    rse::event::down_cast<rse::event::state::noref_playing>(std::move(handle_)),
 			    client_trans->get_reader().getAction())));
 		}
 		if (client_trans->get_reader().isRegistration())
 		{
-		    handle_ = std::move(rse::engine::up_cast(rse::engine::registration_requested(
-			    rse::engine::down_cast<rse::engine::state::noref_playing>(std::move(handle_)),
+		    handle_ = std::move(rse::event::up_cast(rse::event::registration_requested(
+			    rse::event::down_cast<rse::event::state::noref_playing>(std::move(handle_)),
 			    client_trans->get_reader().getRegistration())));
 		}
 		if (client_trans->get_reader().isDisconnect())
 		{
-		    handle_ = std::move(rse::engine::up_cast(rse::engine::disconnected(
-			    rse::engine::down_cast<rse::engine::state::noref_playing>(std::move(handle_)))));
+		    handle_ = std::move(rse::event::up_cast(rse::event::disconnected(
+			    rse::event::down_cast<rse::event::state::noref_playing>(std::move(handle_)))));
 		}
 	    }
 	}
-	if (handle_.engine_state == rse::engine::state::withref_playing)
+	if (handle_.event_state == rse::event::state::withref_playing)
 	{
 	    if (frame % config_.simulation_frequency == config_.simulation_start_frame)
 	    {
-		handle_ = std::move(rse::engine::up_cast(rse::engine::simulation_timedout(
-			rse::engine::down_cast<rse::engine::state::withref_playing>(std::move(handle_)))));
+		handle_ = std::move(rse::event::up_cast(rse::event::simulation_timedout(
+			rse::event::down_cast<rse::event::state::withref_playing>(std::move(handle_)))));
 	    }
 	    if (frame % config_.snapshot_frequency == config_.snapshot_start_frame)
 	    {
-		handle_ = std::move(rse::engine::up_cast(rse::engine::snapshot_timedout(
-			rse::engine::down_cast<rse::engine::state::withref_playing>(std::move(handle_)))));
+		handle_ = std::move(rse::event::up_cast(rse::event::snapshot_timedout(
+			rse::event::down_cast<rse::event::state::withref_playing>(std::move(handle_)))));
 	    }
 	}
-	if (handle_.engine_state == rse::engine::state::noref_playing)
+	if (handle_.event_state == rse::event::state::noref_playing)
 	{
 	    if (frame % config_.simulation_frequency == config_.simulation_start_frame)
 	    {
-		handle_ = std::move(rse::engine::up_cast(rse::engine::simulation_timedout(
-			rse::engine::down_cast<rse::engine::state::noref_playing>(std::move(handle_)))));
+		handle_ = std::move(rse::event::up_cast(rse::event::simulation_timedout(
+			rse::event::down_cast<rse::event::state::noref_playing>(std::move(handle_)))));
 	    }
 	    if (frame % config_.snapshot_frequency == config_.snapshot_start_frame)
 	    {
-		handle_ = std::move(rse::engine::up_cast(rse::engine::snapshot_timedout(
-			rse::engine::down_cast<rse::engine::state::noref_playing>(std::move(handle_)))));
+		handle_ = std::move(rse::event::up_cast(rse::event::snapshot_timedout(
+			rse::event::down_cast<rse::event::state::noref_playing>(std::move(handle_)))));
 	    }
 	}
 	next_frame_time += config_.frame_duration;
