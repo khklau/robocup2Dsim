@@ -22,46 +22,27 @@ handle<state_value>::handle(
 	decltype(client_outbound_buffer_pool)&& client_outbound_pool,
 	decltype(server_inbound_buffer_pool)&& server_inbound_pool)
     :
-	basic_handle
-	{
-	    bot_in,
-	    bot_out,
-	    client_status,
-	    client_trans,
-	    server_status,
-	    server_trans,
-	    std::move(bot_inbound_pool),
-	    std::move(bot_outbound_pool),
-	    std::move(client_outbound_pool),
-	    std::move(server_inbound_pool),
-	    state_value
-	}
+	basic_handle(
+		bot_in,
+		bot_out,
+		client_status,
+		client_trans,
+		server_status,
+		server_trans,
+		std::move(bot_inbound_pool),
+		std::move(bot_outbound_pool),
+		std::move(client_outbound_pool),
+		std::move(server_inbound_pool),
+		state_value)
 { }
 
 template <state state_value>
 template <state other_value>
-handle<state_value>::handle(handle<other_value>&& other) :
-	basic_handle
-	{
-	    other.bot_input_producer,
-	    other.bot_output_consumer,
-	    other.client_status_producer,
-	    other.client_trans_producer,
-	    other.server_status_consumer,
-	    other.server_trans_consumer,
-	    std::move(other.bot_inbound_buffer_pool),
-	    std::move(other.bot_outbound_buffer_pool),
-	    std::move(other.client_outbound_buffer_pool),
-	    std::move(other.server_inbound_buffer_pool),
-	    other_value
-	}
+handle<state_value>::handle(handle<other_value>&& other)
+    :
+	basic_handle(std::move(static_cast<basic_handle&&>(other)))
 {
-    other.bot_input_producer = nullptr;
-    other.bot_output_consumer = nullptr;
-    other.client_status_producer = nullptr;
-    other.client_trans_producer = nullptr;
-    other.server_status_consumer = nullptr;
-    other.server_trans_consumer = nullptr;
+    client_state = state_value;
 }
 
 } // namespace event
