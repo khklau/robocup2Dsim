@@ -1,6 +1,7 @@
 #include "event.hpp"
 #include "event.hxx"
 
+namespace bmc = beam::message::capnproto;
 namespace rsr = robocup2Dsim::srprotocol;
 namespace rco = robocup2Dsim::common;
 namespace rcs = robocup2Dsim::csprotocol;
@@ -10,45 +11,81 @@ namespace server {
 namespace event {
 
 basic_handle::basic_handle(
-	decltype(ref_input_queue) ref_in,
-	decltype(ref_output_queue) ref_out,
-	decltype(client_status_queue) client_status,
-	decltype(client_trans_queue) client_trans,
-	decltype(server_status_queue) server_status,
-	decltype(server_trans_queue) server_trans,
+	decltype(ref_input_producer) ref_in,
+	decltype(ref_output_consumer) ref_out,
+	decltype(server_status_producer) server_status,
+	decltype(server_trans_producer) server_trans,
+	decltype(client_status_consumer) client_status,
+	decltype(client_trans_consumer) client_trans,
+	decltype(ref_inbound_buffer_pool)&& ref_inbound_pool,
+	decltype(ref_outbound_buffer_pool)&& ref_outbound_pool,
+	decltype(server_outbound_buffer_pool)&& server_outbound_pool,
+	decltype(client_inbound_buffer_pool)&& client_inbound_pool,
 	state my_state)
     :
-	ref_input_queue(std::move(ref_in)),
-	ref_output_queue(std::move(ref_out)),
-	client_status_queue(std::move(client_status)),
-	client_trans_queue(std::move(client_trans)),
-	server_status_queue(std::move(server_status)),
-	server_trans_queue(std::move(server_trans)),
+	ref_input_producer(ref_in),
+	ref_output_consumer(ref_out),
+	server_status_producer(server_status),
+	server_trans_producer(server_trans),
+	client_status_consumer(client_status),
+	client_trans_consumer(client_trans),
+	ref_inbound_buffer_pool(std::move(ref_inbound_pool)),
+	ref_outbound_buffer_pool(std::move(ref_outbound_pool)),
+	server_outbound_buffer_pool(std::move(server_outbound_pool)),
+	client_inbound_buffer_pool(std::move(client_inbound_pool)),
 	enrollment(new robocup2Dsim::server::enrollment()),
 	roster(),
-	event_state(my_state)
+	server_state(my_state)
 { }
 
 
-basic_handle::basic_handle(basic_handle&& other) :
-	ref_input_queue(std::move(other.ref_input_queue)),
-	ref_output_queue(std::move(other.ref_output_queue)),
-	client_status_queue(std::move(other.client_status_queue)),
-	client_trans_queue(std::move(other.client_trans_queue)),
-	server_status_queue(std::move(other.server_status_queue)),
-	server_trans_queue(std::move(other.server_trans_queue)),
-	event_state(other.event_state)
-{ }
+basic_handle::basic_handle(basic_handle&& other)
+    :
+	ref_input_producer(other.ref_input_producer),
+	ref_output_consumer(other.ref_output_consumer),
+	server_status_producer(other.server_status_producer),
+	server_trans_producer(other.server_trans_producer),
+	client_status_consumer(other.client_status_consumer),
+	client_trans_consumer(other.client_trans_consumer),
+	ref_inbound_buffer_pool(std::move(other.ref_inbound_buffer_pool)),
+	ref_outbound_buffer_pool(std::move(other.ref_outbound_buffer_pool)),
+	server_outbound_buffer_pool(std::move(other.server_outbound_buffer_pool)),
+	client_inbound_buffer_pool(std::move(other.client_inbound_buffer_pool)),
+	enrollment(std::move(other.enrollment)),
+	roster(std::move(other.roster)),
+	server_state(other.server_state)
+{
+    other.ref_input_producer = nullptr;
+    other.ref_output_consumer = nullptr;
+    other.server_status_producer = nullptr;
+    other.server_trans_producer = nullptr;
+    other.client_status_consumer = nullptr;
+    other.client_trans_consumer = nullptr;
+}
 
 basic_handle& basic_handle::operator=(basic_handle&& other)
 {
-    ref_input_queue = std::move(other.ref_input_queue);
-    ref_output_queue = std::move(other.ref_output_queue);
-    server_status_queue = std::move(other.server_status_queue);
-    server_trans_queue = std::move(other.server_trans_queue);
-    client_status_queue = std::move(other.client_status_queue);
-    client_trans_queue = std::move(other.client_trans_queue);
-    event_state = other.event_state;
+    ref_input_producer = other.ref_input_producer,
+    ref_output_consumer = other.ref_output_consumer,
+    server_status_producer = other.server_status_producer,
+    server_trans_producer = other.server_trans_producer,
+    client_status_consumer = other.client_status_consumer,
+    client_trans_consumer = other.client_trans_consumer,
+    ref_inbound_buffer_pool = std::move(other.ref_inbound_buffer_pool),
+    ref_outbound_buffer_pool = std::move(other.ref_outbound_buffer_pool),
+    server_outbound_buffer_pool = std::move(other.server_outbound_buffer_pool),
+    client_inbound_buffer_pool = std::move(other.client_inbound_buffer_pool),
+    enrollment = std::move(other.enrollment),
+    roster = std::move(other.roster),
+    server_state = other.server_state;
+
+    other.ref_input_producer = nullptr;
+    other.ref_output_consumer = nullptr;
+    other.server_status_producer = nullptr;
+    other.server_trans_producer = nullptr;
+    other.client_status_consumer = nullptr;
+    other.client_trans_consumer = nullptr;
+
     return *this;
 }
 

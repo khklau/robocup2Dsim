@@ -5,6 +5,7 @@
 #include <functional>
 #include <memory>
 #include <typeinfo>
+#include <beam/message/buffer_pool.hpp>
 #include <beam/message/capnproto.hpp>
 #include <robocup2Dsim/srprotocol/protocol.capnp.h>
 #include <robocup2Dsim/srprotocol/protocol.hpp>
@@ -29,22 +30,30 @@ enum class state : uint8_t
 struct basic_handle
 {
 public:
-    std::unique_ptr<robocup2Dsim::srprotocol::ref_input_queue_type> ref_input_queue;
-    std::unique_ptr<robocup2Dsim::srprotocol::ref_output_queue_type> ref_output_queue;
-    std::unique_ptr<robocup2Dsim::csprotocol::client_status_queue_type> client_status_queue;
-    std::unique_ptr<robocup2Dsim::csprotocol::client_trans_queue_type> client_trans_queue;
-    std::unique_ptr<robocup2Dsim::csprotocol::server_status_queue_type> server_status_queue;
-    std::unique_ptr<robocup2Dsim::csprotocol::server_trans_queue_type> server_trans_queue;
+    robocup2Dsim::srprotocol::ref_input_queue_type::producer* ref_input_producer;
+    robocup2Dsim::srprotocol::ref_output_queue_type::consumer* ref_output_consumer;
+    robocup2Dsim::csprotocol::server_status_queue_type::producer* server_status_producer;
+    robocup2Dsim::csprotocol::server_trans_queue_type::producer* server_trans_producer;
+    robocup2Dsim::csprotocol::client_status_queue_type::consumer* client_status_consumer;
+    robocup2Dsim::csprotocol::client_trans_queue_type::consumer* client_trans_consumer;
+    std::unique_ptr<beam::message::buffer_pool> ref_inbound_buffer_pool;
+    std::unique_ptr<beam::message::buffer_pool> ref_outbound_buffer_pool;
+    std::unique_ptr<beam::message::buffer_pool> server_outbound_buffer_pool;
+    std::unique_ptr<beam::message::buffer_pool> client_inbound_buffer_pool;
     std::unique_ptr<robocup2Dsim::server::enrollment> enrollment;
     std::unique_ptr<robocup2Dsim::server::roster> roster;
-    state event_state;
+    state server_state;
     basic_handle(
-	    decltype(ref_input_queue) ref_in,
-	    decltype(ref_output_queue) ref_out,
-	    decltype(client_status_queue) client_status,
-	    decltype(client_trans_queue) client_trans,
-	    decltype(server_status_queue) server_status,
-	    decltype(server_trans_queue) server_trans,
+	    decltype(ref_input_producer) ref_in,
+	    decltype(ref_output_consumer) ref_out,
+	    decltype(server_status_producer) server_status,
+	    decltype(server_trans_producer) server_trans,
+	    decltype(client_status_consumer) client_status,
+	    decltype(client_trans_consumer) client_trans,
+	    decltype(ref_inbound_buffer_pool)&& ref_inbound_pool,
+	    decltype(ref_outbound_buffer_pool)&& ref_outbound_pool,
+	    decltype(server_outbound_buffer_pool)&& server_outbound_pool,
+	    decltype(client_inbound_buffer_pool)&& client_inbound_pool,
 	    state my_state);
     basic_handle(basic_handle&& other);
     basic_handle& operator=(basic_handle&& other);
@@ -59,12 +68,16 @@ struct handle : public basic_handle
 {
 public:
     handle(
-	    decltype(ref_input_queue) ref_in,
-	    decltype(ref_output_queue) ref_out,
-	    decltype(client_status_queue) client_status,
-	    decltype(client_trans_queue) client_trans,
-	    decltype(server_status_queue) server_status,
-	    decltype(server_trans_queue) server_trans);
+	    decltype(ref_input_producer) ref_in,
+	    decltype(ref_output_consumer) ref_out,
+	    decltype(server_status_producer) server_status,
+	    decltype(server_trans_producer) server_trans,
+	    decltype(client_status_consumer) client_status,
+	    decltype(client_trans_consumer) client_trans,
+	    decltype(ref_inbound_buffer_pool)&& ref_inbound_pool,
+	    decltype(ref_outbound_buffer_pool)&& ref_outbound_pool,
+	    decltype(server_outbound_buffer_pool)&& server_outbound_pool,
+	    decltype(client_inbound_buffer_pool)&& client_inbound_pool);
     template <state other_state>
     explicit handle(handle<other_state>&& other);
 private:
@@ -82,7 +95,7 @@ inline basic_handle&& up_cast(handle<state_value>&& from)
 template <state state_value>
 inline handle<state_value>&& down_cast(basic_handle&& from)
 {
-    if (TURBO_LIKELY(from.event_state == state_value))
+    if (TURBO_LIKELY(from.server_state == state_value))
     {
 	return static_cast<handle<state_value>&&>(from);
     }

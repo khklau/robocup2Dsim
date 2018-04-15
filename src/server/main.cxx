@@ -8,6 +8,7 @@
 #include <vector>
 #include <asio/high_resolution_timer.hpp>
 #include <asio/io_service.hpp>
+#include <beam/message/buffer_pool.hpp>
 #include <beam/message/capnproto.hpp>
 #include <beam/message/capnproto.hxx>
 #include <kj/common.h>
@@ -32,6 +33,7 @@
 #include "ref_io.hpp"
 
 namespace bme = beam::message;
+namespace bmc = beam::message::capnproto;
 namespace tip = turbo::ipc::posix;
 namespace tpp = turbo::process::posix;
 namespace rco = robocup2Dsim::common;
@@ -100,6 +102,18 @@ public:
     void run();
 private:
     const rse::config config_;
+    rsr::ref_input_queue_type ref_input_queue_;
+    rsr::ref_output_queue_type ref_output_queue_;
+    rcs::server_status_queue_type server_status_queue_;
+    rcs::server_trans_queue_type server_trans_queue_;
+    rcs::client_status_queue_type client_status_queue_;
+    rcs::client_trans_queue_type client_trans_queue_;
+    rsr::ref_input_queue_type::producer& ref_input_producer_;
+    rsr::ref_output_queue_type::consumer& ref_output_consumer_;
+    rcs::server_status_queue_type::producer& server_status_producer_;
+    rcs::server_trans_queue_type::producer& server_trans_producer_;
+    rcs::client_status_queue_type::consumer& client_status_consumer_;
+    rcs::client_trans_queue_type::consumer& client_trans_consumer_;
     rse::event::basic_handle handle_;
     tip::signal_notifier notifier_;
     tpp::child ref_;
@@ -109,24 +123,40 @@ private:
 
 server::server(const rse::config& config, tpp::child&& ref) :
 	config_(config),
+	ref_input_queue_(config_.ref_msg_queue_length),
+	ref_output_queue_(config_.ref_msg_queue_length),
+	server_status_queue_(config_.client_msg_queue_length),
+	server_trans_queue_(config_.client_msg_queue_length),
+	client_status_queue_(config_.client_msg_queue_length),
+	client_trans_queue_(config_.client_msg_queue_length),
+	ref_input_producer_(ref_input_queue_.get_producer()),
+	ref_output_consumer_(ref_output_queue_.get_consumer()),
+	server_status_producer_(server_status_queue_.get_producer()),
+	server_trans_producer_(server_trans_queue_.get_producer()),
+	client_status_consumer_(client_status_queue_.get_consumer()),
+	client_trans_consumer_(client_trans_queue_.get_consumer()),
 	handle_
 	{
-	    std::move(std::unique_ptr<rsr::ref_input_queue_type>(new rsr::ref_input_queue_type(config_.ref_msg_queue_length))),
-	    std::move(std::unique_ptr<rsr::ref_output_queue_type>(new rsr::ref_output_queue_type(config_.ref_msg_queue_length))),
-	    std::move(std::unique_ptr<rcs::client_status_queue_type>(new rcs::client_status_queue_type(config_.client_msg_queue_length))),
-	    std::move(std::unique_ptr<rcs::client_trans_queue_type>(new rcs::client_trans_queue_type(config_.client_msg_queue_length))),
-	    std::move(std::unique_ptr<rcs::server_status_queue_type>(new rcs::server_status_queue_type(config_.client_msg_queue_length))),
-	    std::move(std::unique_ptr<rcs::server_trans_queue_type>(new rcs::server_trans_queue_type(config_.client_msg_queue_length))),
+	    &ref_input_producer_,
+	    &ref_output_consumer_,
+	    &server_status_producer_,
+	    &server_trans_producer_,
+	    &client_status_consumer_,
+	    &client_trans_consumer_,
+	    std::move(std::unique_ptr<bme::buffer_pool>(new bme::buffer_pool(config_.ref_msg_word_length, config_.ref_msg_buffer_capacity))),
+	    std::move(std::unique_ptr<bme::buffer_pool>(new bme::buffer_pool(config_.ref_msg_word_length, config_.ref_msg_buffer_capacity))),
+	    std::move(std::unique_ptr<bme::buffer_pool>(new bme::buffer_pool(config_.client_msg_word_length, config_.client_msg_buffer_capacity))),
+	    std::move(std::unique_ptr<bme::buffer_pool>(new bme::buffer_pool(config_.client_msg_word_length, config_.client_msg_buffer_capacity))),
 	    rse::event::state::withref_waiting
 	},
 	notifier_(),
 	ref_(std::move(ref)),
-	ref_io_(ref_.in, ref_.out, handle_.ref_input_queue->get_consumer(), handle_.ref_output_queue->get_producer()),
+	ref_io_(config_, ref_.in, ref_.out, ref_input_queue_.get_consumer(), ref_output_queue_.get_producer()),
 	client_io_(
-		handle_.client_status_queue->get_producer(),
-		handle_.client_trans_queue->get_producer(),
-		handle_.server_status_queue->get_consumer(),
-		handle_.server_trans_queue->get_consumer(),
+		client_status_queue_.get_producer(),
+		client_trans_queue_.get_producer(),
+		server_status_queue_.get_consumer(),
+		server_trans_queue_.get_consumer(),
 		config_)
 {
     // TODO: setup SIGCHLD handling
@@ -136,9 +166,9 @@ server::server(const rse::config& config, tpp::child&& ref) :
 
 void server::run()
 {
-    std::unique_ptr<bme::capnproto<rsr::RefOutput>> ref_output;
-    std::unique_ptr<bme::capnproto<rcs::ClientStatus>> client_status;
-    std::unique_ptr<bme::capnproto<rcs::ClientTransaction>> client_trans;
+    bmc::payload<rsr::RefOutput> ref_payload;
+    bmc::payload<rcs::ClientStatus> status_payload;
+    bmc::payload<rcs::ClientTransaction> trans_payload;
     std::chrono:: high_resolution_clock::time_point next_frame_time = std::chrono::high_resolution_clock::now() + config_.frame_duration;
     asio::io_service service;
     asio::high_resolution_timer timer(service);
@@ -148,152 +178,155 @@ void server::run()
     {
 	timer.expires_at(next_frame_time);
 	timer.wait();
-	if (handle_.ref_output_queue->get_consumer().try_dequeue_move(ref_output) == rsr::ref_output_queue_type::consumer::result::success)
+	if (ref_output_consumer_.try_dequeue_move(ref_payload) == rsr::ref_output_queue_type::consumer::result::success)
 	{
-	    if (handle_.event_state == rse::event::state::noref_waiting)
+	    bmc::statement<rsr::RefOutput> ref_output(std::move(ref_payload));
+	    if (handle_.server_state == rse::event::state::noref_waiting)
 	    {
-		if (ref_output->get_reader().isRefReady())
+		if (ref_output.read().isRefReady())
 		{
 		    handle_ = std::move(rse::event::up_cast(rse::event::ref_ready(
 			    rse::event::down_cast<rse::event::state::noref_waiting>(std::move(handle_)))));
 		}
 	    }
-	    if (handle_.event_state == rse::event::state::withref_waiting)
+	    if (handle_.server_state == rse::event::state::withref_waiting)
 	    {
-		if (ref_output->get_reader().isFieldOpen())
+		if (ref_output.read().isFieldOpen())
 		{
 		    handle_ = std::move(rse::event::up_cast(rse::event::field_opened(
 			    rse::event::down_cast<rse::event::state::withref_waiting>(std::move(handle_)),
-			    ref_output->get_reader().getFieldOpen())));
+			    ref_output.read().getFieldOpen())));
 		}
-		if (ref_output->get_reader().isRefCrashed())
+		if (ref_output.read().isRefCrashed())
 		{
 		    handle_ = std::move(rse::event::up_cast(rse::event::ref_crashed(
 			    rse::event::down_cast<rse::event::state::withref_waiting>(std::move(handle_)))));
 		}
 	    }
-	    if (handle_.event_state == rse::event::state::withref_playing)
+	    if (handle_.server_state == rse::event::state::withref_playing)
 	    {
-		if (ref_output->get_reader().isPlayJudgement())
+		if (ref_output.read().isPlayJudgement())
 		{
 		    handle_ = std::move(rse::event::up_cast(rse::event::play_judged(
 			    rse::event::down_cast<rse::event::state::withref_playing>(std::move(handle_)),
-			    ref_output->get_reader().getPlayJudgement())));
+			    ref_output.read().getPlayJudgement())));
 		}
-		if (ref_output->get_reader().isMatchClose())
+		if (ref_output.read().isMatchClose())
 		{
 		    handle_ = std::move(rse::event::up_cast(rse::event::match_closed(
 			    rse::event::down_cast<rse::event::state::withref_playing>(std::move(handle_)),
-			    ref_output->get_reader().getMatchClose())));
+			    ref_output.read().getMatchClose())));
 		}
-		if (ref_output->get_reader().isMatchAbort())
+		if (ref_output.read().isMatchAbort())
 		{
 		    handle_ = std::move(rse::event::up_cast(rse::event::match_aborted(
 			    rse::event::down_cast<rse::event::state::withref_playing>(std::move(handle_)),
-			    ref_output->get_reader().getMatchAbort())));
+			    ref_output.read().getMatchAbort())));
 		}
-		if (ref_output->get_reader().isRefCrashed())
+		if (ref_output.read().isRefCrashed())
 		{
 		    handle_ = std::move(rse::event::up_cast(rse::event::ref_crashed(
 			    rse::event::down_cast<rse::event::state::withref_playing>(std::move(handle_)))));
 		}
 	    }
-	    if (handle_.event_state == rse::event::state::noref_playing)
+	    if (handle_.server_state == rse::event::state::noref_playing)
 	    {
-		if (ref_output->get_reader().isRefReady())
+		if (ref_output.read().isRefReady())
 		{
 		    handle_ = std::move(rse::event::up_cast(rse::event::ref_ready(
 			    rse::event::down_cast<rse::event::state::noref_playing>(std::move(handle_)))));
 		}
 	    }
 	}
-	if (handle_.client_status_queue->get_consumer().try_dequeue_move(client_status) == rcs::client_status_queue_type::consumer::result::success)
+	if (client_status_consumer_.try_dequeue_move(status_payload) == rcs::client_status_queue_type::consumer::result::success)
 	{
-	    if (handle_.event_state == rse::event::state::withref_playing)
+	    bmc::statement<rcs::ClientStatus> client_status(std::move(status_payload));
+	    if (handle_.server_state == rse::event::state::withref_playing)
 	    {
 		handle_ = std::move(rse::event::up_cast(rse::event::status_uploaded(
 			rse::event::down_cast<rse::event::state::withref_playing>(std::move(handle_)),
-			client_status->get_reader())));
+			client_status.read())));
 	    }
-	    if (handle_.event_state == rse::event::state::noref_playing)
+	    if (handle_.server_state == rse::event::state::noref_playing)
 	    {
 		handle_ = std::move(rse::event::up_cast(rse::event::status_uploaded(
 			rse::event::down_cast<rse::event::state::noref_playing>(std::move(handle_)),
-			client_status->get_reader())));
+			client_status.read())));
 	    }
 	}
-	if (handle_.client_trans_queue->get_consumer().try_dequeue_move(client_trans) == rcs::client_trans_queue_type::consumer::result::success)
+	if (client_trans_consumer_.try_dequeue_move(trans_payload) == rcs::client_trans_queue_type::consumer::result::success)
 	{
-	    if (handle_.event_state == rse::event::state::noref_waiting)
+	    bmc::statement<rcs::ClientTransaction> client_trans(std::move(trans_payload));
+	    if (handle_.server_state == rse::event::state::noref_waiting)
 	    {
-		if (client_trans->get_reader().isRegistration())
+		if (client_trans.read().isRegistration())
 		{
 		    handle_ = std::move(rse::event::up_cast(rse::event::registration_requested(
 			    rse::event::down_cast<rse::event::state::noref_waiting>(std::move(handle_)),
-			    client_trans->get_reader().getRegistration())));
+			    client_trans.read().getRegistration())));
 		}
-		if (client_trans->get_reader().isDisconnect())
+		if (client_trans.read().isDisconnect())
 		{
 		    handle_ = std::move(rse::event::up_cast(rse::event::disconnected(
 			    rse::event::down_cast<rse::event::state::noref_waiting>(std::move(handle_)))));
 		}
 	    }
-	    if (handle_.event_state == rse::event::state::withref_waiting)
+	    if (handle_.server_state == rse::event::state::withref_waiting)
 	    {
-		if (client_trans->get_reader().isRegistration())
+		if (client_trans.read().isRegistration())
 		{
 		    handle_ = std::move(rse::event::up_cast(rse::event::registration_requested(
 			    rse::event::down_cast<rse::event::state::withref_waiting>(std::move(handle_)),
-			    client_trans->get_reader().getRegistration())));
+			    client_trans.read().getRegistration())));
 		}
-		if (client_trans->get_reader().isDisconnect())
+		if (client_trans.read().isDisconnect())
 		{
 		    handle_ = std::move(rse::event::up_cast(rse::event::disconnected(
 			    rse::event::down_cast<rse::event::state::withref_waiting>(std::move(handle_)))));
 		}
 	    }
-	    if (handle_.event_state == rse::event::state::withref_playing)
+	    if (handle_.server_state == rse::event::state::withref_playing)
 	    {
-		if (client_trans->get_reader().isAction())
+		if (client_trans.read().isAction())
 		{
 		    handle_ = std::move(rse::event::up_cast(rse::event::control_actioned(
 			    rse::event::down_cast<rse::event::state::withref_playing>(std::move(handle_)),
-			    client_trans->get_reader().getAction())));
+			    client_trans.read().getAction())));
 		}
-		if (client_trans->get_reader().isRegistration())
+		if (client_trans.read().isRegistration())
 		{
 		    handle_ = std::move(rse::event::up_cast(rse::event::registration_requested(
 			    rse::event::down_cast<rse::event::state::withref_playing>(std::move(handle_)),
-			    client_trans->get_reader().getRegistration())));
+			    client_trans.read().getRegistration())));
 		}
-		if (client_trans->get_reader().isDisconnect())
+		if (client_trans.read().isDisconnect())
 		{
 		    handle_ = std::move(rse::event::up_cast(rse::event::disconnected(
 			    rse::event::down_cast<rse::event::state::withref_playing>(std::move(handle_)))));
 		}
 	    }
-	    if (handle_.event_state == rse::event::state::noref_playing)
+	    if (handle_.server_state == rse::event::state::noref_playing)
 	    {
-		if (client_trans->get_reader().isAction())
+		if (client_trans.read().isAction())
 		{
 		    handle_ = std::move(rse::event::up_cast(rse::event::control_actioned(
 			    rse::event::down_cast<rse::event::state::noref_playing>(std::move(handle_)),
-			    client_trans->get_reader().getAction())));
+			    client_trans.read().getAction())));
 		}
-		if (client_trans->get_reader().isRegistration())
+		if (client_trans.read().isRegistration())
 		{
 		    handle_ = std::move(rse::event::up_cast(rse::event::registration_requested(
 			    rse::event::down_cast<rse::event::state::noref_playing>(std::move(handle_)),
-			    client_trans->get_reader().getRegistration())));
+			    client_trans.read().getRegistration())));
 		}
-		if (client_trans->get_reader().isDisconnect())
+		if (client_trans.read().isDisconnect())
 		{
 		    handle_ = std::move(rse::event::up_cast(rse::event::disconnected(
 			    rse::event::down_cast<rse::event::state::noref_playing>(std::move(handle_)))));
 		}
 	    }
 	}
-	if (handle_.event_state == rse::event::state::withref_playing)
+	if (handle_.server_state == rse::event::state::withref_playing)
 	{
 	    if (frame % config_.simulation_frequency == config_.simulation_start_frame)
 	    {
@@ -306,7 +339,7 @@ void server::run()
 			rse::event::down_cast<rse::event::state::withref_playing>(std::move(handle_)))));
 	    }
 	}
-	if (handle_.event_state == rse::event::state::noref_playing)
+	if (handle_.server_state == rse::event::state::noref_playing)
 	{
 	    if (frame % config_.simulation_frequency == config_.simulation_start_frame)
 	    {
