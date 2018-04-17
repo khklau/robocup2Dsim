@@ -7,6 +7,7 @@ using Day = UInt32;
 using Degree = Int16;
 using KiloJoule = UInt8;
 using MetresPerHour = Int16;
+using Minutes = UInt16;
 using DegreesPerSecond = Int16;
 using MilliMetre = Float32;
 using NanoSecond = UInt64;

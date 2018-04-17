@@ -13,6 +13,7 @@ struct config
     config() :
 	    address("localhost"),
 	    port(23230U),
+	    match_half_length(20U),
 	    ref_arg_count(0),
 	    ref_arg_offset(0),
 	    ref_msg_queue_length(128U),
@@ -34,6 +35,7 @@ struct config
     { }
     std::string address;
     uint16_t port;
+    uint8_t match_half_length;
     std::string ref_path;
     uint8_t ref_arg_count;
     uint8_t ref_arg_offset;

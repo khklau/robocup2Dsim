@@ -35,3 +35,8 @@ enum PlaySession
     regular1stHalf @0;
     regular2ndHalf @1;
 }
+
+struct MatchRules
+{
+    halfDuration @0 :Physics.Minutes;
+}
