@@ -13,6 +13,7 @@
 #include <robocup2Dsim/csprotocol/protocol.hpp>
 #include <turbo/container/spsc_ring_queue.hpp>
 #include <turbo/toolset/extension.hpp>
+#include "config.hpp"
 #include "roster.hpp"
 
 namespace robocup2Dsim {
@@ -26,6 +27,8 @@ enum class state : uint8_t
     withref_waiting,
     withref_playing
 };
+
+// TODO: implement the handle using std::variant when its available
 
 struct basic_handle
 {
@@ -105,7 +108,7 @@ inline handle<state_value>&& down_cast(basic_handle&& from)
     }
 }
 
-handle<state::withref_waiting>&& ref_ready(handle<state::noref_waiting>&&);
+handle<state::withref_waiting>&& ref_spawned(handle<state::noref_waiting>&&, const robocup2Dsim::server::config& config);
 handle<state::noref_waiting>&& registration_requested(handle<state::noref_waiting>&& input, const robocup2Dsim::csprotocol::RegistrationRequest::Reader& reader);
 handle<state::noref_waiting>&& disconnected(handle<state::noref_waiting>&& input);
 
@@ -125,7 +128,7 @@ handle<state::noref_playing>&& ref_crashed(handle<state::withref_playing>&& inpu
 handle<state::withref_waiting>&& match_closed(handle<state::withref_playing>&& input, const robocup2Dsim::common::MatchClose::Reader& reader);
 handle<state::withref_waiting>&& match_aborted(handle<state::withref_playing>&& input, const robocup2Dsim::common::MatchAbort::Reader& reader);
 
-handle<state::withref_playing>&& ref_ready(handle<state::noref_playing>&&);
+handle<state::withref_playing>&& ref_spawned(handle<state::noref_playing>&&, const robocup2Dsim::server::config& config);
 handle<state::noref_playing>&& status_uploaded(handle<state::noref_playing>&&, const robocup2Dsim::csprotocol::ClientStatus::Reader& reader);
 handle<state::noref_playing>&& control_actioned(handle<state::noref_playing>&&, const robocup2Dsim::common::PlayerAction::Reader& reader);
 handle<state::noref_playing>&& simulation_timedout(handle<state::noref_playing>&& input);

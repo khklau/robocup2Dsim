@@ -1,10 +1,14 @@
 #include "event.hpp"
 #include "event.hxx"
+#include <turbo/algorithm/recovery.hpp>
+#include <turbo/algorithm/recovery.hxx>
+#include <robocup2Dsim/common/rule.capnp.h>
 
 namespace bmc = beam::message::capnproto;
 namespace rsr = robocup2Dsim::srprotocol;
 namespace rco = robocup2Dsim::common;
 namespace rcs = robocup2Dsim::csprotocol;
+namespace tar = turbo::algorithm::recovery;
 
 namespace robocup2Dsim {
 namespace server {
@@ -89,8 +93,24 @@ basic_handle& basic_handle::operator=(basic_handle&& other)
     return *this;
 }
 
-handle<state::withref_waiting>&& ref_ready(handle<state::noref_waiting>&& input)
+handle<state::withref_waiting>&& ref_spawned(handle<state::noref_waiting>&& input, const robocup2Dsim::server::config& config)
 {
+    bmc::form<rsr::RefInput> form(std::move(input.ref_outbound_buffer_pool->borrow()));
+    rsr::RefInput::Builder ref_input = form.build();
+    rco::MatchRules::Builder rules = ref_input.initRules();
+    rules.setHalfDuration(config.match_half_length);
+    bmc::payload<rsr::RefInput> payload(std::move(bmc::serialise(*(input.ref_outbound_buffer_pool), form)));
+    tar::retry_with_random_backoff([&]()
+    {
+	if (input.ref_input_producer->try_enqueue_move(std::move(payload)) == rsr::ref_input_queue_type::producer::result::success)
+	{
+	    return tar::try_state::done;
+	}
+	else
+	{
+	    return tar::try_state::retry;
+	}
+    });
     handle<state::withref_waiting> output(std::move(input));
     return std::move(output);
 }
@@ -191,7 +211,7 @@ handle<state::withref_waiting>&& match_aborted(handle<state::withref_playing>&& 
     return std::move(output);
 }
 
-handle<state::withref_playing>&& ref_ready(handle<state::noref_playing>&& input)
+handle<state::withref_playing>&& ref_spawned(handle<state::noref_playing>&& input, const robocup2Dsim::server::config& config)
 {
     handle<state::withref_playing> output(std::move(input));
     return std::move(output);
