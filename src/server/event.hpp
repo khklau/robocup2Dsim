@@ -1,10 +1,11 @@
 #ifndef ROBOCUP2DSIM_SERVER_EVENT_HPP
 #define ROBOCUP2DSIM_SERVER_EVENT_HPP
 
+#include <cassert>
 #include <cstdint>
 #include <functional>
 #include <memory>
-#include <typeinfo>
+#include <type_traits>
 #include <beam/message/buffer_pool.hpp>
 #include <beam/message/capnproto.hpp>
 #include <robocup2Dsim/srprotocol/protocol.capnp.h>
@@ -29,6 +30,9 @@ enum class state : uint8_t
 };
 
 // TODO: implement the handle using std::variant when its available
+
+template <state state_value>
+struct handle;
 
 struct basic_handle
 {
@@ -60,6 +64,8 @@ public:
 	    state my_state);
     basic_handle(basic_handle&& other);
     basic_handle& operator=(basic_handle&& other);
+    template <state state_value>
+    basic_handle& operator=(handle<state_value>&& other);
 private:
     basic_handle() = delete;
     basic_handle(const basic_handle&) = delete;
@@ -82,7 +88,8 @@ public:
 	    decltype(server_outbound_buffer_pool)&& server_outbound_pool,
 	    decltype(client_inbound_buffer_pool)&& client_inbound_pool);
     template <state other_state>
-    explicit handle(handle<other_state>&& other);
+    handle(handle<other_state>&& other);
+    handle(basic_handle&& other);
 private:
     handle() = delete;
     handle(const handle<state_value>&) = delete;
@@ -98,13 +105,16 @@ inline basic_handle&& up_cast(handle<state_value>&& from)
 template <state state_value>
 inline handle<state_value>&& down_cast(basic_handle&& from)
 {
-    if (TURBO_LIKELY(from.server_state == state_value))
+    assert(from.server_state == state_value);
+    return static_cast<handle<state_value>&&>(from);
+}
+
+template <state state_value, typename func_t>
+inline void with(basic_handle&& arg, func_t&& func)
+{
+    if (arg.server_state == state_value)
     {
-	return static_cast<handle<state_value>&&>(from);
-    }
-    else
-    {
-	throw std::bad_cast();
+	func(static_cast<handle<state_value>&&>(std::move(arg)));
     }
 }
 

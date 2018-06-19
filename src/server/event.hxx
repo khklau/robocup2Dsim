@@ -10,6 +10,14 @@ namespace server {
 namespace event {
 
 template <state state_value>
+basic_handle& basic_handle::operator=(handle<state_value>&& other)
+{
+    (*this) = static_cast<basic_handle&&>(std::move(other));
+    server_state = state_value;
+    return *this;
+}
+
+template <state state_value>
 handle<state_value>::handle(
 	decltype(ref_input_producer) ref_in,
 	decltype(ref_output_consumer) ref_out,
@@ -40,9 +48,9 @@ template <state state_value>
 template <state other_value>
 handle<state_value>::handle(handle<other_value>&& other)
     :
-	basic_handle(std::move(static_cast<basic_handle&&>(other)))
+	basic_handle(static_cast<basic_handle&&>(std::move(other)))
 {
-    server_state = state_value;
+    server_state = other_value;
 }
 
 } // namespace event

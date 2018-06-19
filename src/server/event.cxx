@@ -93,6 +93,14 @@ basic_handle& basic_handle::operator=(basic_handle&& other)
     return *this;
 }
 
+template <state state_value>
+handle<state_value>::handle(basic_handle&& other)
+    :
+	basic_handle(std::move(other))
+{
+    assert(server_state == state_value);
+}
+
 handle<state::withref_waiting>&& ref_spawned(handle<state::noref_waiting>&& input, const robocup2Dsim::server::config& config)
 {
     bmc::form<rsr::RefInput> form(std::move(input.ref_outbound_buffer_pool->borrow()));
