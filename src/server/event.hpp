@@ -109,14 +109,11 @@ inline handle<state_value>&& down_cast(basic_handle&& from)
     return static_cast<handle<state_value>&&>(from);
 }
 
-template <state state_value, typename func_t>
-inline void with(basic_handle&& arg, func_t&& func)
-{
-    if (arg.server_state == state_value)
-    {
-	func(static_cast<handle<state_value>&&>(std::move(arg)));
-    }
-}
+template <typename func1_t, typename... funcn_t>
+inline void with(basic_handle&& arg, func1_t&& head_func, funcn_t&&... tail_funcs);
+
+template <typename func_t>
+inline void with(basic_handle&& arg, func_t&& func);
 
 handle<state::withref_waiting>&& ref_spawned(handle<state::noref_waiting>&&, const robocup2Dsim::server::config& config);
 handle<state::noref_waiting>&& registration_requested(handle<state::noref_waiting>&& input, const robocup2Dsim::csprotocol::RegistrationRequest::Reader& reader);
