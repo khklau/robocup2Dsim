@@ -90,6 +90,14 @@ basic_handle& basic_handle::operator=(basic_handle&& other)
     return *this;
 }
 
+template <state state_value>
+handle<state_value>::handle(basic_handle&& other)
+    :
+	basic_handle(std::move(other))
+{
+    assert(client_state == state_value);
+}
+
 handle<state::withbot_unregistered>&& spawned(handle<state::nobot_unregistered>&& input, const rcl::config& conf)
 {
     bmc::form<rcs::ClientTransaction> form(std::move(input.client_outbound_buffer_pool->borrow()));

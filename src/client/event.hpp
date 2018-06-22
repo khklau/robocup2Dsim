@@ -29,6 +29,9 @@ enum class state : uint8_t
     withbot_playing
 };
 
+template <state state_value>
+struct handle;
+
 struct basic_handle
 {
 public:
@@ -57,6 +60,8 @@ public:
 	    state my_state);
     basic_handle(basic_handle&& other);
     basic_handle& operator=(basic_handle&& other);
+    template <state state_value>
+    basic_handle& operator=(handle<state_value>&& other);
 private:
     basic_handle() = delete;
     basic_handle(const basic_handle&) = delete;
@@ -80,6 +85,7 @@ public:
 	    decltype(server_inbound_buffer_pool)&& server_inbound_pool);
     template <state other_state>
     explicit handle(handle<other_state>&& other);
+    handle(basic_handle&& other);
 private:
     handle() = delete;
     handle(const handle<state_value>&) = delete;
@@ -104,6 +110,12 @@ inline handle<state_value>&& down_cast(basic_handle&& from)
 	throw std::bad_cast();
     }
 }
+
+template <typename func1_t, typename... funcn_t>
+inline void with(basic_handle&& arg, func1_t&& head_func, funcn_t&&... tail_funcs);
+
+template <typename func_t>
+inline void with(basic_handle&& arg, func_t&& func);
 
 handle<state::withbot_unregistered>&& spawned(handle<state::nobot_unregistered>&&, const robocup2Dsim::client::config& conf);
 
