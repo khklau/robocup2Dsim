@@ -92,25 +92,6 @@ private:
     handle<state_value>& operator=(const handle<state_value>&) = delete;
 };
 
-template <state state_value>
-inline basic_handle&& up_cast(handle<state_value>&& from)
-{
-    return static_cast<basic_handle&&>(from);
-}
-
-template <state state_value>
-inline handle<state_value>&& down_cast(basic_handle&& from)
-{
-    if (TURBO_LIKELY(from.client_state == state_value))
-    {
-	return static_cast<handle<state_value>&&>(from);
-    }
-    else
-    {
-	throw std::bad_cast();
-    }
-}
-
 template <typename func1_t, typename... funcn_t>
 inline void with(basic_handle&& arg, func1_t&& head_func, funcn_t&&... tail_funcs);
 
