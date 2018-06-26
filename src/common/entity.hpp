@@ -71,6 +71,26 @@ inline UniformNumber uint_to_uniform(unsigned int number)
     {
 	case 1:
 	    return UniformNumber::ONE;
+	case 2:
+	    return UniformNumber::TWO;
+	case 3:
+	    return UniformNumber::THREE;
+	case 4:
+	    return UniformNumber::FOUR;
+	case 5:
+	    return UniformNumber::FIVE;
+	case 6:
+	    return UniformNumber::SIX;
+	case 7:
+	    return UniformNumber::SEVEN;
+	case 8:
+	    return UniformNumber::EIGHT;
+	case 9:
+	    return UniformNumber::NINE;
+	case 10:
+	    return UniformNumber::TEN;
+	case 11:
+	    return UniformNumber::ELEVEN;
 	default:
 	    throw std::out_of_range("Not a valid uniform number");
     }
