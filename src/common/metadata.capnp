@@ -14,3 +14,5 @@ struct Version
     numberC @2 :UInt8;
     numberD @3 :UInt8;
 }
+
+const currentVersion :Version = ( numberA = 1, numberB = 0, numberC = 0, numberD = 0 );
