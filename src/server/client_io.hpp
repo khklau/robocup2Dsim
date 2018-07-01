@@ -36,7 +36,7 @@ private:
     client_io(const client_io&) = delete;
     client_io& operator=(const client_io&) = delete;
     void run();
-    void handle_server_msg(std::function<out_connection_type*(const beam::duplex::common::endpoint_id&)> find);
+    void handle_server_msg(std::function<out_connection_type*(const beam::internet::ipv4::endpoint_id&)> find);
     void on_connect(const in_connection_type& connection);
     void on_disconnect(const in_connection_type& connection);
     void on_receive_client_status(const in_connection_type&, beam::message::capnproto::payload<robocup2Dsim::csprotocol::ClientStatus>&& message);

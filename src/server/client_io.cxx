@@ -104,13 +104,14 @@ void client_io::run()
     service_.run();
 }
 
-void client_io::handle_server_msg(std::function<out_connection_type*(const beam::duplex::common::endpoint_id&)> find)
+void client_io::handle_server_msg(std::function<out_connection_type*(const beam::internet::ipv4::endpoint_id&)> find)
 {
     rcs::server_trans_queue_type::consumer::value_type trans_payload;
     while (server_trans_.try_dequeue_move(trans_payload) != rcs::server_trans_queue_type::consumer::result::queue_empty)
     {
+	beam::internet::ipv4::endpoint_id recipient(trans_payload.get_destination());
 	bmc::statement<rcs::ServerTransaction> message(std::move(trans_payload));
-	out_connection_type* connection = find(rcs::convert(message.read().getRecipient()));
+	out_connection_type* connection = find(recipient);
 	if (TURBO_LIKELY(connection != nullptr))
 	{
 	    bmc::payload<rcs::ServerTransaction> payload(std::move(message));
@@ -124,8 +125,9 @@ void client_io::handle_server_msg(std::function<out_connection_type*(const beam:
     rcs::server_status_queue_type::consumer::value_type status_payload;
     while (server_status_.try_dequeue_move(status_payload) != rcs::server_status_queue_type::consumer::result::queue_empty)
     {
+	beam::internet::ipv4::endpoint_id recipient(status_payload.get_destination());
 	bmc::statement<rcs::ServerStatus> message(std::move(status_payload));
-	out_connection_type* connection = find(rcs::convert(message.read().getRecipient()));
+	out_connection_type* connection = find(recipient);
 	if (TURBO_LIKELY(connection != nullptr))
 	{
 	    bmc::payload<rcs::ServerStatus> payload(std::move(message));
