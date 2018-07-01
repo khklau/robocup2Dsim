@@ -105,10 +105,11 @@ handle<state::withbot_unregistered> spawned(handle<state::nobot_unregistered>&& 
     rcs::RegistrationRequest::Builder request = trans.initRegistration();
     rco::command::Registration::Builder reg = request.initDetails();
     rco::metadata::Version::Builder version = reg.initVersion();
-    version.setNumberA(1);
-    version.setNumberB(0);
-    version.setNumberC(0);
-    version.setNumberD(0);
+    rco::metadata::Version::Reader current = *(rco::metadata::CURRENT_VERSION);
+    version.setNumberA(current.getNumberA());
+    version.setNumberB(current.getNumberB());
+    version.setNumberC(current.getNumberC());
+    version.setNumberD(current.getNumberD());
     reg.setTeamName(conf.team);
     reg.setUniform(conf.uniform);
     reg.setPlayerType(conf.goalie ? rce::PlayerType::GOAL_KEEPER : rce::PlayerType::OUT_FIELD);
