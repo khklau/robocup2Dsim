@@ -8,6 +8,7 @@
 #include <memory>
 #include <tuple>
 #include <turbo/type_utility/enum_metadata.hpp>
+#include <beam/internet/ipv4.hpp>
 #include <robocup2Dsim/common/command.capnp.h>
 #include <robocup2Dsim/common/entity.capnp.h>
 #include <robocup2Dsim/common/entity.hpp>
@@ -41,16 +42,16 @@ public:
 	not_found
     };
     roster(
-	    const std::array<robocup2Dsim::csprotocol::client_id, MAX_ROSTER_SIZE>& enrolled_players,
+	    const std::array<beam::internet::ipv4::endpoint_id, MAX_ROSTER_SIZE>& enrolled_players,
 	    const std::array<std::string, MAX_CLUB_COUNT>& enrolled_teams,
 	    const std::array<robocup2Dsim::common::entity::player_id, MAX_CLUB_COUNT> enrolled_goalies);
-    inline std::tuple<find_result, robocup2Dsim::csprotocol::client_id> find_client(robocup2Dsim::common::entity::player_id id) const
+    inline std::tuple<find_result, beam::internet::ipv4::endpoint_id> find_client(robocup2Dsim::common::entity::player_id id) const
     {
 	return (id < players_.max_size())
 		? std::make_tuple(find_result::found, players_[id])
-		: std::make_tuple(find_result::not_found, robocup2Dsim::csprotocol::no_client);
+		: std::make_tuple(find_result::not_found, beam::internet::ipv4::endpoint_id());
     }
-    inline std::tuple<find_result, robocup2Dsim::common::entity::player_id> find_player(robocup2Dsim::csprotocol::client_id client) const
+    inline std::tuple<find_result, robocup2Dsim::common::entity::player_id> find_player(beam::internet::ipv4::endpoint_id client) const
     {
 	auto iter = std::find(players_.cbegin(), players_.cend(), client);
 	return (iter != players_.cend())
@@ -62,9 +63,9 @@ public:
 	return std::find(goalies_.cbegin(), goalies_.cend(), id) != goalies_.cend();
     }
     std::string get_team_name(const robocup2Dsim::common::entity::TeamId& team) const;
-    deregister_result deregister_client(const robocup2Dsim::csprotocol::client_id& client);
+    deregister_result deregister_client(const beam::internet::ipv4::endpoint_id& client);
 private:
-    std::array<robocup2Dsim::csprotocol::client_id, MAX_ROSTER_SIZE> players_;
+    std::array<beam::internet::ipv4::endpoint_id, MAX_ROSTER_SIZE> players_;
     std::array<std::string, MAX_CLUB_COUNT> team_names_;
     std::array<robocup2Dsim::common::entity::player_id, MAX_CLUB_COUNT> goalies_;
 };
@@ -80,18 +81,18 @@ public:
 	uniform_taken,
 	goalie_taken
     };
-    bool is_registered(const robocup2Dsim::csprotocol::client_id& client) const;
+    bool is_registered(const beam::internet::ipv4::endpoint_id& client) const;
     bool is_registered(const std::string& team, robocup2Dsim::common::entity::UniformNumber uniform) const;
     bool is_full() const;
     std::unique_ptr<roster> finalise() const;
-    register_result register_client(const robocup2Dsim::csprotocol::client_id& client, const robocup2Dsim::csprotocol::RegistrationRequest::Reader& request);
-    deregister_result deregister_client(const robocup2Dsim::csprotocol::client_id& client);
+    register_result register_client(const beam::internet::ipv4::endpoint_id& client, const robocup2Dsim::csprotocol::RegistrationRequest::Reader& request);
+    deregister_result deregister_client(const beam::internet::ipv4::endpoint_id& client);
 private:
     struct client
     {
-	robocup2Dsim::csprotocol::client_id id;
+	beam::internet::ipv4::endpoint_id id;
 	robocup2Dsim::common::entity::PlayerType ptype;
-	inline client(robocup2Dsim::csprotocol::client_id i, robocup2Dsim::common::entity::PlayerType p)
+	inline client(beam::internet::ipv4::endpoint_id i, robocup2Dsim::common::entity::PlayerType p)
 	    :
 		id(i), ptype(p)
 	{ }
@@ -109,7 +110,7 @@ private:
     };
     typedef std::map<robocup2Dsim::common::entity::UniformNumber, client> team;
     std::map<std::string, team> enrollment_;
-    std::map<robocup2Dsim::csprotocol::client_id, player> client_player_map_;
+    std::map<beam::internet::ipv4::endpoint_id, player> client_player_map_;
 };
 
 } // namespace server

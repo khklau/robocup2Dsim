@@ -5,6 +5,7 @@
 #include <turbo/type_utility/enum_iterator.hpp>
 #include <turbo/type_utility/enum_iterator.hxx>
 
+namespace bi4 = beam::internet::ipv4;
 namespace rce = robocup2Dsim::common::entity;
 namespace rcc = robocup2Dsim::common::command;
 namespace rcm = robocup2Dsim::common::metadata;
@@ -12,7 +13,7 @@ namespace rcs = robocup2Dsim::csprotocol;
 namespace rse = robocup2Dsim::server;
 namespace ttu = turbo::type_utility;
 
-rse::enrollment::register_result register_client(rcs::client_id client, const std::string& team, rce::UniformNumber uniform, rce::PlayerType ptype, rse::enrollment& enrollment)
+rse::enrollment::register_result register_client(bi4::endpoint_id client, const std::string& team, rce::UniformNumber uniform, rce::PlayerType ptype, rse::enrollment& enrollment)
 {
     capnp::MallocMessageBuilder arena;
     rcs::RegistrationRequest::Builder request = arena.initRoot<rcs::RegistrationRequest>();
@@ -32,19 +33,19 @@ TEST(enrollment_test, register_client_team_taken)
 {
     rse::enrollment enrollment1;
     ASSERT_EQ(rse::enrollment::register_result::success, register_client(
-	    1U,
+	    bi4::endpoint_id(1U, 12345U),
 	    "foo",
 	    rce::UniformNumber::ONE,
 	    rce::PlayerType::GOAL_KEEPER,
 	    enrollment1)) << "reg failed";
     ASSERT_EQ(rse::enrollment::register_result::success, register_client(
-	    2U,
+	    bi4::endpoint_id(2U, 12345U),
 	    "bar",
 	    rce::UniformNumber::ONE,
 	    rce::PlayerType::GOAL_KEEPER,
 	    enrollment1)) << "reg failed";
     EXPECT_EQ(rse::enrollment::register_result::team_slot_taken, register_client(
-	    3U,
+	    bi4::endpoint_id(3U, 12345U),
 	    "blah",
 	    rce::UniformNumber::ONE,
 	    rce::PlayerType::GOAL_KEEPER,
@@ -55,25 +56,25 @@ TEST(enrollment_test, register_client_goalie_taken)
 {
     rse::enrollment enrollment1;
     ASSERT_EQ(rse::enrollment::register_result::success, register_client(
-	    1U,
+	    bi4::endpoint_id(1U, 12345U),
 	    "foo",
 	    rce::UniformNumber::ONE,
 	    rce::PlayerType::GOAL_KEEPER,
 	    enrollment1)) << "reg failed";
     ASSERT_EQ(rse::enrollment::register_result::success, register_client(
-	    2U,
+	    bi4::endpoint_id(2U, 12345U),
 	    "bar",
 	    rce::UniformNumber::ONE,
 	    rce::PlayerType::GOAL_KEEPER,
 	    enrollment1)) << "reg failed";
     EXPECT_EQ(rse::enrollment::register_result::goalie_taken, register_client(
-	    3U,
+	    bi4::endpoint_id(3U, 12345U),
 	    "foo",
 	    rce::UniformNumber::TWO,
 	    rce::PlayerType::GOAL_KEEPER,
 	    enrollment1)) << "reg succeeded";
     EXPECT_EQ(rse::enrollment::register_result::goalie_taken, register_client(
-	    4U,
+	    bi4::endpoint_id(4U, 12345U),
 	    "bar",
 	    rce::UniformNumber::ELEVEN,
 	    rce::PlayerType::GOAL_KEEPER,
@@ -84,25 +85,25 @@ TEST(enrollment_test, register_client_uniform_taken)
 {
     rse::enrollment enrollment1;
     ASSERT_EQ(rse::enrollment::register_result::success, register_client(
-	    1U,
+	    bi4::endpoint_id(1U, 12345U),
 	    "foo",
 	    rce::UniformNumber::FIVE,
 	    rce::PlayerType::GOAL_KEEPER,
 	    enrollment1)) << "reg failed";
     ASSERT_EQ(rse::enrollment::register_result::success, register_client(
-	    2U,
+	    bi4::endpoint_id(2U, 12345U),
 	    "bar",
 	    rce::UniformNumber::FOUR,
 	    rce::PlayerType::GOAL_KEEPER,
 	    enrollment1)) << "reg failed";
     EXPECT_EQ(rse::enrollment::register_result::uniform_taken, register_client(
-	    3U,
+	    bi4::endpoint_id(3U, 12345U),
 	    "foo",
 	    rce::UniformNumber::FIVE,
 	    rce::PlayerType::OUT_FIELD,
 	    enrollment1)) << "reg suceeded";
     EXPECT_EQ(rse::enrollment::register_result::uniform_taken, register_client(
-	    4U,
+	    bi4::endpoint_id(4U, 12345U),
 	    "bar",
 	    rce::UniformNumber::FOUR,
 	    rce::PlayerType::OUT_FIELD,
@@ -112,11 +113,11 @@ TEST(enrollment_test, register_client_uniform_taken)
 TEST(enrollment_test, register_client_basic)
 {
     rse::enrollment enrollment1;
-    ASSERT_FALSE(enrollment1.is_registered(1U)) << "should not be registered";
+    ASSERT_FALSE(enrollment1.is_registered(bi4::endpoint_id(1U, 12345U))) << "should not be registered";
     ASSERT_FALSE(enrollment1.is_registered("foo", rce::UniformNumber::ONE)) << "should not be registered";
     ASSERT_FALSE(enrollment1.is_full());
-    EXPECT_EQ(rse::enrollment::register_result::success, register_client(1U, "foo", rce::UniformNumber::ONE, rce::PlayerType::GOAL_KEEPER, enrollment1)) << "reg failed";
-    EXPECT_TRUE(enrollment1.is_registered(1U)) << "is_registered return false on registered player";
+    EXPECT_EQ(rse::enrollment::register_result::success, register_client(bi4::endpoint_id(1U, 12345U), "foo", rce::UniformNumber::ONE, rce::PlayerType::GOAL_KEEPER, enrollment1)) << "reg failed";
+    EXPECT_TRUE(enrollment1.is_registered(bi4::endpoint_id(1U, 12345U))) << "is_registered return false on registered player";
     EXPECT_TRUE(enrollment1.is_registered("foo", rce::UniformNumber::ONE)) << "is_registered return false on registered player";
     EXPECT_FALSE(enrollment1.is_full());
 }
@@ -124,7 +125,7 @@ TEST(enrollment_test, register_client_basic)
 TEST(enrollment_test, register_client_full)
 {
     rse::enrollment enrollment1;
-    rcs::client_id client = 1000U;
+    bi4::endpoint_id client(1000U, 12345U);
     ASSERT_EQ(rse::enrollment::register_result::success, register_client(
 	    client,
 	    "foo",
@@ -133,7 +134,7 @@ TEST(enrollment_test, register_client_full)
 	    enrollment1)) << "reg failed";
     for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::TWO, rce::UniformNumber::ELEVEN>())
     {
-	++client;
+	client = bi4::endpoint_id(client.get_address() + 1U, client.get_port());
 	ASSERT_EQ(rse::enrollment::register_result::success, register_client(
 		client,
 		"foo",
@@ -142,7 +143,7 @@ TEST(enrollment_test, register_client_full)
 		enrollment1)) << "reg failed";
     }
     ASSERT_FALSE(enrollment1.is_full());
-    ++client;
+    client = bi4::endpoint_id(client.get_address() + 1U, client.get_port());
     ASSERT_EQ(rse::enrollment::register_result::success, register_client(
 	    client,
 	    "bar",
@@ -151,7 +152,7 @@ TEST(enrollment_test, register_client_full)
 	    enrollment1)) << "reg failed";
     for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::TWO, rce::UniformNumber::ELEVEN>())
     {
-	++client;
+	client = bi4::endpoint_id(client.get_address() + 1U, client.get_port());
 	ASSERT_EQ(rse::enrollment::register_result::success, register_client(
 		client,
 		"bar",
@@ -160,7 +161,8 @@ TEST(enrollment_test, register_client_full)
 		enrollment1)) << "reg failed";
     }
     EXPECT_TRUE(enrollment1.is_full());
-    for (rcs::client_id client = 1000U; client < 1022U; ++client)
+    static const bi4::endpoint_id end(1022U, 12345U);
+    for (bi4::endpoint_id client(1000U, 12345U); client < end; client = bi4::endpoint_id(client.get_address() + 1U, client.get_port()))
     {
 	EXPECT_TRUE(enrollment1.is_registered(client)) << "is_registered return false on registered player";
     }
@@ -174,20 +176,20 @@ TEST(enrollment_test, register_client_full)
 TEST(enrollment_test, deregister_client_invalid)
 {
     rse::enrollment enrollment1;
-    ASSERT_FALSE(enrollment1.is_registered(1U)) << "should not be registered";
-    EXPECT_EQ(rse::deregister_result::client_not_found, enrollment1.deregister_client(1U))
+    ASSERT_FALSE(enrollment1.is_registered(bi4::endpoint_id(1U, 12345U))) << "should not be registered";
+    EXPECT_EQ(rse::deregister_result::client_not_found, enrollment1.deregister_client(bi4::endpoint_id(1U, 12345U)))
 	    << "deregistered a non existing client";
     ASSERT_EQ(rse::enrollment::register_result::success, register_client(
-	    1U,
+	    bi4::endpoint_id(1U, 12345U),
 	    "foo",
 	    rce::UniformNumber::ONE,
 	    rce::PlayerType::GOAL_KEEPER,
 	    enrollment1)) << "reg failed";
-    ASSERT_TRUE(enrollment1.is_registered(1U)) << "should be registered";
-    ASSERT_EQ(rse::deregister_result::success, enrollment1.deregister_client(1U))
+    ASSERT_TRUE(enrollment1.is_registered(bi4::endpoint_id(1U, 12345U))) << "should be registered";
+    ASSERT_EQ(rse::deregister_result::success, enrollment1.deregister_client(bi4::endpoint_id(1U, 12345U)))
 	    << "deregistered an existing client failed";
-    ASSERT_FALSE(enrollment1.is_registered(1U)) << "should be registered";
-    EXPECT_EQ(rse::deregister_result::client_not_found, enrollment1.deregister_client(1U))
+    ASSERT_FALSE(enrollment1.is_registered(bi4::endpoint_id(1U, 12345U))) << "should be registered";
+    EXPECT_EQ(rse::deregister_result::client_not_found, enrollment1.deregister_client(bi4::endpoint_id(1U, 12345U)))
 	    << "deregistering an already deregistered client succeeded";
 }
 
@@ -195,47 +197,47 @@ TEST(enrollment_test, deregister_client_basic)
 {
     rse::enrollment enrollment1;
     ASSERT_EQ(rse::enrollment::register_result::success, register_client(
-	    1U,
+	    bi4::endpoint_id(1U, 12345U),
 	    "foo",
 	    rce::UniformNumber::ONE,
 	    rce::PlayerType::GOAL_KEEPER,
 	    enrollment1)) << "reg failed";
-    ASSERT_TRUE(enrollment1.is_registered(1U)) << "should be registered";
-    EXPECT_EQ(rse::deregister_result::success, enrollment1.deregister_client(1U)) << "deregister failed";
-    EXPECT_FALSE(enrollment1.is_registered(1U)) << "should not be registered";
+    ASSERT_TRUE(enrollment1.is_registered(bi4::endpoint_id(1U, 12345U))) << "should be registered";
+    EXPECT_EQ(rse::deregister_result::success, enrollment1.deregister_client(bi4::endpoint_id(1U, 12345U))) << "deregister failed";
+    EXPECT_FALSE(enrollment1.is_registered(bi4::endpoint_id(1U, 12345U))) << "should not be registered";
 }
 
 TEST(enrollment_test, register_and_deregister)
 {
     rse::enrollment enrollment1;
-    ASSERT_FALSE(enrollment1.is_registered(1U)) << "should not be registered";
+    ASSERT_FALSE(enrollment1.is_registered(bi4::endpoint_id(1U, 12345U))) << "should not be registered";
     ASSERT_EQ(rse::enrollment::register_result::success, register_client(
-	    1U,
+	    bi4::endpoint_id(1U, 12345U),
 	    "foo",
 	    rce::UniformNumber::ONE,
 	    rce::PlayerType::GOAL_KEEPER,
 	    enrollment1)) << "reg failed";
-    ASSERT_TRUE(enrollment1.is_registered(1U)) << "should be registered";
-    ASSERT_EQ(rse::deregister_result::success, enrollment1.deregister_client(1U))
+    ASSERT_TRUE(enrollment1.is_registered(bi4::endpoint_id(1U, 12345U))) << "should be registered";
+    ASSERT_EQ(rse::deregister_result::success, enrollment1.deregister_client(bi4::endpoint_id(1U, 12345U)))
 	    << "deregistered an existing client failed";
-    ASSERT_FALSE(enrollment1.is_registered(1U)) << "should be registered";
+    ASSERT_FALSE(enrollment1.is_registered(bi4::endpoint_id(1U, 12345U))) << "should be registered";
 
     ASSERT_EQ(rse::enrollment::register_result::success, register_client(
-	    1U,
+	    bi4::endpoint_id(1U, 12345U),
 	    "foo",
 	    rce::UniformNumber::ONE,
 	    rce::PlayerType::GOAL_KEEPER,
 	    enrollment1)) << "reg failed";
-    ASSERT_TRUE(enrollment1.is_registered(1U)) << "should be registered";
-    EXPECT_EQ(rse::deregister_result::success, enrollment1.deregister_client(1U))
+    ASSERT_TRUE(enrollment1.is_registered(bi4::endpoint_id(1U, 12345U))) << "should be registered";
+    EXPECT_EQ(rse::deregister_result::success, enrollment1.deregister_client(bi4::endpoint_id(1U, 12345U)))
 	    << "deregistered an existing client failed";
-    EXPECT_FALSE(enrollment1.is_registered(1U)) << "should be registered";
+    EXPECT_FALSE(enrollment1.is_registered(bi4::endpoint_id(1U, 12345U))) << "should be registered";
 }
 
 TEST(enrollment_test, finalise_invalid)
 {
     rse::enrollment enrollment1;
-    ASSERT_EQ(rse::enrollment::register_result::success, register_client(1U, "foo", rce::UniformNumber::ONE, rce::PlayerType::GOAL_KEEPER, enrollment1)) << "reg failed";
+    ASSERT_EQ(rse::enrollment::register_result::success, register_client(bi4::endpoint_id(1U, 12345U), "foo", rce::UniformNumber::ONE, rce::PlayerType::GOAL_KEEPER, enrollment1)) << "reg failed";
     ASSERT_FALSE(enrollment1.is_full());
     EXPECT_FALSE(enrollment1.finalise()) << "roster was produced from a not full enrollment";
 }
@@ -243,7 +245,7 @@ TEST(enrollment_test, finalise_invalid)
 TEST(enrollment_test, finalise_almost_full)
 {
     rse::enrollment enrollment1;
-    rcs::client_id client = 1U;
+    bi4::endpoint_id client(1U, 12345U);
     ASSERT_EQ(rse::enrollment::register_result::success, register_client(
 	    client,
 	    "foo",
@@ -252,7 +254,7 @@ TEST(enrollment_test, finalise_almost_full)
 	    enrollment1)) << "reg failed";
     for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::TWO, rce::UniformNumber::ELEVEN>())
     {
-	++client;
+	client = bi4::endpoint_id(client.get_address() + 1U, client.get_port());
 	ASSERT_EQ(rse::enrollment::register_result::success, register_client(
 		client,
 		"foo",
@@ -262,7 +264,7 @@ TEST(enrollment_test, finalise_almost_full)
     }
     for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::TWO, rce::UniformNumber::ELEVEN>())
     {
-	++client;
+	client = bi4::endpoint_id(client.get_address() + 1U, client.get_port());
 	ASSERT_EQ(rse::enrollment::register_result::success, register_client(
 		client,
 		"bar",
@@ -277,7 +279,7 @@ TEST(enrollment_test, finalise_almost_full)
 TEST(enrollment_test, finalise_basic)
 {
     rse::enrollment enrollment1;
-    rcs::client_id client = 1000U;
+    bi4::endpoint_id client(1000U, 12345U);
     for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::TWO, rce::UniformNumber::ELEVEN>())
     {
 	ASSERT_EQ(rse::enrollment::register_result::success, register_client(
@@ -286,7 +288,7 @@ TEST(enrollment_test, finalise_basic)
 		uniform,
 		rce::PlayerType::OUT_FIELD,
 		enrollment1)) << "reg failed";
-	++client;
+	client = bi4::endpoint_id(client.get_address() + 1U, client.get_port());
     }
     ASSERT_EQ(rse::enrollment::register_result::success, register_client(
 	    client,
@@ -294,7 +296,7 @@ TEST(enrollment_test, finalise_basic)
 	    rce::UniformNumber::ONE,
 	    rce::PlayerType::GOAL_KEEPER,
 	    enrollment1)) << "reg failed";
-    ++client;
+    client = bi4::endpoint_id(client.get_address() + 1U, client.get_port());
     for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::TWO, rce::UniformNumber::ELEVEN>())
     {
 	ASSERT_EQ(rse::enrollment::register_result::success, register_client(
@@ -303,7 +305,7 @@ TEST(enrollment_test, finalise_basic)
 		uniform,
 		rce::PlayerType::OUT_FIELD,
 		enrollment1)) << "reg failed";
-	++client;
+	client = bi4::endpoint_id(client.get_address() + 1U, client.get_port());
     }
     ASSERT_EQ(rse::enrollment::register_result::success, register_client(
 	    client,
@@ -316,45 +318,46 @@ TEST(enrollment_test, finalise_basic)
     EXPECT_TRUE(roster1.get() != nullptr) << "finalise failed with full enrollment";
     EXPECT_STREQ("bar", roster1->get_team_name(rce::TeamId::ALPHA).c_str()) << "finalised teams were not sorted alphabetically";
     EXPECT_STREQ("foo", roster1->get_team_name(rce::TeamId::BETA).c_str()) << "finalised teams were not sorted alphabetically";
-    std::unordered_map<rcs::client_id, rce::player_id> player_ids;
-    for (client = 1000U; client < 1022U; ++client)
+    std::unordered_map<bi4::endpoint_id, rce::player_id> player_ids;
+    static const bi4::endpoint_id end(1022U, 12345U);
+    for (client = bi4::endpoint_id(1000U, 12345U); client < end; client = bi4::endpoint_id(client.get_address() + 1U, client.get_port()))
     {
 	auto result = roster1->find_player(client);
 	EXPECT_EQ(rse::roster::find_result::found, std::get<0>(result)) << "find_player failed with client_id " << client;
 	player_ids[client] = std::get<1>(result);
     }
-    EXPECT_TRUE(roster1->is_goalkeeper(player_ids[1010])) << "goalkeeper not finalised";
-    EXPECT_TRUE(roster1->is_goalkeeper(player_ids[1021])) << "goalkeeper not finalised";
-    EXPECT_FALSE(roster1->is_goalkeeper(player_ids[1009])) << "goalkeeper not finalised";
-    EXPECT_FALSE(roster1->is_goalkeeper(player_ids[1020])) << "goalkeeper not finalised";
-    EXPECT_EQ(player_ids[1021], 0) << "finalise did not designated the correct player_id";
-    EXPECT_EQ(player_ids[1011], 1) << "finalise did not designated the correct player_id";
-    EXPECT_EQ(player_ids[1012], 2) << "finalise did not designated the correct player_id";
-    EXPECT_EQ(player_ids[1013], 3) << "finalise did not designated the correct player_id";
-    EXPECT_EQ(player_ids[1014], 4) << "finalise did not designated the correct player_id";
-    EXPECT_EQ(player_ids[1015], 5) << "finalise did not designated the correct player_id";
-    EXPECT_EQ(player_ids[1016], 6) << "finalise did not designated the correct player_id";
-    EXPECT_EQ(player_ids[1017], 7) << "finalise did not designated the correct player_id";
-    EXPECT_EQ(player_ids[1018], 8) << "finalise did not designated the correct player_id";
-    EXPECT_EQ(player_ids[1019], 9) << "finalise did not designated the correct player_id";
-    EXPECT_EQ(player_ids[1020], 10) << "finalise did not designated the correct player_id";
-    EXPECT_EQ(player_ids[1010], 11) << "finalise did not designated the correct player_id";
-    EXPECT_EQ(player_ids[1000], 12) << "finalise did not designated the correct player_id";
-    EXPECT_EQ(player_ids[1001], 13) << "finalise did not designated the correct player_id";
-    EXPECT_EQ(player_ids[1002], 14) << "finalise did not designated the correct player_id";
-    EXPECT_EQ(player_ids[1003], 15) << "finalise did not designated the correct player_id";
-    EXPECT_EQ(player_ids[1004], 16) << "finalise did not designated the correct player_id";
-    EXPECT_EQ(player_ids[1005], 17) << "finalise did not designated the correct player_id";
-    EXPECT_EQ(player_ids[1006], 18) << "finalise did not designated the correct player_id";
-    EXPECT_EQ(player_ids[1007], 19) << "finalise did not designated the correct player_id";
-    EXPECT_EQ(player_ids[1008], 20) << "finalise did not designated the correct player_id";
-    EXPECT_EQ(player_ids[1009], 21) << "finalise did not designated the correct player_id";
+    EXPECT_TRUE(roster1->is_goalkeeper(player_ids[bi4::endpoint_id(1010U, 12345U)])) << "goalkeeper not finalised";
+    EXPECT_TRUE(roster1->is_goalkeeper(player_ids[bi4::endpoint_id(1021U, 12345U)])) << "goalkeeper not finalised";
+    EXPECT_FALSE(roster1->is_goalkeeper(player_ids[bi4::endpoint_id(1009U, 12345U)])) << "goalkeeper not finalised";
+    EXPECT_FALSE(roster1->is_goalkeeper(player_ids[bi4::endpoint_id(1020U, 12345U)])) << "goalkeeper not finalised";
+    EXPECT_EQ(player_ids[bi4::endpoint_id(1021U, 12345U)], 0) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[bi4::endpoint_id(1011U, 12345U)], 1) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[bi4::endpoint_id(1012U, 12345U)], 2) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[bi4::endpoint_id(1013U, 12345U)], 3) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[bi4::endpoint_id(1014U, 12345U)], 4) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[bi4::endpoint_id(1015U, 12345U)], 5) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[bi4::endpoint_id(1016U, 12345U)], 6) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[bi4::endpoint_id(1017U, 12345U)], 7) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[bi4::endpoint_id(1018U, 12345U)], 8) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[bi4::endpoint_id(1019U, 12345U)], 9) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[bi4::endpoint_id(1020U, 12345U)], 10) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[bi4::endpoint_id(1010U, 12345U)], 11) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[bi4::endpoint_id(1000U, 12345U)], 12) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[bi4::endpoint_id(1001U, 12345U)], 13) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[bi4::endpoint_id(1002U, 12345U)], 14) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[bi4::endpoint_id(1003U, 12345U)], 15) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[bi4::endpoint_id(1004U, 12345U)], 16) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[bi4::endpoint_id(1005U, 12345U)], 17) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[bi4::endpoint_id(1006U, 12345U)], 18) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[bi4::endpoint_id(1007U, 12345U)], 19) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[bi4::endpoint_id(1008U, 12345U)], 20) << "finalise did not designated the correct player_id";
+    EXPECT_EQ(player_ids[bi4::endpoint_id(1009U, 12345U)], 21) << "finalise did not designated the correct player_id";
 }
 
 TEST(enrollment_test, finalise_no_goalkeeper)
 {
     rse::enrollment enrollment1;
-    rcs::client_id client = 1000U;
+    bi4::endpoint_id client(1000U, 12345U);
     for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::ONE, rce::UniformNumber::ELEVEN>())
     {
 	ASSERT_EQ(rse::enrollment::register_result::success, register_client(
@@ -363,7 +366,7 @@ TEST(enrollment_test, finalise_no_goalkeeper)
 		uniform,
 		rce::PlayerType::OUT_FIELD,
 		enrollment1)) << "reg failed";
-	++client;
+	client = bi4::endpoint_id(client.get_address() + 1U, client.get_port());
     }
     for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::ONE, rce::UniformNumber::ELEVEN>())
     {
@@ -373,12 +376,13 @@ TEST(enrollment_test, finalise_no_goalkeeper)
 		uniform,
 		rce::PlayerType::OUT_FIELD,
 		enrollment1)) << "reg failed";
-	++client;
+	client = bi4::endpoint_id(client.get_address() + 1U, client.get_port());
     }
     ASSERT_TRUE(enrollment1.is_full());
     auto roster1 = enrollment1.finalise();
     EXPECT_TRUE(roster1.get() != nullptr) << "finalise failed with full enrollment";
-    for (client = 1000U; client < 1022U; ++client)
+    static const bi4::endpoint_id end(1022U, 12345U);
+    for (client = bi4::endpoint_id(1000U, 12345U); client < end; client = bi4::endpoint_id(client.get_address() + 1U, client.get_port()))
     {
 	auto result = roster1->find_player(client);
 	EXPECT_EQ(rse::roster::find_result::found, std::get<0>(result)) << "find_player failed with client_id " << client;
@@ -388,9 +392,15 @@ TEST(enrollment_test, finalise_no_goalkeeper)
 
 TEST(roster_test, find_client_invalid)
 {
-    std::array<rcs::client_id, rse::MAX_ROSTER_SIZE> player_list1{
-	    22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12,
-	    11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    std::array<bi4::endpoint_id, rse::MAX_ROSTER_SIZE> player_list1{
+	    bi4::endpoint_id(22U, 12345U), bi4::endpoint_id(21U, 12345U), bi4::endpoint_id(20U, 12345U),
+	    bi4::endpoint_id(19U, 12345U), bi4::endpoint_id(18U, 12345U), bi4::endpoint_id(17U, 12345U),
+	    bi4::endpoint_id(16U, 12345U), bi4::endpoint_id(15U, 12345U), bi4::endpoint_id(14U, 12345U),
+	    bi4::endpoint_id(13U, 12345U), bi4::endpoint_id(12U, 12345U),
+	    bi4::endpoint_id(11U, 12345U), bi4::endpoint_id(10U, 12345U), bi4::endpoint_id(9U, 12345U),
+	    bi4::endpoint_id(8U, 12345U), bi4::endpoint_id(7U, 12345U), bi4::endpoint_id(6U, 12345U),
+	    bi4::endpoint_id(5U, 12345U), bi4::endpoint_id(4U, 12345U), bi4::endpoint_id(3U, 12345U),
+	    bi4::endpoint_id(2U, 12345U), bi4::endpoint_id(1U, 12345U)};
     std::array<std::string, rse::MAX_CLUB_COUNT> team_list1{"foo", "bar"};
     std::array<rce::player_id, rse::MAX_CLUB_COUNT> goalie_list1{0, 11};
     rse::roster roster1(player_list1, team_list1, goalie_list1);
@@ -402,9 +412,15 @@ TEST(roster_test, find_client_invalid)
 
 TEST(roster_test, find_client_basic)
 {
-    std::array<rcs::client_id, rse::MAX_ROSTER_SIZE> player_list1{
-	    22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12,
-	    11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    std::array<bi4::endpoint_id, rse::MAX_ROSTER_SIZE> player_list1{
+	    bi4::endpoint_id(22U, 12345U), bi4::endpoint_id(21U, 12345U), bi4::endpoint_id(20U, 12345U),
+	    bi4::endpoint_id(19U, 12345U), bi4::endpoint_id(18U, 12345U), bi4::endpoint_id(17U, 12345U),
+	    bi4::endpoint_id(16U, 12345U), bi4::endpoint_id(15U, 12345U), bi4::endpoint_id(14U, 12345U),
+	    bi4::endpoint_id(13U, 12345U), bi4::endpoint_id(12U, 12345U),
+	    bi4::endpoint_id(11U, 12345U), bi4::endpoint_id(10U, 12345U), bi4::endpoint_id(9U, 12345U),
+	    bi4::endpoint_id(8U, 12345U), bi4::endpoint_id(7U, 12345U), bi4::endpoint_id(6U, 12345U),
+	    bi4::endpoint_id(5U, 12345U), bi4::endpoint_id(4U, 12345U), bi4::endpoint_id(3U, 12345U),
+	    bi4::endpoint_id(2U, 12345U), bi4::endpoint_id(1U, 12345U)};
     std::array<std::string, rse::MAX_CLUB_COUNT> team_list1{"foo", "bar"};
     std::array<rce::player_id, rse::MAX_CLUB_COUNT> goalie_list1{0, 11};
     rse::roster roster1(player_list1, team_list1, goalie_list1);
@@ -418,29 +434,41 @@ TEST(roster_test, find_client_basic)
 
 TEST(roster_test, find_player_invalid)
 {
-    std::array<rcs::client_id, rse::MAX_ROSTER_SIZE> player_list1{
-	    22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12,
-	    11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    std::array<bi4::endpoint_id, rse::MAX_ROSTER_SIZE> player_list1{
+	    bi4::endpoint_id(22U, 12345U), bi4::endpoint_id(21U, 12345U), bi4::endpoint_id(20U, 12345U),
+	    bi4::endpoint_id(19U, 12345U), bi4::endpoint_id(18U, 12345U), bi4::endpoint_id(17U, 12345U),
+	    bi4::endpoint_id(16U, 12345U), bi4::endpoint_id(15U, 12345U), bi4::endpoint_id(14U, 12345U),
+	    bi4::endpoint_id(13U, 12345U), bi4::endpoint_id(12U, 12345U),
+	    bi4::endpoint_id(11U, 12345U), bi4::endpoint_id(10U, 12345U), bi4::endpoint_id(9U, 12345U),
+	    bi4::endpoint_id(8U, 12345U), bi4::endpoint_id(7U, 12345U), bi4::endpoint_id(6U, 12345U),
+	    bi4::endpoint_id(5U, 12345U), bi4::endpoint_id(4U, 12345U), bi4::endpoint_id(3U, 12345U),
+	    bi4::endpoint_id(2U, 12345U), bi4::endpoint_id(1U, 12345U)};
     std::array<std::string, rse::MAX_CLUB_COUNT> team_list1{"foo", "bar"};
     std::array<rce::player_id, rse::MAX_CLUB_COUNT> goalie_list1{0, 11};
     rse::roster roster1(player_list1, team_list1, goalie_list1);
-    EXPECT_EQ(rse::roster::find_result::not_found, std::get<0>(roster1.find_player(0U)))
+    EXPECT_EQ(rse::roster::find_result::not_found, std::get<0>(roster1.find_player(bi4::endpoint_id(0U, 12345U))))
 	    << "find_player succeeded with an unknown client_id";
-    EXPECT_EQ(rse::roster::find_result::not_found, std::get<0>(roster1.find_player(23)))
+    EXPECT_EQ(rse::roster::find_result::not_found, std::get<0>(roster1.find_player(bi4::endpoint_id(23U, 12345U))))
 	    << "find_player succeeded with an unknown client_id";
 }
 
 TEST(roster_test, find_player_basic)
 {
-    std::array<rcs::client_id, rse::MAX_ROSTER_SIZE> player_list1{
-	    1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010,
-	    1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1019, 1020, 1021};
+    std::array<bi4::endpoint_id, rse::MAX_ROSTER_SIZE> player_list1{
+	    bi4::endpoint_id(1000U, 12345U), bi4::endpoint_id(1001U, 12345U), bi4::endpoint_id(1002U, 12345U),
+	    bi4::endpoint_id(1003U, 12345U), bi4::endpoint_id(1004U, 12345U), bi4::endpoint_id(1005U, 12345U),
+	    bi4::endpoint_id(1006U, 12345U), bi4::endpoint_id(1007U, 12345U), bi4::endpoint_id(1008U, 12345U),
+	    bi4::endpoint_id(1009U, 12345U), bi4::endpoint_id(1010U, 12345U),
+	    bi4::endpoint_id(1011U, 12345U), bi4::endpoint_id(1012U, 12345U), bi4::endpoint_id(1013U, 12345U),
+	    bi4::endpoint_id(1014U, 12345U), bi4::endpoint_id(1015U, 12345U), bi4::endpoint_id(1016U, 12345U),
+	    bi4::endpoint_id(1017U, 12345U), bi4::endpoint_id(1018U, 12345U), bi4::endpoint_id(1019U, 12345U),
+	    bi4::endpoint_id(1020U, 12345U), bi4::endpoint_id(1021U, 12345U)};
     std::array<std::string, rse::MAX_CLUB_COUNT> team_list1{"foo", "bar"};
     std::array<rce::player_id, rse::MAX_CLUB_COUNT> goalie_list1{0, 11};
     rse::roster roster1(player_list1, team_list1, goalie_list1);
     for (std::size_t index = 0U; index < player_list1.max_size(); ++index)
     {
-	auto result = roster1.find_player(1000 + index);
+	auto result = roster1.find_player(bi4::endpoint_id(1000U + index, 12345U));
 	EXPECT_EQ(rse::roster::find_result::found, std::get<0>(result)) << "find_player could not find the player_id";
 	EXPECT_EQ(index, std::get<1>(result)) << "find_player returned the wrong player_id";
     }
@@ -448,9 +476,15 @@ TEST(roster_test, find_player_basic)
 
 TEST(roster_test, is_goalkeeper_invalid)
 {
-    std::array<rcs::client_id, rse::MAX_ROSTER_SIZE> player_list1{
-	    22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12,
-	    11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    std::array<bi4::endpoint_id, rse::MAX_ROSTER_SIZE> player_list1{
+	    bi4::endpoint_id(22U, 12345U), bi4::endpoint_id(21U, 12345U), bi4::endpoint_id(20U, 12345U),
+	    bi4::endpoint_id(19U, 12345U), bi4::endpoint_id(18U, 12345U), bi4::endpoint_id(17U, 12345U),
+	    bi4::endpoint_id(16U, 12345U), bi4::endpoint_id(15U, 12345U), bi4::endpoint_id(14U, 12345U),
+	    bi4::endpoint_id(13U, 12345U), bi4::endpoint_id(12U, 12345U),
+	    bi4::endpoint_id(11U, 12345U), bi4::endpoint_id(10U, 12345U), bi4::endpoint_id(9U, 12345U),
+	    bi4::endpoint_id(8U, 12345U), bi4::endpoint_id(7U, 12345U), bi4::endpoint_id(6U, 12345U),
+	    bi4::endpoint_id(5U, 12345U), bi4::endpoint_id(4U, 12345U), bi4::endpoint_id(3U, 12345U),
+	    bi4::endpoint_id(2U, 12345U), bi4::endpoint_id(1U, 12345U)};
     std::array<std::string, rse::MAX_CLUB_COUNT> team_list1{"foo", "bar"};
     std::array<rce::player_id, rse::MAX_CLUB_COUNT> goalie_list1{0, 11};
     rse::roster roster1(player_list1, team_list1, goalie_list1);
@@ -462,9 +496,15 @@ TEST(roster_test, is_goalkeeper_invalid)
 
 TEST(roster_test, is_goalkeeper_basic)
 {
-    std::array<rcs::client_id, rse::MAX_ROSTER_SIZE> player_list1{
-	    22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12,
-	    11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    std::array<bi4::endpoint_id, rse::MAX_ROSTER_SIZE> player_list1{
+	    bi4::endpoint_id(22U, 12345U), bi4::endpoint_id(21U, 12345U), bi4::endpoint_id(20U, 12345U),
+	    bi4::endpoint_id(19U, 12345U), bi4::endpoint_id(18U, 12345U), bi4::endpoint_id(17U, 12345U),
+	    bi4::endpoint_id(16U, 12345U), bi4::endpoint_id(15U, 12345U), bi4::endpoint_id(14U, 12345U),
+	    bi4::endpoint_id(13U, 12345U), bi4::endpoint_id(12U, 12345U),
+	    bi4::endpoint_id(11U, 12345U), bi4::endpoint_id(10U, 12345U), bi4::endpoint_id(9U, 12345U),
+	    bi4::endpoint_id(8U, 12345U), bi4::endpoint_id(7U, 12345U), bi4::endpoint_id(6U, 12345U),
+	    bi4::endpoint_id(5U, 12345U), bi4::endpoint_id(4U, 12345U), bi4::endpoint_id(3U, 12345U),
+	    bi4::endpoint_id(2U, 12345U), bi4::endpoint_id(1U, 12345U)};
     std::array<std::string, rse::MAX_CLUB_COUNT> team_list1{"foo", "bar"};
     std::array<rce::player_id, rse::MAX_CLUB_COUNT> goalie_list1{0, 11};
     rse::roster roster1(player_list1, team_list1, goalie_list1);
@@ -482,7 +522,7 @@ TEST(roster_test, get_team_name_basic)
 {
     const std::string ALPHA1("foo");
     const std::string BETA1("bar");
-    std::array<rcs::client_id, rse::MAX_ROSTER_SIZE> player_list1;
+    std::array<bi4::endpoint_id, rse::MAX_ROSTER_SIZE> player_list1;
     std::array<std::string, rse::MAX_CLUB_COUNT> team_list1{ALPHA1, BETA1};
     std::array<rce::player_id, rse::MAX_CLUB_COUNT> goalie_list1;
     rse::roster roster1(player_list1, team_list1, goalie_list1);
@@ -492,31 +532,44 @@ TEST(roster_test, get_team_name_basic)
 
 TEST(roster_test, deregister_client_invalid)
 {
-    std::array<rcs::client_id, rse::MAX_ROSTER_SIZE> player_list1{
-	    1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010,
-	    1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1019, 1020, 1021};
+    std::array<bi4::endpoint_id, rse::MAX_ROSTER_SIZE> player_list1{
+	    bi4::endpoint_id(1000U, 12345U), bi4::endpoint_id(1001U, 12345U), bi4::endpoint_id(1002U, 12345U),
+	    bi4::endpoint_id(1003U, 12345U), bi4::endpoint_id(1004U, 12345U), bi4::endpoint_id(1005U, 12345U),
+	    bi4::endpoint_id(1006U, 12345U), bi4::endpoint_id(1007U, 12345U), bi4::endpoint_id(1008U, 12345U),
+	    bi4::endpoint_id(1009U, 12345U), bi4::endpoint_id(1010U, 12345U),
+	    bi4::endpoint_id(1011U, 12345U), bi4::endpoint_id(1012U, 12345U), bi4::endpoint_id(1013U, 12345U),
+	    bi4::endpoint_id(1014U, 12345U), bi4::endpoint_id(1015U, 12345U), bi4::endpoint_id(1016U, 12345U),
+	    bi4::endpoint_id(1017U, 12345U), bi4::endpoint_id(1018U, 12345U), bi4::endpoint_id(1019U, 12345U),
+	    bi4::endpoint_id(1020U, 12345U), bi4::endpoint_id(1021U, 12345U)};
     std::array<std::string, rse::MAX_CLUB_COUNT> team_list1{"foo", "bar"};
     std::array<rce::player_id, rse::MAX_CLUB_COUNT> goalie_list1{0, 11};
     rse::roster roster1(player_list1, team_list1, goalie_list1);
-    ASSERT_EQ(rse::roster::find_result::not_found, std::get<0>(roster1.find_player(1U))) << "should not be registered";
-    EXPECT_EQ(rse::deregister_result::client_not_found, roster1.deregister_client(1U))
+    ASSERT_EQ(rse::roster::find_result::not_found, std::get<0>(roster1.find_player(bi4::endpoint_id(1U, 12345U)))) << "should not be registered";
+    EXPECT_EQ(rse::deregister_result::client_not_found, roster1.deregister_client(bi4::endpoint_id(1U, 12345U)))
 	    << "deregistered a non existing client";
-    ASSERT_EQ(rse::roster::find_result::found, std::get<0>(roster1.find_player(1010U))) << "should be registered";
-    EXPECT_EQ(rse::deregister_result::success, roster1.deregister_client(1010U))
+    ASSERT_EQ(rse::roster::find_result::found, std::get<0>(roster1.find_player(bi4::endpoint_id(1010U, 12345U)))) << "should be registered";
+    EXPECT_EQ(rse::deregister_result::success, roster1.deregister_client(bi4::endpoint_id(1010U, 12345U)))
 	    << "failed to deregistered an existing client";
-    EXPECT_EQ(rse::deregister_result::client_not_found, roster1.deregister_client(1010U))
+    EXPECT_EQ(rse::deregister_result::client_not_found, roster1.deregister_client(bi4::endpoint_id(1010U, 12345U)))
 	    << "deregistered a client that had already been deregistered";
 }
 
 TEST(roster_test, deregister_client_basic)
 {
-    std::array<rcs::client_id, rse::MAX_ROSTER_SIZE> player_list1{
-	    1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010,
-	    1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1019, 1020, 1021};
+    std::array<bi4::endpoint_id, rse::MAX_ROSTER_SIZE> player_list1{
+	    bi4::endpoint_id(1000U, 12345U), bi4::endpoint_id(1001U, 12345U), bi4::endpoint_id(1002U, 12345U),
+	    bi4::endpoint_id(1003U, 12345U), bi4::endpoint_id(1004U, 12345U), bi4::endpoint_id(1005U, 12345U),
+	    bi4::endpoint_id(1006U, 12345U), bi4::endpoint_id(1007U, 12345U), bi4::endpoint_id(1008U, 12345U),
+	    bi4::endpoint_id(1009U, 12345U), bi4::endpoint_id(1010U, 12345U),
+	    bi4::endpoint_id(1011U, 12345U), bi4::endpoint_id(1012U, 12345U), bi4::endpoint_id(1013U, 12345U),
+	    bi4::endpoint_id(1014U, 12345U), bi4::endpoint_id(1015U, 12345U), bi4::endpoint_id(1016U, 12345U),
+	    bi4::endpoint_id(1017U, 12345U), bi4::endpoint_id(1018U, 12345U), bi4::endpoint_id(1019U, 12345U),
+	    bi4::endpoint_id(1020U, 12345U), bi4::endpoint_id(1021U, 12345U)};
     std::array<std::string, rse::MAX_CLUB_COUNT> team_list1{"foo", "bar"};
     std::array<rce::player_id, rse::MAX_CLUB_COUNT> goalie_list1{0, 11};
     rse::roster roster1(player_list1, team_list1, goalie_list1);
-    for (rcs::client_id client = 1021; client >= 1000; --client)
+    static const bi4::endpoint_id begin(1000U, 12345U);
+    for (bi4::endpoint_id client(1021U, 12345U); client >= begin; client = bi4::endpoint_id(client.get_address() - 1U, client.get_port()))
     {
 	ASSERT_EQ(rse::roster::find_result::found, std::get<0>(roster1.find_player(client))) << "should be registered";
 	EXPECT_EQ(rse::deregister_result::success, roster1.deregister_client(client))
@@ -527,9 +580,15 @@ TEST(roster_test, deregister_client_basic)
 
 TEST(roster_test, deregister_client_goalkeeper)
 {
-    std::array<rcs::client_id, rse::MAX_ROSTER_SIZE> player_list1{
-	    1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010,
-	    1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1019, 1020, 1021};
+    std::array<bi4::endpoint_id, rse::MAX_ROSTER_SIZE> player_list1{
+	    bi4::endpoint_id(1000U, 12345U), bi4::endpoint_id(1001U, 12345U), bi4::endpoint_id(1002U, 12345U),
+	    bi4::endpoint_id(1003U, 12345U), bi4::endpoint_id(1004U, 12345U), bi4::endpoint_id(1005U, 12345U),
+	    bi4::endpoint_id(1006U, 12345U), bi4::endpoint_id(1007U, 12345U), bi4::endpoint_id(1008U, 12345U),
+	    bi4::endpoint_id(1009U, 12345U), bi4::endpoint_id(1010U, 12345U),
+	    bi4::endpoint_id(1011U, 12345U), bi4::endpoint_id(1012U, 12345U), bi4::endpoint_id(1013U, 12345U),
+	    bi4::endpoint_id(1014U, 12345U), bi4::endpoint_id(1015U, 12345U), bi4::endpoint_id(1016U, 12345U),
+	    bi4::endpoint_id(1017U, 12345U), bi4::endpoint_id(1018U, 12345U), bi4::endpoint_id(1019U, 12345U),
+	    bi4::endpoint_id(1020U, 12345U), bi4::endpoint_id(1021U, 12345U)};
     std::array<std::string, rse::MAX_CLUB_COUNT> team_list1{"foo", "bar"};
     std::array<rce::player_id, rse::MAX_CLUB_COUNT> goalie_list1{0, 11};
     rse::roster roster1(player_list1, team_list1, goalie_list1);
