@@ -1,6 +1,5 @@
 #include "client_io.hpp"
 #include <array>
-#include <beam/internet/ipv4.hpp>
 #include <beam/duplex/common.hpp>
 #include <beam/duplex/unordered_mixed.hxx>
 #include <beam/message/capnproto.hxx>
@@ -9,7 +8,7 @@
 #include <turbo/toolset/extension.hpp>
 #include <turbo/container/spsc_ring_queue.hxx>
 
-namespace bii4 = beam::internet::ipv4;
+namespace bin = beam::internet;
 namespace bmc = beam::message::capnproto;
 namespace bdc = beam::duplex::common;
 namespace bdu = beam::duplex::unordered_mixed;
@@ -104,12 +103,12 @@ void client_io::run()
     service_.run();
 }
 
-void client_io::handle_server_msg(std::function<out_connection_type*(const beam::internet::ipv4::endpoint_id&)> find)
+void client_io::handle_server_msg(std::function<out_connection_type*(const bin::endpoint_id&)> find)
 {
     rcs::server_trans_queue_type::consumer::value_type trans_payload;
     while (server_trans_.try_dequeue_move(trans_payload) != rcs::server_trans_queue_type::consumer::result::queue_empty)
     {
-	beam::internet::ipv4::endpoint_id recipient(trans_payload.get_destination());
+	bin::endpoint_id recipient(trans_payload.get_destination());
 	bmc::statement<rcs::ServerTransaction> message(std::move(trans_payload));
 	out_connection_type* connection = find(recipient);
 	if (TURBO_LIKELY(connection != nullptr))
@@ -125,7 +124,7 @@ void client_io::handle_server_msg(std::function<out_connection_type*(const beam:
     rcs::server_status_queue_type::consumer::value_type status_payload;
     while (server_status_.try_dequeue_move(status_payload) != rcs::server_status_queue_type::consumer::result::queue_empty)
     {
-	beam::internet::ipv4::endpoint_id recipient(status_payload.get_destination());
+	bin::endpoint_id recipient(status_payload.get_destination());
 	bmc::statement<rcs::ServerStatus> message(std::move(status_payload));
 	out_connection_type* connection = find(recipient);
 	if (TURBO_LIKELY(connection != nullptr))

@@ -5,7 +5,7 @@
 #include <turbo/type_utility/enum_iterator.hpp>
 #include <turbo/type_utility/enum_iterator.hxx>
 
-namespace bi4 = beam::internet::ipv4;
+namespace bin = beam::internet;
 namespace rcc = robocup2Dsim::common::command;
 namespace rce = robocup2Dsim::common::entity;
 namespace rcs = robocup2Dsim::csprotocol;
@@ -15,7 +15,7 @@ namespace robocup2Dsim {
 namespace server {
 
 roster::roster(
-	const std::array<bi4::endpoint_id, MAX_ROSTER_SIZE>& enrolled_players,
+	const std::array<bin::endpoint_id, MAX_ROSTER_SIZE>& enrolled_players,
 	const std::array<std::string, MAX_CLUB_COUNT>& enrolled_teams,
 	const std::array<rce::player_id, MAX_CLUB_COUNT> enrolled_goalies)
 {
@@ -25,7 +25,7 @@ roster::roster(
     std::copy_n(enrolled_goalies.cbegin(), enrolled_goalies.max_size(), goalies_.begin());
 }
 
-deregister_result roster::deregister_client(const bi4::endpoint_id& client)
+deregister_result roster::deregister_client(const bin::endpoint_id& client)
 {
     auto result = find_player(client);
     if (std::get<0>(result) == find_result::found)
@@ -36,7 +36,7 @@ deregister_result roster::deregister_client(const bi4::endpoint_id& client)
 	    // deregister the goalie
 	    *iter = rce::no_player;
 	}
-	players_[std::get<1>(result)] = bi4::endpoint_id();
+	players_[std::get<1>(result)] = bin::endpoint_id();
 	return deregister_result::success;
     }
     else
@@ -57,7 +57,7 @@ std::string roster::get_team_name(const rce::TeamId& team) const
 }
 
 enrollment::register_result enrollment::register_client(
-	const bi4::endpoint_id& client,
+	const bin::endpoint_id& client,
 	const rcs::RegistrationRequest::Reader& request)
 {
     const rcc::Registration::Reader& detail = request.getDetails();
@@ -99,7 +99,7 @@ enrollment::register_result enrollment::register_client(
     }
 }
 
-deregister_result enrollment::deregister_client(const bi4::endpoint_id& client)
+deregister_result enrollment::deregister_client(const bin::endpoint_id& client)
 {
     auto iter = client_player_map_.find(client);
     if (iter != client_player_map_.cend())
@@ -124,7 +124,7 @@ std::unique_ptr<roster> enrollment::finalise() const
     {
 	return std::move(std::unique_ptr<roster>());
     }
-    std::array<bi4::endpoint_id, MAX_ROSTER_SIZE> player_list;
+    std::array<bin::endpoint_id, MAX_ROSTER_SIZE> player_list;
     std::array<rce::player_id, MAX_CLUB_COUNT> goalie_list;
     rce::player_id player_index = 0U;
     rce::player_id goalie_index = 0U;
@@ -155,7 +155,7 @@ std::unique_ptr<roster> enrollment::finalise() const
     return std::move(result);
 }
 
-bool enrollment::is_registered(const bi4::endpoint_id& client) const
+bool enrollment::is_registered(const bin::endpoint_id& client) const
 {
     return client_player_map_.find(client) != client_player_map_.cend();
 }
