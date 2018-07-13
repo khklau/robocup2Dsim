@@ -32,6 +32,7 @@
 #include "event.hxx"
 #include "ref_io.hpp"
 
+namespace bin = beam::internet;
 namespace bme = beam::message;
 namespace bmc = beam::message::capnproto;
 namespace tip = turbo::ipc::posix;
@@ -256,7 +257,10 @@ void server::run()
 		{
 		    if (client_trans.read().isRegistration())
 		    {
-			handle_ = std::move(rse::event::registration_requested(std::move(handle), client_trans.read().getRegistration()));
+			handle_ = std::move(rse::event::registration_requested(
+				std::move(handle),
+				client_trans.get_source(),
+				client_trans.read().getRegistration()));
 		    }
 		    else if (client_trans.read().isDisconnect())
 		    {
@@ -268,7 +272,10 @@ void server::run()
 		{
 		    if (client_trans.read().isRegistration())
 		    {
-			handle_ = std::move(rse::event::registration_requested(std::move(handle), client_trans.read().getRegistration()));
+			handle_ = std::move(rse::event::registration_requested(
+				std::move(handle),
+				client_trans.get_source(),
+				client_trans.read().getRegistration()));
 		    }
 		    else if (client_trans.read().isDisconnect())
 		    {
@@ -284,7 +291,10 @@ void server::run()
 		    }
 		    else if (client_trans.read().isRegistration())
 		    {
-			handle_ = std::move(rse::event::registration_requested(std::move(handle), client_trans.read().getRegistration()));
+			handle_ = std::move(rse::event::registration_requested(
+				std::move(handle),
+				client_trans.get_source(),
+				client_trans.read().getRegistration()));
 		    }
 		    else if (client_trans.read().isDisconnect())
 		    {
@@ -300,7 +310,10 @@ void server::run()
 		    }
 		    else if (client_trans.read().isRegistration())
 		    {
-			handle_ = std::move(rse::event::registration_requested(std::move(handle), client_trans.read().getRegistration()));
+			handle_ = std::move(rse::event::registration_requested(
+				std::move(handle),
+				client_trans.get_source(),
+				client_trans.read().getRegistration()));
 		    }
 		    else if (client_trans.read().isDisconnect())
 		    {

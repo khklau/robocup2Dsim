@@ -6,6 +6,7 @@
 #include <functional>
 #include <memory>
 #include <type_traits>
+#include <beam/internet/endpoint.hpp>
 #include <beam/message/buffer_pool.hpp>
 #include <beam/message/capnproto.hpp>
 #include <robocup2Dsim/srprotocol/protocol.capnp.h>
@@ -102,12 +103,25 @@ inline void with(basic_handle&& arg, func1_t&& head_func, funcn_t&&... tail_func
 template <typename func_t>
 inline void with(basic_handle&& arg, func_t&& func);
 
-handle<state::withref_waiting> ref_spawned(handle<state::noref_waiting>&&, const robocup2Dsim::server::config& config);
-handle<state::noref_waiting> registration_requested(handle<state::noref_waiting>&& input, const robocup2Dsim::csprotocol::RegistrationRequest::Reader& reader);
+
+handle<state::withref_waiting> ref_spawned(
+	handle<state::noref_waiting>&&,
+	const robocup2Dsim::server::config& config);
+
+handle<state::noref_waiting> registration_requested(
+	handle<state::noref_waiting>&& input,
+	beam::internet::endpoint_id source,
+	const robocup2Dsim::csprotocol::RegistrationRequest::Reader& reader);
+
 handle<state::noref_waiting> disconnected(handle<state::noref_waiting>&& input);
 
 handle<state::withref_playing> field_opened(handle<state::withref_waiting>&& input, const robocup2Dsim::common::FieldOpen::Reader& reader);
-handle<state::withref_waiting> registration_requested(handle<state::withref_waiting>&& input, const robocup2Dsim::csprotocol::RegistrationRequest::Reader& reader);
+
+handle<state::withref_waiting> registration_requested(
+	handle<state::withref_waiting>&& input,
+	beam::internet::endpoint_id source,
+	const robocup2Dsim::csprotocol::RegistrationRequest::Reader& reader);
+
 handle<state::withref_waiting> disconnected(handle<state::withref_waiting>&& input);
 handle<state::noref_waiting> ref_crashed(handle<state::withref_waiting>&& input);
 
@@ -116,7 +130,12 @@ handle<state::withref_playing> control_actioned(handle<state::withref_playing>&&
 handle<state::withref_playing> play_judged(handle<state::withref_playing>&&, const robocup2Dsim::common::PlayJudgement::Reader& reader);
 handle<state::withref_playing> simulation_timedout(handle<state::withref_playing>&& input);
 handle<state::withref_playing> snapshot_timedout(handle<state::withref_playing>&& input);
-handle<state::withref_playing> registration_requested(handle<state::withref_playing>&& input, const robocup2Dsim::csprotocol::RegistrationRequest::Reader& reader);
+
+handle<state::withref_playing> registration_requested(
+	handle<state::withref_playing>&& input,
+	beam::internet::endpoint_id source,
+	const robocup2Dsim::csprotocol::RegistrationRequest::Reader& reader);
+
 handle<state::withref_playing> disconnected(handle<state::withref_playing>&& input);
 handle<state::noref_playing> ref_crashed(handle<state::withref_playing>&& input);
 handle<state::withref_waiting> match_closed(handle<state::withref_playing>&& input, const robocup2Dsim::common::MatchClose::Reader& reader);
@@ -127,7 +146,12 @@ handle<state::noref_playing> status_uploaded(handle<state::noref_playing>&&, con
 handle<state::noref_playing> control_actioned(handle<state::noref_playing>&&, const robocup2Dsim::common::PlayerAction::Reader& reader);
 handle<state::noref_playing> simulation_timedout(handle<state::noref_playing>&& input);
 handle<state::noref_playing> snapshot_timedout(handle<state::noref_playing>&& input);
-handle<state::noref_playing> registration_requested(handle<state::noref_playing>&& input, const robocup2Dsim::csprotocol::RegistrationRequest::Reader& reader);
+
+handle<state::noref_playing> registration_requested(
+	handle<state::noref_playing>&& input,
+	beam::internet::endpoint_id source,
+	const robocup2Dsim::csprotocol::RegistrationRequest::Reader& reader);
+
 handle<state::noref_playing> disconnected(handle<state::noref_playing>&& input);
 
 } // namespace event

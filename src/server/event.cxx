@@ -4,6 +4,7 @@
 #include <turbo/algorithm/recovery.hxx>
 #include <robocup2Dsim/common/rule.capnp.h>
 
+namespace bin = beam::internet;
 namespace bmc = beam::message::capnproto;
 namespace rsr = robocup2Dsim::srprotocol;
 namespace rco = robocup2Dsim::common;
@@ -123,10 +124,12 @@ handle<state::withref_waiting> ref_spawned(handle<state::noref_waiting>&& input,
     return std::move(output);
 }
 
-handle<state::noref_waiting> registration_requested(handle<state::noref_waiting>&& input, const rcs::RegistrationRequest::Reader& reader)
+handle<state::noref_waiting> registration_requested(
+	handle<state::noref_waiting>&& input,
+	bin::endpoint_id source,
+	const rcs::RegistrationRequest::Reader& reader)
 {
-    handle<state::noref_waiting> output(std::move(input));
-    return std::move(output);
+    return std::move(detail::registration_requested<state::noref_waiting>(std::move(input), source, reader));
 }
 
 handle<state::noref_waiting> disconnected(handle<state::noref_waiting>&& input)
@@ -141,10 +144,12 @@ handle<state::withref_playing> field_opened(handle<state::withref_waiting>&& inp
     return std::move(output);
 }
 
-handle<state::withref_waiting> registration_requested(handle<state::withref_waiting>&& input, const rcs::RegistrationRequest::Reader& reader)
+handle<state::withref_waiting> registration_requested(
+	handle<state::withref_waiting>&& input,
+	bin::endpoint_id source,
+	const rcs::RegistrationRequest::Reader& reader)
 {
-    handle<state::withref_waiting> output(std::move(input));
-    return std::move(output);
+    return std::move(detail::registration_requested<state::withref_waiting>(std::move(input), source, reader));
 }
 
 handle<state::withref_waiting> disconnected(handle<state::withref_waiting>&& input)
@@ -189,10 +194,12 @@ handle<state::withref_playing> snapshot_timedout(handle<state::withref_playing>&
     return std::move(output);
 }
 
-handle<state::withref_playing> registration_requested(handle<state::withref_playing>&& input, const rcs::RegistrationRequest::Reader& reader)
+handle<state::withref_playing> registration_requested(
+	handle<state::withref_playing>&& input,
+	bin::endpoint_id source,
+	const rcs::RegistrationRequest::Reader& reader)
 {
-    handle<state::withref_playing> output(std::move(input));
-    return std::move(output);
+    return std::move(detail::registration_requested<state::withref_playing>(std::move(input), source, reader));
 }
 
 handle<state::withref_playing> disconnected(handle<state::withref_playing>&& input)
@@ -249,10 +256,12 @@ handle<state::noref_playing> snapshot_timedout(handle<state::noref_playing>&& in
     return std::move(output);
 }
 
-handle<state::noref_playing> registration_requested(handle<state::noref_playing>&& input, const rcs::RegistrationRequest::Reader& reader)
+handle<state::noref_playing> registration_requested(
+	handle<state::noref_playing>&& input,
+	bin::endpoint_id source,
+	const rcs::RegistrationRequest::Reader& reader)
 {
-    handle<state::noref_playing> output(std::move(input));
-    return std::move(output);
+    return std::move(detail::registration_requested<state::noref_playing>(std::move(input), source, reader));
 }
 
 handle<state::noref_playing> disconnected(handle<state::noref_playing>&& input)

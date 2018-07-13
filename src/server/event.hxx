@@ -3,6 +3,7 @@
 
 #include "event.hpp"
 #include <beam/message/capnproto.hxx>
+#include <turbo/algorithm/recovery.hxx>
 #include <turbo/container/spsc_ring_queue.hxx>
 #include <turbo/type_utility/function_traits.hpp>
 
@@ -47,7 +48,69 @@ handle<state_value>::handle(
 
 namespace detail {
 
+namespace bin = beam::internet;
+namespace bmc = beam::message::capnproto;
+namespace rco = robocup2Dsim::common;
+namespace rcs = robocup2Dsim::csprotocol;
+namespace tar = turbo::algorithm::recovery;
 namespace ttu = turbo::type_utility;
+
+template <state next_state, state current_state>
+handle<next_state> registration_requested(
+	handle<current_state>&& input,
+	bin::endpoint_id client,
+	const rcs::RegistrationRequest::Reader& request)
+{
+    bmc::form<rcs::ServerTransaction> form(std::move(input.server_outbound_buffer_pool->borrow()), client);
+    rcs::ServerTransaction::Builder trans = form.build();
+    switch (input.enrollment->register_client(client, request))
+    {
+	case enrollment::register_result::version_mismatch:
+	{
+	    rcs::RegistrationError::Builder error = trans.initRegError();
+	    error.initVersionMismatch();
+	    break;
+	}
+	case enrollment::register_result::team_slot_taken:
+	{
+	    rcs::RegistrationError::Builder error = trans.initRegError();
+	    error.initTeamTaken();
+	    break;
+	}
+	case enrollment::register_result::uniform_taken:
+	{
+	    rcs::RegistrationError::Builder error = trans.initRegError();
+	    error.initUniformTaken();
+	    break;
+	}
+	case enrollment::register_result::goalie_taken:
+	{
+	    rcs::RegistrationError::Builder error = trans.initRegError();
+	    error.initGoalieTaken();
+	    break;
+	}
+	case enrollment::register_result::success:
+	default:
+	{
+	    trans.setRegSuccess();
+	    break;
+	}
+    }
+    bmc::payload<rcs::ServerTransaction> payload(std::move(bmc::serialise(*(input.server_outbound_buffer_pool), form)));
+    tar::retry_with_random_backoff([&]()
+    {
+	if (input.server_trans_producer->try_enqueue_move(std::move(payload)) == rcs::server_trans_queue_type::producer::result::success)
+	{
+	    return tar::try_state::done;
+	}
+	else
+	{
+	    return tar::try_state::retry;
+	}
+    });
+    handle<next_state> output(std::move(input));
+    return std::move(output);
+}
 
 template <typename func_t>
 using first_arg_type = typename std::remove_reference<
