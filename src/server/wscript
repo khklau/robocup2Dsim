@@ -36,6 +36,18 @@ def build(buildCtx):
 	    linkflags=buildCtx.env.LDFLAGS,
 	    libpath=buildCtx.env.component.lib_path_list,
 	    rpath=buildCtx.env.component.rpath_list,
+	    use=['TURBO_STLIB',
+		    'ASIO_STLIB',
+		    'CAPNPROTO_STLIB',
+		    'ENET_STLIB',
+		    'BEAM_STLIB',
+		    'GLOG_STLIB',
+		    'stlib_robocup2Dsim_runtime',
+		    'SNAPBOX2D_STLIB',
+		    'stlib_robocup2Dsim_engine',
+		    'stlib_robocup2Dsim_common',
+		    'stlib_robocup2Dsim_srprotocol',
+		    'stlib_robocup2Dsim_csprotocol'],
 	    install_path=buildCtx.env.component.install_tree.lib,
 	    after=publishTaskList)
     buildCtx.program(

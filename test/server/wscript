@@ -18,9 +18,16 @@ def build(buildCtx):
 	    includes=['.'] + buildCtx.env.component.include_path_list,
 	    cxxflags=buildCtx.env.CXXFLAGS,
 	    linkflags=buildCtx.env.LDFLAGS,
-	    use=['GTEST_STLIB', 'CAPNPROTO_SHLIB', 'stlib_robocup2Dsim_common', 'stlib_robocup2Dsim_server'],
+	    use=['GTEST_STLIB',
+		    'TURBO_SHLIB',
+		    'ASIO_SHLIB',
+		    'CAPNPROTO_SHLIB',
+		    'ENET_SHLIB',
+		    'BEAM_SHLIB',
+		    'stlib_robocup2Dsim_common',
+		    'stlib_robocup2Dsim_server'],
 	    libpath=['.'] + buildCtx.env.component.lib_path_list,
 	    rpath=buildCtx.env.component.rpath_list,
 	    install_path=None,
-	    after=['stlib_robocup2Dsim_server'])
+	    after=['stlib_robocup2Dsim_common', 'stlib_robocup2Dsim_server'])
 
