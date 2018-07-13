@@ -2,9 +2,13 @@ import os
 from waflib.extras.layout import Product, Component
 
 publicHeaders = [
+    'config.hpp',
+    'event.hpp',
+    'event.hxx',
     'roster.hpp']
 
 sourceFiles = [
+    'event.cxx',
     'roster.cxx']
 
 def name(context):
@@ -53,7 +57,6 @@ def build(buildCtx):
     buildCtx.program(
 	    name='exe_robocup2Dsim_server',
 	    source=[buildCtx.path.find_node('main.cxx'),
-		    buildCtx.path.find_node('event.cxx'),
 		    buildCtx.path.find_node('client_io.cxx'),
 		    buildCtx.path.find_node('ref_io.cxx')],
 	    target=os.path.join(buildCtx.env.component.build_tree.binPathFromBuild(buildCtx), 'robocup2Dsim_server'),
@@ -80,6 +83,6 @@ def build(buildCtx):
 	    after=['stlib_robocup2Dsim_runtime',
 		    'stlib_robocup2Dsim_engine',
 		    'stlib_robocup2Dsim_common',
-		    'stlib_robocup2Dsim_bcprotocol',
+		    'stlib_robocup2Dsim_srprotocol',
 		    'stlib_robocup2Dsim_csprotocol',
 		    'stlib_robocup2Dsim_server'])
