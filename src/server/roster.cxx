@@ -4,10 +4,13 @@
 #include <utility>
 #include <turbo/type_utility/enum_iterator.hpp>
 #include <turbo/type_utility/enum_iterator.hxx>
+#include <robocup2Dsim/common/metadata.capnp.h>
+#include <robocup2Dsim/common/metadata.hpp>
 
 namespace bin = beam::internet;
 namespace rcc = robocup2Dsim::common::command;
 namespace rce = robocup2Dsim::common::entity;
+namespace rcm = robocup2Dsim::common::metadata;
 namespace rcs = robocup2Dsim::csprotocol;
 namespace ttu = turbo::type_utility;
 
@@ -61,6 +64,12 @@ enrollment::register_result enrollment::register_client(
 	const rcs::RegistrationRequest::Reader& request)
 {
     const rcc::Registration::Reader& detail = request.getDetails();
+    const rcm::Version::Reader version = detail.getVersion();
+    const rcm::Version::Reader current = *(rcm::CURRENT_VERSION);
+    if (version != current)
+    {
+	return enrollment::register_result::version_mismatch;
+    }
     auto team = enrollment_.find(detail.getTeamName());
     if (team == enrollment_.end())
     {
