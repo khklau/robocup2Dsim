@@ -11,6 +11,7 @@ def configure(confCtx):
     confCtx.recurse('engine')
     confCtx.recurse('common')
     confCtx.recurse('server')
+    confCtx.recurse('ref')
 
 def build(buildCtx):
     buildCtx.env.product = buildCtx.env.solution.getProduct(NAME)
@@ -18,3 +19,4 @@ def build(buildCtx):
     buildCtx.recurse('engine')
     buildCtx.recurse('common')
     buildCtx.recurse('server')
+    buildCtx.recurse('ref')
