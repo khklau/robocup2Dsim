@@ -11,8 +11,6 @@ using CommonMetadata = import "/common/metadata.capnp";
 using Error = import "/common/error.capnp";
 using Metadata = import "/common/metadata.capnp";
 
-using RecipientId = UInt64;
-
 struct ClientStatus
 {
     frame @0 :CommonMetadata.FrameNumber;
@@ -31,25 +29,24 @@ struct ClientTransaction
 
 struct ServerStatus
 {
-    recipient @0 :RecipientId;
+    frame @0 :CommonMetadata.FrameNumber;
     snapshot @1 :AnyPointer;
 }
 
 struct ServerTransaction
 {
-    recipient @0 :RecipientId;
     union
     {
-	unknownMsg @1 :Error.UnknownMsgError;
-	malformedMsg @2 :Error.MalformedMsgError;
-	disconnect @3 :Void;
-	regSuccess @4 :Void;
-	regError @5 :Command.RegistrationError;
-	fieldOpen @6 :CommonJudgement.FieldOpen;
-	kickOff @7 :CommonJudgement.KickOff;
-	timeOver @8 :CommonJudgement.TimeOver;
-	matchClose @9 :CommonJudgement.MatchClose;
-	matchAbort @10 :CommonJudgement.MatchAbort;
-	playJudgement @11 :CommonJudgement.PlayJudgement;
+	unknownMsg @0 :Error.UnknownMsgError;
+	malformedMsg @1 :Error.MalformedMsgError;
+	disconnect @2 :Void;
+	regSuccess @3 :Void;
+	regError @4 :Command.RegistrationError;
+	fieldOpen @5 :CommonJudgement.FieldOpen;
+	kickOff @6 :CommonJudgement.KickOff;
+	timeOver @7 :CommonJudgement.TimeOver;
+	matchClose @8 :CommonJudgement.MatchClose;
+	matchAbort @9 :CommonJudgement.MatchAbort;
+	playJudgement @10 :CommonJudgement.PlayJudgement;
     }
 }
