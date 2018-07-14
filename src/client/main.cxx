@@ -10,14 +10,14 @@
 #include <asio/io_service.hpp>
 #include <beam/message/buffer_pool.hpp>
 #include <beam/message/capnproto.hpp>
-#include <beam/message/capnproto.hxx>
+#include <beam/message/capnproto.hh>
 #include <kj/common.h>
 #include <kj/debug.h>
 #include <kj/main.h>
 #include <kj/string.h>
 #include <glog/logging.h>
 #include <turbo/container/spsc_ring_queue.hpp>
-#include <turbo/container/spsc_ring_queue.hxx>
+#include <turbo/container/spsc_ring_queue.hh>
 #include <turbo/ipc/posix/pipe.hpp>
 #include <turbo/ipc/posix/signal_notifier.hpp>
 #include <turbo/process/posix/spawn.hpp>
@@ -30,7 +30,7 @@
 #include "bot_io.hpp"
 #include "config.hpp"
 #include "event.hpp"
-#include "event.hxx"
+#include "event.hh"
 #include "server_io.hpp"
 
 namespace bmc = beam::message::capnproto;

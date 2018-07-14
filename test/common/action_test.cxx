@@ -1,14 +1,14 @@
 #include <robocup2Dsim/common/action.hpp>
-#include <robocup2Dsim/common/action.hxx>
+#include <robocup2Dsim/common/action.hh>
 #include <robocup2Dsim/common/action.capnp.h>
 #include <utility>
 #include <capnp/message.h>
 #include <gtest/gtest.h>
 #include <turbo/memory/slab_allocator.hpp>
-#include <turbo/memory/slab_allocator.hxx>
+#include <turbo/memory/slab_allocator.hh>
 #include <robocup2Dsim/runtime/db_access.hpp>
-#include <robocup2Dsim/engine/physics.hxx>
-#include <robocup2Dsim/engine/inventory.hxx>
+#include <robocup2Dsim/engine/physics.hh>
+#include <robocup2Dsim/engine/inventory.hh>
 
 namespace rco = robocup2Dsim::common;
 namespace ren = robocup2Dsim::engine;

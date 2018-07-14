@@ -1,6 +1,6 @@
 #include "db_access.hpp"
-#include <turbo/memory/slab_allocator.hxx>
-#include <robocup2Dsim/runtime/ecs_db.hxx>
+#include <turbo/memory/slab_allocator.hh>
+#include <robocup2Dsim/runtime/ecs_db.hh>
 
 namespace robocup2Dsim {
 namespace runtime {

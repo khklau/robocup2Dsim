@@ -1,12 +1,12 @@
 #include "event.hpp"
-#include "event.hxx"
+#include "event.hh"
 #include <robocup2Dsim/common/command.capnp.h>
 #include <robocup2Dsim/common/entity.capnp.h>
 #include <robocup2Dsim/common/metadata.capnp.h>
 #include <robocup2Dsim/csprotocol/command.capnp.h>
 #include <robocup2Dsim/csprotocol/protocol.capnp.h>
 #include <turbo/algorithm/recovery.hpp>
-#include <turbo/algorithm/recovery.hxx>
+#include <turbo/algorithm/recovery.hh>
 
 namespace bmc = beam::message::capnproto;
 namespace rbc = robocup2Dsim::bcprotocol;

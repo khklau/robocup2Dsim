@@ -1,10 +1,10 @@
 #include "bot_io.hpp"
 #include <utility>
-#include <beam/message/capnproto.hxx>
+#include <beam/message/capnproto.hh>
 #include <glog/logging.h>
 #include <kj/io.h>
 #include <turbo/toolset/extension.hpp>
-#include <turbo/container/spsc_ring_queue.hxx>
+#include <turbo/container/spsc_ring_queue.hh>
 
 namespace bmc = beam::message::capnproto;
 namespace rbc = robocup2Dsim::bcprotocol;

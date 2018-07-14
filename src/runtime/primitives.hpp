@@ -15,6 +15,12 @@ typedef std::uint16_t key_16;
 typedef std::uint32_t key_32;
 typedef std::uint64_t key_64;
 
+template <class storage_t, class key1_t, class key2_t>
+struct composite_key
+{
+    storage_t key;
+};
+
 template <std::size_t length_c>
 class TURBO_SYMBOL_DECL fixed_cstring
 {

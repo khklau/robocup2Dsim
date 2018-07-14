@@ -1,11 +1,11 @@
 #include "server_io.hpp"
 #include <beam/internet/ipv4.hpp>
 #include <beam/duplex/common.hpp>
-#include <beam/duplex/unordered_mixed.hxx>
-#include <beam/message/capnproto.hxx>
+#include <beam/duplex/unordered_mixed.hh>
+#include <beam/message/capnproto.hh>
 #include <glog/logging.h>
 #include <turbo/toolset/extension.hpp>
-#include <turbo/container/spsc_ring_queue.hxx>
+#include <turbo/container/spsc_ring_queue.hh>
 
 namespace bii4 = beam::internet::ipv4;
 namespace bmc = beam::message::capnproto;

@@ -1,5 +1,5 @@
 #include <robocup2Dsim/engine/inventory.hpp>
-#include <robocup2Dsim/engine/inventory.hxx>
+#include <robocup2Dsim/engine/inventory.hh>
 #include <gtest/gtest.h>
 #include <limits>
 

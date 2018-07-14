@@ -1,14 +1,14 @@
 #include "physics.hpp"
-#include "physics.hxx"
+#include "physics.hh"
 #include <cstdint>
 #include <type_traits>
 #include <utility>
 #include <Box2D/Common/b2Math.h>
 #include <Box2D/Collision/Shapes/b2CircleShape.h>
 #include <robocup2Dsim/runtime/db_access.hpp>
-#include <robocup2Dsim/runtime/ecs_db.hxx>
-#include <robocup2Dsim/runtime/ram_db.hxx>
-#include <robocup2Dsim/runtime/resource.hxx>
+#include <robocup2Dsim/runtime/ecs_db.hh>
+#include <robocup2Dsim/runtime/ram_db.hh>
+#include <robocup2Dsim/runtime/resource.hh>
 #include "dynamics.hpp"
 
 namespace rru = robocup2Dsim::runtime;
@@ -86,8 +86,8 @@ void physics::apply_angular_impulse(dynamics::body& body, float impulse) const
 void register_system(rru::ecs_db& db, std::unique_ptr<physics> phys)
 {
     rru::ecs_db::system_table_type& sys_table = db.access<rru::ecs_db::system_table_type>(rru::table_id::system_registry);
-    physics_table_type* table = new physics_table_type(default_physics_instance_id, "task_id", "physics_instance", "instance_name");
-    table->emplace(0U, std::move(phys), "active_box2d");
+    physics_table_type* table = new physics_table_type(1U, "task_id", "physics_instance", "instance_name");
+    table->emplace(default_physics_instance_id, std::move(phys), "active_box2d");
     sys_table.emplace(rru::system_id::physics, make_unique_table(table), "physics");
 
     rru::ecs_db::component_system_table_type& comp_sys_map = db.access<rru::ecs_db::component_system_table_type>(

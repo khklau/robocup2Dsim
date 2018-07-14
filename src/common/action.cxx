@@ -2,8 +2,8 @@
 #include <cmath>
 #include <cstdlib>
 #include <algorithm>
-#include <robocup2Dsim/engine/physics.hxx>
-#include <robocup2Dsim/engine/inventory.hxx>
+#include <robocup2Dsim/engine/physics.hh>
+#include <robocup2Dsim/engine/inventory.hh>
 
 namespace ren = robocup2Dsim::engine;
 

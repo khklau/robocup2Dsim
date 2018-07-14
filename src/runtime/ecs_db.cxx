@@ -1,6 +1,6 @@
 #include "ecs_db.hpp"
-#include "ecs_db.hxx"
-#include "ram_db.hxx"
+#include "ecs_db.hh"
+#include "ram_db.hh"
 
 namespace robocup2Dsim {
 namespace runtime {

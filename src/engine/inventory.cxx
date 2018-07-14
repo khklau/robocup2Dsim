@@ -1,6 +1,6 @@
 #include "inventory.hpp"
 #include <robocup2Dsim/runtime/primitives.hpp>
-#include <robocup2Dsim/runtime/ecs_db.hxx>
+#include <robocup2Dsim/runtime/ecs_db.hh>
 
 namespace rru = robocup2Dsim::runtime;
 

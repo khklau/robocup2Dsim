@@ -1,12 +1,12 @@
 #include "client_io.hpp"
 #include <array>
 #include <beam/duplex/common.hpp>
-#include <beam/duplex/unordered_mixed.hxx>
-#include <beam/message/capnproto.hxx>
+#include <beam/duplex/unordered_mixed.hh>
+#include <beam/message/capnproto.hh>
 #include <glog/logging.h>
 #include <robocup2Dsim/common/entity.capnp.h>
 #include <turbo/toolset/extension.hpp>
-#include <turbo/container/spsc_ring_queue.hxx>
+#include <turbo/container/spsc_ring_queue.hh>
 
 namespace bin = beam::internet;
 namespace bmc = beam::message::capnproto;

@@ -1,7 +1,7 @@
 #include "event.hpp"
-#include "event.hxx"
+#include "event.hh"
 #include <turbo/algorithm/recovery.hpp>
-#include <turbo/algorithm/recovery.hxx>
+#include <turbo/algorithm/recovery.hh>
 #include <robocup2Dsim/common/rule.capnp.h>
 
 namespace bin = beam::internet;

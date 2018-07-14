@@ -1,10 +1,10 @@
 #include <robocup2Dsim/runtime/ram_db.hpp>
-#include <robocup2Dsim/runtime/ram_db.hxx>
+#include <robocup2Dsim/runtime/ram_db.hh>
 #include <cstdint>
 #include <cstring>
 #include <gtest/gtest.h>
 #include <robocup2Dsim/runtime/primitives.hpp>
-#include <robocup2Dsim/runtime/primitives.hxx>
+#include <robocup2Dsim/runtime/primitives.hh>
 
 namespace rru = robocup2Dsim::runtime;
 namespace rrp = robocup2Dsim::runtime::primitives;

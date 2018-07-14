@@ -5,7 +5,7 @@
 #include <Box2D/Dynamics/b2Body.h>
 #include <Box2D/Dynamics/b2WorldCallbacks.h>
 #include <Box2D/Dynamics/Contacts/b2Contact.h>
-#include <robocup2Dsim/runtime/resource.hxx>
+#include <robocup2Dsim/runtime/resource.hh>
 
 namespace robocup2Dsim {
 namespace engine {

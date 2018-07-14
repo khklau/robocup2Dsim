@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <utility>
 #include <turbo/type_utility/enum_iterator.hpp>
-#include <turbo/type_utility/enum_iterator.hxx>
+#include <turbo/type_utility/enum_iterator.hh>
 #include <robocup2Dsim/common/metadata.capnp.h>
 #include <robocup2Dsim/common/metadata.hpp>
 

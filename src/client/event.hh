@@ -2,8 +2,8 @@
 #define ROBOCUP2DSIM_CLIENT_EVENT_HXX
 
 #include "event.hpp"
-#include <beam/message/capnproto.hxx>
-#include <turbo/container/spsc_ring_queue.hxx>
+#include <beam/message/capnproto.hh>
+#include <turbo/container/spsc_ring_queue.hh>
 #include <turbo/type_utility/function_traits.hpp>
 
 namespace robocup2Dsim {

@@ -8,10 +8,10 @@ def name(context):
 publicHeaders = [
     'dynamics.hpp',
     'inventory.hpp',
-    'inventory.hxx',
+    'inventory.hh',
     'math.hpp',
     'physics.hpp',
-    'physics.hxx']
+    'physics.hh']
 
 def configure(confCtx):
     confCtx.env.component = Component.fromContext(confCtx, name(confCtx), confCtx.env.product)

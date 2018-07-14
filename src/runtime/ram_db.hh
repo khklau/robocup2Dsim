@@ -4,9 +4,9 @@
 #include <robocup2Dsim/runtime/ram_db.hpp>
 #include <limits>
 #include <type_traits>
-#include <turbo/memory/block.hxx>
+#include <turbo/memory/block.hh>
 #include <turbo/toolset/extension.hpp>
-#include <robocup2Dsim/runtime/primitives.hxx>
+#include <robocup2Dsim/runtime/primitives.hh>
 
 namespace {
 

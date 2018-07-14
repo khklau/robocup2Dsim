@@ -3,7 +3,7 @@
 
 #include <algorithm>
 #include <turbo/memory/slab_allocator.hpp>
-#include <turbo/memory/slab_allocator.hxx>
+#include <turbo/memory/slab_allocator.hh>
 #include <turbo/toolset/extension.hpp>
 #include <robocup2Dsim/runtime/db_access.hpp>
 

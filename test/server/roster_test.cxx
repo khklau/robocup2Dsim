@@ -3,7 +3,7 @@
 #include <capnp/message.h>
 #include <gtest/gtest.h>
 #include <turbo/type_utility/enum_iterator.hpp>
-#include <turbo/type_utility/enum_iterator.hxx>
+#include <turbo/type_utility/enum_iterator.hh>
 
 namespace bin = beam::internet;
 namespace rce = robocup2Dsim::common::entity;

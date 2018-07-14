@@ -1,5 +1,5 @@
 #include <robocup2Dsim/engine/physics.hpp>
-#include <robocup2Dsim/engine/physics.hxx>
+#include <robocup2Dsim/engine/physics.hh>
 #include <cstddef>
 #include <cstdint>
 #include <memory>

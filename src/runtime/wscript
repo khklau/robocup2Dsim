@@ -8,13 +8,13 @@ def name(context):
 publicHeaders = [
     'db_access.hpp',
     'ecs_db.hpp',
-    'ecs_db.hxx',
+    'ecs_db.hh',
     'primitives.hpp',
-    'primitives.hxx',
+    'primitives.hh',
     'ram_db.hpp',
-    'ram_db.hxx',
+    'ram_db.hh',
     'resource.hpp',
-    'resource.hxx']
+    'resource.hh']
 
 def configure(confCtx):
     confCtx.env.component = Component.fromContext(confCtx, name(confCtx), confCtx.env.product)
