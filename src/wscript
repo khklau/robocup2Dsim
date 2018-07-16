@@ -62,7 +62,7 @@ def configure(confCtx):
     confCtx.recurse('srprotocol')
     confCtx.recurse('client')
     confCtx.recurse('server')
-    confCtx.recurse('ref')
+    confCtx.recurse('referee')
 
 def build(buildCtx):
     buildCtx.env.product = buildCtx.env.solution.getProduct(NAME)
@@ -74,4 +74,4 @@ def build(buildCtx):
     buildCtx.recurse('srprotocol')
     buildCtx.recurse('client')
     buildCtx.recurse('server')
-    buildCtx.recurse('ref')
+    buildCtx.recurse('referee')
