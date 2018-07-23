@@ -12,7 +12,6 @@
 #include <robocup2Dsim/common/command.capnp.h>
 #include <robocup2Dsim/common/entity.capnp.h>
 #include <robocup2Dsim/common/entity.hpp>
-#include <robocup2Dsim/csprotocol/protocol.hpp>
 
 namespace robocup2Dsim {
 namespace server {
@@ -85,7 +84,7 @@ public:
     bool is_registered(const std::string& team, robocup2Dsim::common::entity::UniformNumber uniform) const;
     bool is_full() const;
     std::unique_ptr<roster> finalise() const;
-    register_result register_client(const beam::internet::endpoint_id& client, const robocup2Dsim::csprotocol::RegistrationRequest::Reader& request);
+    register_result register_client(const beam::internet::endpoint_id& client, const robocup2Dsim::common::command::Registration::Reader& request);
     deregister_result deregister_client(const beam::internet::endpoint_id& client);
 private:
     struct client

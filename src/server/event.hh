@@ -63,7 +63,7 @@ handle<next_state> registration_requested(
 {
     bmc::form<rcs::ServerTransaction> form(std::move(input.server_outbound_buffer_pool->borrow()), client);
     rcs::ServerTransaction::Builder trans = form.build();
-    switch (input.enrollment->register_client(client, request))
+    switch (input.enrollment->register_client(client, request.getDetails()))
     {
 	case enrollment::register_result::version_mismatch:
 	{

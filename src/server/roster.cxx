@@ -11,7 +11,6 @@ namespace bin = beam::internet;
 namespace rcc = robocup2Dsim::common::command;
 namespace rce = robocup2Dsim::common::entity;
 namespace rcm = robocup2Dsim::common::metadata;
-namespace rcs = robocup2Dsim::csprotocol;
 namespace ttu = turbo::type_utility;
 
 namespace robocup2Dsim {
@@ -61,16 +60,15 @@ std::string roster::get_team_name(const rce::TeamId& team) const
 
 enrollment::register_result enrollment::register_client(
 	const bin::endpoint_id& client,
-	const rcs::RegistrationRequest::Reader& request)
+	const rcc::Registration::Reader& request)
 {
-    const rcc::Registration::Reader& detail = request.getDetails();
-    const rcm::Version::Reader version = detail.getVersion();
+    const rcm::Version::Reader version = request.getVersion();
     const rcm::Version::Reader current = *(rcm::CURRENT_VERSION);
     if (version != current)
     {
 	return enrollment::register_result::version_mismatch;
     }
-    auto team = enrollment_.find(detail.getTeamName());
+    auto team = enrollment_.find(request.getTeamName());
     if (team == enrollment_.end())
     {
 	if (enrollment_.size() == 2)
@@ -79,14 +77,14 @@ enrollment::register_result enrollment::register_client(
 	}
 	else
 	{
-	    team = enrollment_.emplace(std::piecewise_construct, std::make_tuple(detail.getTeamName()), std::make_tuple()).first;
+	    team = enrollment_.emplace(std::piecewise_construct, std::make_tuple(request.getTeamName()), std::make_tuple()).first;
 	}
     }
-    if (team->second.find(detail.getUniform()) != team->second.cend())
+    if (team->second.find(request.getUniform()) != team->second.cend())
     {
 	return enrollment::register_result::uniform_taken;
     }
-    else if (detail.getPlayerType() == rce::PlayerType::GOAL_KEEPER
+    else if (request.getPlayerType() == rce::PlayerType::GOAL_KEEPER
 	    && std::count_if(team->second.cbegin(), team->second.cend(), [] (const team::value_type& member) -> bool
 	    {
 		return member.second.ptype == rce::PlayerType::GOAL_KEEPER;
@@ -98,12 +96,12 @@ enrollment::register_result enrollment::register_client(
     {
 	team->second.emplace(
 		std::piecewise_construct,
-		std::make_tuple(detail.getUniform()),
-		std::make_tuple(client, detail.getPlayerType()));
+		std::make_tuple(request.getUniform()),
+		std::make_tuple(client, request.getPlayerType()));
 	client_player_map_.emplace(
 		std::piecewise_construct,
 		std::make_tuple(client),
-		std::make_tuple(detail.getTeamName(), detail.getUniform()));
+		std::make_tuple(request.getTeamName(), request.getUniform()));
 	return enrollment::register_result::success;
     }
 }
