@@ -8,7 +8,7 @@ using CommonCommand = import "/common/command.capnp";
 
 struct RegistrationRequest
 {
-    endPoint @0 :Metadata.EndPointId;
+    client @0 :Metadata.EndPointId;
     details @1 :CommonCommand.Registration;
 }
 

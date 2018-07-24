@@ -6,6 +6,7 @@
 #include <turbo/algorithm/recovery.hh>
 #include <turbo/container/spsc_ring_queue.hh>
 #include <turbo/type_utility/function_traits.hpp>
+#include <robocup2Dsim/common/metadata.hpp>
 
 namespace robocup2Dsim {
 namespace server {
@@ -52,6 +53,7 @@ namespace bin = beam::internet;
 namespace bmc = beam::message::capnproto;
 namespace rco = robocup2Dsim::common;
 namespace rcs = robocup2Dsim::csprotocol;
+namespace rsr = robocup2Dsim::srprotocol;
 namespace tar = turbo::algorithm::recovery;
 namespace ttu = turbo::type_utility;
 
@@ -61,8 +63,8 @@ handle<next_state> registration_requested(
 	bin::endpoint_id client,
 	const rcs::RegistrationRequest::Reader& request)
 {
-    bmc::form<rcs::ServerTransaction> form(std::move(input.server_outbound_buffer_pool->borrow()), client);
-    rcs::ServerTransaction::Builder trans = form.build();
+    bmc::form<rcs::ServerTransaction> client_form(std::move(input.server_outbound_buffer_pool->borrow()), client);
+    rcs::ServerTransaction::Builder trans = client_form.build();
     switch (input.enrollment->register_client(client, request.getDetails()))
     {
 	case enrollment::register_result::version_mismatch:
@@ -93,10 +95,29 @@ handle<next_state> registration_requested(
 	default:
 	{
 	    trans.setRegSuccess();
+
+	    bmc::form<rsr::RefInput> ref_form(std::move(input.ref_outbound_buffer_pool->borrow()), rco::referee_endpoint);
+	    rsr::RefInput::Builder ref_input = ref_form.build();
+	    rsr::RegistrationRequest::Builder reg = ref_input.initRegistration();
+	    reg.setClient(client.get_value());
+	    reg.setDetails(request.getDetails());
+
+	    bmc::payload<rsr::RefInput> payload(std::move(bmc::serialise(*(input.ref_outbound_buffer_pool), ref_form)));
+	    tar::retry_with_random_backoff([&]()
+	    {
+		if (input.ref_input_producer->try_enqueue_move(std::move(payload)) == rsr::ref_input_queue_type::producer::result::success)
+		{
+		    return tar::try_state::done;
+		}
+		else
+		{
+		    return tar::try_state::retry;
+		}
+	    });
 	    break;
 	}
     }
-    bmc::payload<rcs::ServerTransaction> payload(std::move(bmc::serialise(*(input.server_outbound_buffer_pool), form)));
+    bmc::payload<rcs::ServerTransaction> payload(std::move(bmc::serialise(*(input.server_outbound_buffer_pool), client_form)));
     tar::retry_with_random_backoff([&]()
     {
 	if (input.server_trans_producer->try_enqueue_move(std::move(payload)) == rcs::server_trans_queue_type::producer::result::success)
