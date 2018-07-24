@@ -6,6 +6,7 @@ def name(context):
     return os.path.basename(str(context.path))
 
 srprotocolCapnpFiles=[
+	'command.capnp',
 	'protocol.capnp']
 
 publicHeaders = [

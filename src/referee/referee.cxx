@@ -36,7 +36,7 @@ void referee::process(std::queue<bmc::payload<rsr::RefInput>>& in, std::queue<bm
 }
 
 void referee::process(
-	const rcc::Registration::Reader& registration,
+	const rsr::RegistrationRequest::Reader& registration,
 	std::queue<bmc::payload<rsr::RefOutput>>& out)
 {
 }

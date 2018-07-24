@@ -22,7 +22,7 @@ public:
 	    std::queue<beam::message::capnproto::payload<robocup2Dsim::srprotocol::RefInput>>& in,
 	    std::queue<beam::message::capnproto::payload<robocup2Dsim::srprotocol::RefOutput>>& out);
     void process(
-	    const robocup2Dsim::common::command::Registration::Reader& registration,
+	    const robocup2Dsim::srprotocol::RegistrationRequest::Reader& registration,
 	    std::queue<beam::message::capnproto::payload<robocup2Dsim::srprotocol::RefOutput>>& out);
 private:
     config config_;

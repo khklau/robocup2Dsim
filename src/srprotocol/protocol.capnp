@@ -7,6 +7,7 @@ using CommonCommand = import "/common/command.capnp";
 using Error = import "/common/error.capnp";
 using Judgement = import "/common/judgement.capnp";
 using Rule = import "/common/rule.capnp";
+using Command = import "command.capnp";
 
 struct RefOutput
 {
@@ -26,6 +27,6 @@ struct RefInput
     union
     {
 	rules @0 :Rule.MatchRules;
-	registration @1 :CommonCommand.Registration;
+	registration @1 :Command.RegistrationRequest;
     }
 }

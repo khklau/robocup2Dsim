@@ -6,6 +6,7 @@ $Cxx.namespace("robocup2Dsim::common::metadata");
 using ChannelId = UInt8;
 using FrameNumber = UInt32;
 using SequenceNumber = UInt16;
+using EndPointId = UInt64;   # needs to be kept in sync with beam::internet::endpoint_id
 
 struct Version
 {
