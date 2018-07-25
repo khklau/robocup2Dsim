@@ -11,7 +11,3 @@ struct RegistrationRequest
     client @0 :Metadata.EndPointId;
     details @1 :CommonCommand.Registration;
 }
-
-struct RosterFinalised
-{
-}

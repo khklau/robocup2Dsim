@@ -14,11 +14,12 @@ struct RefOutput
     union
     {
 	refReady @0 :Void;
-	fieldOpen @1 :Judgement.FieldOpen;
-	matchClose @2 :Judgement.MatchClose;
-	matchAbort @3 :Judgement.MatchAbort;
-	playJudgement @4 :Judgement.PlayJudgement;
-	refCrashed @5 :Void;
+	rosterFinalised @1 :Void;
+	fieldOpen @2 :Judgement.FieldOpen;
+	matchClose @3 :Judgement.MatchClose;
+	matchAbort @4 :Judgement.MatchAbort;
+	playJudgement @5 :Judgement.PlayJudgement;
+	refCrashed @6 :Void;
     }
 }
 

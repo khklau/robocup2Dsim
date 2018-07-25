@@ -3,6 +3,7 @@
 
 #include "config.hpp"
 
+#include <beam/message/buffer_pool.hpp>
 #include <beam/message/capnproto.hh>
 #include <robocup2Dsim/common/command.capnp.h>
 #include <robocup2Dsim/srprotocol/protocol.capnp.h>
@@ -28,6 +29,7 @@ private:
     config config_;
     std::unique_ptr<robocup2Dsim::server::enrollment> enrollment_;
     std::unique_ptr<robocup2Dsim::server::roster> roster_;
+    beam::message::buffer_pool pool_;
 };
 
 } // namespace referee
