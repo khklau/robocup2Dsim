@@ -25,8 +25,10 @@ namespace event {
 enum class state : uint8_t
 {
     noref_waiting,
+    noref_onbreak,
     noref_playing,
     withref_waiting,
+    withref_onbreak,
     withref_playing
 };
 
@@ -122,7 +124,10 @@ handle<state::withref_waiting> registration_requested(
 	beam::internet::endpoint_id source,
 	const robocup2Dsim::csprotocol::RegistrationRequest::Reader& reader);
 
+handle<state::withref_onbreak> roster_finalised(handle<state::withref_waiting>&& input);
+
 handle<state::withref_waiting> disconnected(handle<state::withref_waiting>&& input);
+
 handle<state::noref_waiting> ref_crashed(handle<state::withref_waiting>&& input);
 
 handle<state::withref_playing> status_uploaded(handle<state::withref_playing>&&, const robocup2Dsim::csprotocol::ClientStatus::Reader& reader);

@@ -132,6 +132,14 @@ handle<state::noref_waiting> registration_requested(
     return std::move(detail::registration_requested<state::noref_waiting>(std::move(input), source, reader));
 }
 
+handle<state::withref_onbreak> roster_finalised(handle<state::withref_waiting>&& input)
+{
+    input.roster = input.enrollment->finalise();
+    handle<state::withref_onbreak> output(std::move(input));
+    // TODO: send back a registration success to each client
+    return std::move(output);
+}
+
 handle<state::noref_waiting> disconnected(handle<state::noref_waiting>&& input)
 {
     handle<state::noref_waiting> output(std::move(input));

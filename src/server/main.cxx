@@ -202,6 +202,10 @@ void server::run()
 		    {
 			handle_ = std::move(rse::event::field_opened(std::move(handle), ref_output.read().getFieldOpen()));
 		    }
+		    else if (ref_output.read().isRosterFinalised())
+		    {
+			handle_ = std::move(rse::event::roster_finalised(std::move(handle)));
+		    }
 		    else if (ref_output.read().isRefCrashed())
 		    {
 			handle_ = std::move(rse::event::ref_crashed(std::move(handle)));
