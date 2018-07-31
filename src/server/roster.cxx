@@ -16,14 +16,47 @@ namespace ttu = turbo::type_utility;
 namespace robocup2Dsim {
 namespace server {
 
+roster::const_iterator::const_iterator(
+        const team_list_type& teams,
+        const player_list_type& players,
+        player_list_type::const_iterator iterator)
+    :
+        teams_(&teams),
+        players_(&players),
+        iterator_(iterator)
+{ }
+
+rce::player_id roster::const_iterator::get_player_id() const
+{
+    if (players_->cend() == iterator_)
+    {
+        throw std::out_of_range("iterator exceeds the player range in the roster");
+    }
+    return iterator_ - players_->cbegin();
+}
+
+rce::TeamId roster::const_iterator::get_team_id() const
+{
+    rce::player_id player = get_player_id();
+    auto alpha_iter = teams_->cbegin();
+    if (alpha_iter->first_player <= player && player <= alpha_iter->last_player)
+    {
+        return rce::TeamId::ALPHA;
+    }
+    else
+    {
+        return rce::TeamId::BETA;
+    }
+}
+
 roster::roster(
-	const std::array<bin::endpoint_id, MAX_ROSTER_SIZE>& enrolled_players,
-	const std::array<std::string, MAX_CLUB_COUNT>& enrolled_teams,
-	const std::array<rce::player_id, MAX_CLUB_COUNT> enrolled_goalies)
+	const roster::player_list_type& enrolled_players,
+	const roster::team_list_type& enrolled_teams,
+	const roster::goalie_list_type& enrolled_goalies)
 {
     std::copy_n(enrolled_players.cbegin(), enrolled_players.max_size(), players_.begin());
     // not safe to use memcpy for arrays of strings
-    std::copy(enrolled_teams.cbegin(), enrolled_teams.cend(), team_names_.begin());
+    std::copy(enrolled_teams.cbegin(), enrolled_teams.cend(), teams_.begin());
     std::copy_n(enrolled_goalies.cbegin(), enrolled_goalies.max_size(), goalies_.begin());
 }
 
@@ -52,9 +85,9 @@ std::string roster::get_team_name(const rce::TeamId& team) const
     switch (team)
     {
 	case rce::TeamId::ALPHA:
-	    return *(team_names_.cbegin());
+	    return teams_.cbegin()->name;
 	default:
-	    return *(team_names_.crbegin());
+	    return teams_.crbegin()->name;
     }
 }
 
@@ -155,9 +188,9 @@ std::unique_ptr<roster> enrollment::finalise() const
 	    }
 	}
     }
-    std::array<std::string, MAX_CLUB_COUNT> team_list{
-	    enrollment_.cbegin()->first,
-	    enrollment_.crbegin()->first};
+    std::array<roster::team_sheet, MAX_CLUB_COUNT> team_list{{
+            { enrollment_.cbegin()->first, 0U, MAX_TEAM_SIZE - 1U },
+            { enrollment_.crbegin()->first, MAX_TEAM_SIZE, MAX_ROSTER_SIZE - 1U } }};
     std::unique_ptr<roster> result(new roster(player_list, team_list, goalie_list));
     return std::move(result);
 }

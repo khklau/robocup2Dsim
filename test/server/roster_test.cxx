@@ -390,7 +390,7 @@ TEST(enrollment_test, finalise_no_goalkeeper)
 
 TEST(roster_test, find_client_invalid)
 {
-    std::array<bin::endpoint_id, rse::MAX_ROSTER_SIZE> player_list1{
+    rse::roster::player_list_type player_list1{
 	    bin::endpoint_id(22U, 12345U), bin::endpoint_id(21U, 12345U), bin::endpoint_id(20U, 12345U),
 	    bin::endpoint_id(19U, 12345U), bin::endpoint_id(18U, 12345U), bin::endpoint_id(17U, 12345U),
 	    bin::endpoint_id(16U, 12345U), bin::endpoint_id(15U, 12345U), bin::endpoint_id(14U, 12345U),
@@ -399,8 +399,8 @@ TEST(roster_test, find_client_invalid)
 	    bin::endpoint_id(8U, 12345U), bin::endpoint_id(7U, 12345U), bin::endpoint_id(6U, 12345U),
 	    bin::endpoint_id(5U, 12345U), bin::endpoint_id(4U, 12345U), bin::endpoint_id(3U, 12345U),
 	    bin::endpoint_id(2U, 12345U), bin::endpoint_id(1U, 12345U)};
-    std::array<std::string, rse::MAX_CLUB_COUNT> team_list1{"foo", "bar"};
-    std::array<rce::player_id, rse::MAX_CLUB_COUNT> goalie_list1{0, 11};
+    rse::roster::team_list_type team_list1{{ {"foo", 0U, 10U}, {"bar", 11U, 21U} }};
+    rse::roster::goalie_list_type goalie_list1{0, 11};
     rse::roster roster1(player_list1, team_list1, goalie_list1);
     EXPECT_EQ(rse::roster::find_result::not_found, std::get<0>(roster1.find_client(player_list1.max_size())))
 	    << "find_client succeeded with an invalid player_id";
@@ -410,7 +410,7 @@ TEST(roster_test, find_client_invalid)
 
 TEST(roster_test, find_client_basic)
 {
-    std::array<bin::endpoint_id, rse::MAX_ROSTER_SIZE> player_list1{
+    rse::roster::player_list_type player_list1{
 	    bin::endpoint_id(22U, 12345U), bin::endpoint_id(21U, 12345U), bin::endpoint_id(20U, 12345U),
 	    bin::endpoint_id(19U, 12345U), bin::endpoint_id(18U, 12345U), bin::endpoint_id(17U, 12345U),
 	    bin::endpoint_id(16U, 12345U), bin::endpoint_id(15U, 12345U), bin::endpoint_id(14U, 12345U),
@@ -419,8 +419,8 @@ TEST(roster_test, find_client_basic)
 	    bin::endpoint_id(8U, 12345U), bin::endpoint_id(7U, 12345U), bin::endpoint_id(6U, 12345U),
 	    bin::endpoint_id(5U, 12345U), bin::endpoint_id(4U, 12345U), bin::endpoint_id(3U, 12345U),
 	    bin::endpoint_id(2U, 12345U), bin::endpoint_id(1U, 12345U)};
-    std::array<std::string, rse::MAX_CLUB_COUNT> team_list1{"foo", "bar"};
-    std::array<rce::player_id, rse::MAX_CLUB_COUNT> goalie_list1{0, 11};
+    rse::roster::team_list_type team_list1{{ {"foo", 0U, 10U}, {"bar", 11U, 21U} }};
+    rse::roster::goalie_list_type goalie_list1{0, 11};
     rse::roster roster1(player_list1, team_list1, goalie_list1);
     for (std::size_t index = 0U; index < player_list1.max_size(); ++index)
     {
@@ -432,7 +432,7 @@ TEST(roster_test, find_client_basic)
 
 TEST(roster_test, find_player_invalid)
 {
-    std::array<bin::endpoint_id, rse::MAX_ROSTER_SIZE> player_list1{
+    rse::roster::player_list_type player_list1{
 	    bin::endpoint_id(22U, 12345U), bin::endpoint_id(21U, 12345U), bin::endpoint_id(20U, 12345U),
 	    bin::endpoint_id(19U, 12345U), bin::endpoint_id(18U, 12345U), bin::endpoint_id(17U, 12345U),
 	    bin::endpoint_id(16U, 12345U), bin::endpoint_id(15U, 12345U), bin::endpoint_id(14U, 12345U),
@@ -441,8 +441,8 @@ TEST(roster_test, find_player_invalid)
 	    bin::endpoint_id(8U, 12345U), bin::endpoint_id(7U, 12345U), bin::endpoint_id(6U, 12345U),
 	    bin::endpoint_id(5U, 12345U), bin::endpoint_id(4U, 12345U), bin::endpoint_id(3U, 12345U),
 	    bin::endpoint_id(2U, 12345U), bin::endpoint_id(1U, 12345U)};
-    std::array<std::string, rse::MAX_CLUB_COUNT> team_list1{"foo", "bar"};
-    std::array<rce::player_id, rse::MAX_CLUB_COUNT> goalie_list1{0, 11};
+    rse::roster::team_list_type team_list1{{ {"foo", 0U, 10U}, {"bar", 11U, 21U} }};
+    rse::roster::goalie_list_type goalie_list1{0, 11};
     rse::roster roster1(player_list1, team_list1, goalie_list1);
     EXPECT_EQ(rse::roster::find_result::not_found, std::get<0>(roster1.find_player(bin::endpoint_id(0U, 12345U))))
 	    << "find_player succeeded with an unknown client_id";
@@ -452,7 +452,7 @@ TEST(roster_test, find_player_invalid)
 
 TEST(roster_test, find_player_basic)
 {
-    std::array<bin::endpoint_id, rse::MAX_ROSTER_SIZE> player_list1{
+    rse::roster::player_list_type player_list1{
 	    bin::endpoint_id(1000U, 12345U), bin::endpoint_id(1001U, 12345U), bin::endpoint_id(1002U, 12345U),
 	    bin::endpoint_id(1003U, 12345U), bin::endpoint_id(1004U, 12345U), bin::endpoint_id(1005U, 12345U),
 	    bin::endpoint_id(1006U, 12345U), bin::endpoint_id(1007U, 12345U), bin::endpoint_id(1008U, 12345U),
@@ -461,8 +461,8 @@ TEST(roster_test, find_player_basic)
 	    bin::endpoint_id(1014U, 12345U), bin::endpoint_id(1015U, 12345U), bin::endpoint_id(1016U, 12345U),
 	    bin::endpoint_id(1017U, 12345U), bin::endpoint_id(1018U, 12345U), bin::endpoint_id(1019U, 12345U),
 	    bin::endpoint_id(1020U, 12345U), bin::endpoint_id(1021U, 12345U)};
-    std::array<std::string, rse::MAX_CLUB_COUNT> team_list1{"foo", "bar"};
-    std::array<rce::player_id, rse::MAX_CLUB_COUNT> goalie_list1{0, 11};
+    rse::roster::team_list_type team_list1{{ {"foo", 0U, 10U}, {"bar", 11U, 21U} }};
+    rse::roster::goalie_list_type goalie_list1{0, 11};
     rse::roster roster1(player_list1, team_list1, goalie_list1);
     for (std::size_t index = 0U; index < player_list1.max_size(); ++index)
     {
@@ -474,7 +474,7 @@ TEST(roster_test, find_player_basic)
 
 TEST(roster_test, is_goalkeeper_invalid)
 {
-    std::array<bin::endpoint_id, rse::MAX_ROSTER_SIZE> player_list1{
+    rse::roster::player_list_type player_list1{
 	    bin::endpoint_id(22U, 12345U), bin::endpoint_id(21U, 12345U), bin::endpoint_id(20U, 12345U),
 	    bin::endpoint_id(19U, 12345U), bin::endpoint_id(18U, 12345U), bin::endpoint_id(17U, 12345U),
 	    bin::endpoint_id(16U, 12345U), bin::endpoint_id(15U, 12345U), bin::endpoint_id(14U, 12345U),
@@ -483,8 +483,8 @@ TEST(roster_test, is_goalkeeper_invalid)
 	    bin::endpoint_id(8U, 12345U), bin::endpoint_id(7U, 12345U), bin::endpoint_id(6U, 12345U),
 	    bin::endpoint_id(5U, 12345U), bin::endpoint_id(4U, 12345U), bin::endpoint_id(3U, 12345U),
 	    bin::endpoint_id(2U, 12345U), bin::endpoint_id(1U, 12345U)};
-    std::array<std::string, rse::MAX_CLUB_COUNT> team_list1{"foo", "bar"};
-    std::array<rce::player_id, rse::MAX_CLUB_COUNT> goalie_list1{0, 11};
+    rse::roster::team_list_type team_list1{{ {"foo", 0U, 10U}, {"bar", 11U, 21U} }};
+    rse::roster::goalie_list_type goalie_list1{0, 11};
     rse::roster roster1(player_list1, team_list1, goalie_list1);
     EXPECT_FALSE(roster1.is_goalkeeper(player_list1.max_size()))
 	    << "is_goalkeeper succeeded with an invalid player_id";
@@ -494,7 +494,7 @@ TEST(roster_test, is_goalkeeper_invalid)
 
 TEST(roster_test, is_goalkeeper_basic)
 {
-    std::array<bin::endpoint_id, rse::MAX_ROSTER_SIZE> player_list1{
+    rse::roster::player_list_type player_list1{
 	    bin::endpoint_id(22U, 12345U), bin::endpoint_id(21U, 12345U), bin::endpoint_id(20U, 12345U),
 	    bin::endpoint_id(19U, 12345U), bin::endpoint_id(18U, 12345U), bin::endpoint_id(17U, 12345U),
 	    bin::endpoint_id(16U, 12345U), bin::endpoint_id(15U, 12345U), bin::endpoint_id(14U, 12345U),
@@ -503,8 +503,8 @@ TEST(roster_test, is_goalkeeper_basic)
 	    bin::endpoint_id(8U, 12345U), bin::endpoint_id(7U, 12345U), bin::endpoint_id(6U, 12345U),
 	    bin::endpoint_id(5U, 12345U), bin::endpoint_id(4U, 12345U), bin::endpoint_id(3U, 12345U),
 	    bin::endpoint_id(2U, 12345U), bin::endpoint_id(1U, 12345U)};
-    std::array<std::string, rse::MAX_CLUB_COUNT> team_list1{"foo", "bar"};
-    std::array<rce::player_id, rse::MAX_CLUB_COUNT> goalie_list1{0, 11};
+    rse::roster::team_list_type team_list1{{ {"foo", 0U, 10U}, {"bar", 11U, 21U} }};
+    rse::roster::goalie_list_type goalie_list1{0, 11};
     rse::roster roster1(player_list1, team_list1, goalie_list1);
     EXPECT_FALSE(roster1.is_goalkeeper(5))
 	    << "is_goalkeeper returned true with player_id that isn't a goalkeeper";
@@ -520,9 +520,9 @@ TEST(roster_test, get_team_name_basic)
 {
     const std::string ALPHA1("foo");
     const std::string BETA1("bar");
-    std::array<bin::endpoint_id, rse::MAX_ROSTER_SIZE> player_list1;
-    std::array<std::string, rse::MAX_CLUB_COUNT> team_list1{ALPHA1, BETA1};
-    std::array<rce::player_id, rse::MAX_CLUB_COUNT> goalie_list1;
+    rse::roster::player_list_type player_list1;
+    rse::roster::team_list_type team_list1{{ {ALPHA1, 0U, 10U}, {BETA1, 11U, 21U} }};
+    rse::roster::goalie_list_type goalie_list1;
     rse::roster roster1(player_list1, team_list1, goalie_list1);
     ASSERT_EQ(ALPHA1, roster1.get_team_name(rce::TeamId::ALPHA)) << "incorrect team name";
     ASSERT_EQ(BETA1, roster1.get_team_name(rce::TeamId::BETA)) << "incorrect team name";
@@ -530,7 +530,7 @@ TEST(roster_test, get_team_name_basic)
 
 TEST(roster_test, deregister_client_invalid)
 {
-    std::array<bin::endpoint_id, rse::MAX_ROSTER_SIZE> player_list1{
+    rse::roster::player_list_type player_list1{
 	    bin::endpoint_id(1000U, 12345U), bin::endpoint_id(1001U, 12345U), bin::endpoint_id(1002U, 12345U),
 	    bin::endpoint_id(1003U, 12345U), bin::endpoint_id(1004U, 12345U), bin::endpoint_id(1005U, 12345U),
 	    bin::endpoint_id(1006U, 12345U), bin::endpoint_id(1007U, 12345U), bin::endpoint_id(1008U, 12345U),
@@ -539,8 +539,8 @@ TEST(roster_test, deregister_client_invalid)
 	    bin::endpoint_id(1014U, 12345U), bin::endpoint_id(1015U, 12345U), bin::endpoint_id(1016U, 12345U),
 	    bin::endpoint_id(1017U, 12345U), bin::endpoint_id(1018U, 12345U), bin::endpoint_id(1019U, 12345U),
 	    bin::endpoint_id(1020U, 12345U), bin::endpoint_id(1021U, 12345U)};
-    std::array<std::string, rse::MAX_CLUB_COUNT> team_list1{"foo", "bar"};
-    std::array<rce::player_id, rse::MAX_CLUB_COUNT> goalie_list1{0, 11};
+    rse::roster::team_list_type team_list1{{ {"foo", 0U, 10U}, {"bar", 11U, 21U} }};
+    rse::roster::goalie_list_type goalie_list1{0, 11};
     rse::roster roster1(player_list1, team_list1, goalie_list1);
     ASSERT_EQ(rse::roster::find_result::not_found, std::get<0>(roster1.find_player(bin::endpoint_id(1U, 12345U)))) << "should not be registered";
     EXPECT_EQ(rse::deregister_result::client_not_found, roster1.deregister_client(bin::endpoint_id(1U, 12345U)))
@@ -554,7 +554,7 @@ TEST(roster_test, deregister_client_invalid)
 
 TEST(roster_test, deregister_client_basic)
 {
-    std::array<bin::endpoint_id, rse::MAX_ROSTER_SIZE> player_list1{
+    rse::roster::player_list_type player_list1{
 	    bin::endpoint_id(1000U, 12345U), bin::endpoint_id(1001U, 12345U), bin::endpoint_id(1002U, 12345U),
 	    bin::endpoint_id(1003U, 12345U), bin::endpoint_id(1004U, 12345U), bin::endpoint_id(1005U, 12345U),
 	    bin::endpoint_id(1006U, 12345U), bin::endpoint_id(1007U, 12345U), bin::endpoint_id(1008U, 12345U),
@@ -563,8 +563,8 @@ TEST(roster_test, deregister_client_basic)
 	    bin::endpoint_id(1014U, 12345U), bin::endpoint_id(1015U, 12345U), bin::endpoint_id(1016U, 12345U),
 	    bin::endpoint_id(1017U, 12345U), bin::endpoint_id(1018U, 12345U), bin::endpoint_id(1019U, 12345U),
 	    bin::endpoint_id(1020U, 12345U), bin::endpoint_id(1021U, 12345U)};
-    std::array<std::string, rse::MAX_CLUB_COUNT> team_list1{"foo", "bar"};
-    std::array<rce::player_id, rse::MAX_CLUB_COUNT> goalie_list1{0, 11};
+    rse::roster::team_list_type team_list1{{ {"foo", 0U, 10U}, {"bar", 11U, 21U} }};
+    rse::roster::goalie_list_type goalie_list1{0, 11};
     rse::roster roster1(player_list1, team_list1, goalie_list1);
     static const bin::endpoint_id begin(1000U, 12345U);
     for (bin::endpoint_id client(1021U, 12345U); client >= begin; client = bin::endpoint_id(client.get_address() - 1U, client.get_port()))
@@ -578,7 +578,7 @@ TEST(roster_test, deregister_client_basic)
 
 TEST(roster_test, deregister_client_goalkeeper)
 {
-    std::array<bin::endpoint_id, rse::MAX_ROSTER_SIZE> player_list1{
+    rse::roster::player_list_type player_list1{
 	    bin::endpoint_id(1000U, 12345U), bin::endpoint_id(1001U, 12345U), bin::endpoint_id(1002U, 12345U),
 	    bin::endpoint_id(1003U, 12345U), bin::endpoint_id(1004U, 12345U), bin::endpoint_id(1005U, 12345U),
 	    bin::endpoint_id(1006U, 12345U), bin::endpoint_id(1007U, 12345U), bin::endpoint_id(1008U, 12345U),
@@ -587,8 +587,8 @@ TEST(roster_test, deregister_client_goalkeeper)
 	    bin::endpoint_id(1014U, 12345U), bin::endpoint_id(1015U, 12345U), bin::endpoint_id(1016U, 12345U),
 	    bin::endpoint_id(1017U, 12345U), bin::endpoint_id(1018U, 12345U), bin::endpoint_id(1019U, 12345U),
 	    bin::endpoint_id(1020U, 12345U), bin::endpoint_id(1021U, 12345U)};
-    std::array<std::string, rse::MAX_CLUB_COUNT> team_list1{"foo", "bar"};
-    std::array<rce::player_id, rse::MAX_CLUB_COUNT> goalie_list1{0, 11};
+    rse::roster::team_list_type team_list1{{ {"foo", 0U, 10U}, {"bar", 11U, 21U} }};
+    rse::roster::goalie_list_type goalie_list1{0, 11};
     rse::roster roster1(player_list1, team_list1, goalie_list1);
     ASSERT_TRUE(roster1.is_goalkeeper(0)) << "should be a goalkeeper";
     EXPECT_EQ(rse::deregister_result::success, roster1.deregister_client(player_list1[0]))
@@ -601,5 +601,59 @@ TEST(roster_test, deregister_client_goalkeeper)
     for (rce::player_id player = 0U; player < player_list1.max_size(); ++player)
     {
 	ASSERT_FALSE(roster1.is_goalkeeper(player)) << "should not be a goalkeeper";
+    }
+}
+
+TEST(roster_test, iteration_invalid)
+{
+    rse::roster::player_list_type player_list1{
+	    bin::endpoint_id(22U, 12345U), bin::endpoint_id(21U, 12345U), bin::endpoint_id(20U, 12345U),
+	    bin::endpoint_id(19U, 12345U), bin::endpoint_id(18U, 12345U), bin::endpoint_id(17U, 12345U),
+	    bin::endpoint_id(16U, 12345U), bin::endpoint_id(15U, 12345U), bin::endpoint_id(14U, 12345U),
+	    bin::endpoint_id(13U, 12345U), bin::endpoint_id(12U, 12345U),
+	    bin::endpoint_id(11U, 12345U), bin::endpoint_id(10U, 12345U), bin::endpoint_id(9U, 12345U),
+	    bin::endpoint_id(8U, 12345U), bin::endpoint_id(7U, 12345U), bin::endpoint_id(6U, 12345U),
+	    bin::endpoint_id(5U, 12345U), bin::endpoint_id(4U, 12345U), bin::endpoint_id(3U, 12345U),
+	    bin::endpoint_id(2U, 12345U), bin::endpoint_id(1U, 12345U)};
+    rse::roster::team_list_type team_list1{{ {"foo", 0U, 10U}, {"bar", 11U, 21U} }};
+    rse::roster::goalie_list_type goalie_list1{0, 11};
+    rse::roster roster1(player_list1, team_list1, goalie_list1);
+    auto iter1a = roster1.cend();
+    EXPECT_THROW(*iter1a, std::out_of_range);
+    auto iter1b = roster1.cbegin();
+    for (auto iter = player_list1.cbegin(); iter != player_list1.cend(); ++iter)
+    {
+        ++iter1b;
+    }
+    EXPECT_THROW(*iter1b, std::out_of_range);
+}
+
+TEST(roster_test, iteration_basic)
+{
+    rse::roster::player_list_type player_list1{
+	    bin::endpoint_id(22U, 12345U), bin::endpoint_id(21U, 12345U), bin::endpoint_id(20U, 12345U),
+	    bin::endpoint_id(19U, 12345U), bin::endpoint_id(18U, 12345U), bin::endpoint_id(17U, 12345U),
+	    bin::endpoint_id(16U, 12345U), bin::endpoint_id(15U, 12345U), bin::endpoint_id(14U, 12345U),
+	    bin::endpoint_id(13U, 12345U), bin::endpoint_id(12U, 12345U),
+	    bin::endpoint_id(11U, 12345U), bin::endpoint_id(10U, 12345U), bin::endpoint_id(9U, 12345U),
+	    bin::endpoint_id(8U, 12345U), bin::endpoint_id(7U, 12345U), bin::endpoint_id(6U, 12345U),
+	    bin::endpoint_id(5U, 12345U), bin::endpoint_id(4U, 12345U), bin::endpoint_id(3U, 12345U),
+	    bin::endpoint_id(2U, 12345U), bin::endpoint_id(1U, 12345U)};
+    rse::roster::team_list_type team_list1{{ {"foo", 0U, 10U}, {"bar", 11U, 21U} }};
+    rse::roster::goalie_list_type goalie_list1{0, 11};
+    rse::roster roster1(player_list1, team_list1, goalie_list1);
+    auto iter1 = roster1.cbegin();
+    rce::player_id index = 0U;
+    for (; index < rse::MAX_TEAM_SIZE; ++index, ++iter1)
+    {
+        EXPECT_EQ(player_list1[index], *iter1) << "Player at index " << index << " does not have the expected endpoint";
+        EXPECT_EQ(index, iter1.get_player_id()) << "Player at index " << index << " does not have the expected player id";
+        EXPECT_EQ(rce::TeamId::ALPHA, iter1.get_team_id()) << "Player at index " << index << " does not have the expected team id";
+    }
+    for (; index < rse::MAX_ROSTER_SIZE; ++index, ++iter1)
+    {
+        EXPECT_EQ(player_list1[index], *iter1) << "Player at index " << index << " does not have the expected endpoint";
+        EXPECT_EQ(index, iter1.get_player_id()) << "Player at index " << index << " does not have the expected player id";
+        EXPECT_EQ(rce::TeamId::BETA, iter1.get_team_id()) << "Player at index " << index << " does not have the expected team id";
     }
 }
