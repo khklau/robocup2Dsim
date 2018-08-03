@@ -71,6 +71,7 @@ public:
         {
             return iterator_ != players_->cend();
         }
+        robocup2Dsim::common::entity::player_id get_player_id() const;
 
         inline const value_type& operator*()
         {
@@ -104,9 +105,6 @@ public:
             --(*this);
             return tmp;
         }
-
-        robocup2Dsim::common::entity::player_id get_player_id() const;
-        robocup2Dsim::common::entity::TeamId get_team_id() const;
 
     private:
         const team_list_type* teams_;

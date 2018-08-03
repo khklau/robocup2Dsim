@@ -35,20 +35,6 @@ rce::player_id roster::const_iterator::get_player_id() const
     return iterator_ - players_->cbegin();
 }
 
-rce::TeamId roster::const_iterator::get_team_id() const
-{
-    rce::player_id player = get_player_id();
-    auto alpha_iter = teams_->cbegin();
-    if (alpha_iter->first_player <= player && player <= alpha_iter->last_player)
-    {
-        return rce::TeamId::ALPHA;
-    }
-    else
-    {
-        return rce::TeamId::BETA;
-    }
-}
-
 roster::roster(
 	const roster::player_list_type& enrolled_players,
 	const roster::team_list_type& enrolled_teams,
@@ -166,27 +152,29 @@ std::unique_ptr<roster> enrollment::finalise() const
     }
     std::array<bin::endpoint_id, MAX_ROSTER_SIZE> player_list;
     std::array<rce::player_id, MAX_CLUB_COUNT> goalie_list;
-    rce::player_id player_index = 0U;
     rce::player_id goalie_index = 0U;
     for (rce::player_id& goalie: goalie_list)
     {
 	goalie = rce::no_player;
     }
-    for (const decltype(enrollment_)::value_type& enrolled: enrollment_)
+    auto finalise_player = [&](rce::player_id player, const client& cl)
     {
-	for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::ONE, rce::UniformNumber::ELEVEN>())
-	{
-	    if (player_index < player_list.max_size())
-	    {
-		player_list[player_index] = enrolled.second.at(uniform).id;
-		if (goalie_index < goalie_list.max_size() && enrolled.second.at(uniform).ptype == rce::PlayerType::GOAL_KEEPER)
-		{
-		    goalie_list[goalie_index] = player_index;
-		    ++goalie_index;
-		}
-		++player_index;
-	    }
-	}
+        player_list[player] = cl.id;
+        if (goalie_index < goalie_list.max_size() && cl.ptype == rce::PlayerType::GOAL_KEEPER)
+        {
+            goalie_list[goalie_index] = player;
+            ++goalie_index;
+        }
+    };
+    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::ONE, rce::UniformNumber::ELEVEN>())
+    {
+        rce::player_id alpha_player = rce::uniform_to_id(uniform, rce::TeamId::ALPHA);
+        auto& alpha_client = enrollment_.cbegin()->second.at(uniform);
+        finalise_player(alpha_player, alpha_client);
+
+        rce::player_id beta_player = rce::uniform_to_id(uniform, rce::TeamId::BETA);
+        auto& beta_client = enrollment_.crbegin()->second.at(uniform);
+        finalise_player(beta_player, beta_client);
     }
     std::array<roster::team_sheet, MAX_CLUB_COUNT> team_list{{
             { enrollment_.cbegin()->first, 0U, MAX_TEAM_SIZE - 1U },

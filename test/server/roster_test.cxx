@@ -642,18 +642,30 @@ TEST(roster_test, iteration_basic)
     rse::roster::team_list_type team_list1{{ {"foo", 0U, 10U}, {"bar", 11U, 21U} }};
     rse::roster::goalie_list_type goalie_list1{0, 11};
     rse::roster roster1(player_list1, team_list1, goalie_list1);
+    rce::UniformNumber uniform1 = rce::UniformNumber::ONE;
+    rce::TeamId team1 = rce::TeamId::ALPHA;
     auto iter1 = roster1.cbegin();
-    rce::player_id index = 0U;
-    for (; index < rse::MAX_TEAM_SIZE; ++index, ++iter1)
+    rce::player_id index1 = 0U;
+    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::ONE, rce::UniformNumber::ELEVEN>())
     {
-        EXPECT_EQ(player_list1[index], *iter1) << "Player at index " << index << " does not have the expected endpoint";
-        EXPECT_EQ(index, iter1.get_player_id()) << "Player at index " << index << " does not have the expected player id";
-        EXPECT_EQ(rce::TeamId::ALPHA, iter1.get_team_id()) << "Player at index " << index << " does not have the expected team id";
+        rce::player_id id = rce::uniform_to_id(uniform, rce::TeamId::ALPHA);
+        std::tie(uniform1, team1) = rce::id_to_uniform(id);
+        EXPECT_EQ(player_list1[index1], *iter1) << "Player at index1 " << index1 << " does not have the expected endpoint";
+        EXPECT_EQ(id, iter1.get_player_id()) << "Unexpected player_id at index " << index1;
+        EXPECT_EQ(uniform, uniform1) << "Player at index1 " << index1 << " does not have the expected uniform";
+        EXPECT_EQ(rce::TeamId::ALPHA, team1) << "Player at index1 " << index1 << " does not have the expected team id";
+        ++iter1;
+        ++index1;
     }
-    for (; index < rse::MAX_ROSTER_SIZE; ++index, ++iter1)
+    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::ONE, rce::UniformNumber::ELEVEN>())
     {
-        EXPECT_EQ(player_list1[index], *iter1) << "Player at index " << index << " does not have the expected endpoint";
-        EXPECT_EQ(index, iter1.get_player_id()) << "Player at index " << index << " does not have the expected player id";
-        EXPECT_EQ(rce::TeamId::BETA, iter1.get_team_id()) << "Player at index " << index << " does not have the expected team id";
+        rce::player_id id = rce::uniform_to_id(uniform, rce::TeamId::BETA);
+        std::tie(uniform1, team1) = rce::id_to_uniform(id);
+        EXPECT_EQ(player_list1[index1], *iter1) << "Player at index1 " << index1 << " does not have the expected endpoint";
+        EXPECT_EQ(id, iter1.get_player_id()) << "Unexpected player_id at index " << index1;
+        EXPECT_EQ(uniform, uniform1) << "Player at index1 " << index1 << " does not have the expected uniform";
+        EXPECT_EQ(rce::TeamId::BETA, team1) << "Player at index1 " << index1 << " does not have the expected team id";
+        ++iter1;
+        ++index1;
     }
 }
