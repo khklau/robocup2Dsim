@@ -21,6 +21,12 @@ struct RegistrationRequest
     details @0 :CommonCommand.Registration;
 }
 
+struct RegistrationAck
+{
+    uniform @0 :Entity.PlayerUniform;
+    playerType @1 :Entity.PlayerType;
+}
+
 struct RegistrationError
 {
     union

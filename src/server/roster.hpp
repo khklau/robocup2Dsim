@@ -73,6 +73,16 @@ public:
         }
         robocup2Dsim::common::entity::player_id get_player_id() const;
 
+        inline bool operator==(const const_iterator& other) const
+        {
+            return this->players_ == other.players_
+                    && this->teams_ == other.teams_
+                    && this->iterator_ == other.iterator_;
+        }
+        inline bool operator!=(const const_iterator& other) const
+        {
+            return !((*this) == other);
+        }
         inline const value_type& operator*()
         {
             if (!is_valid())

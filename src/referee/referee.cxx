@@ -51,6 +51,9 @@ void referee::process(
         rsr::RefOutput::Builder ref_output = ref_form.build();
         ref_output.setRosterFinalised();
         out.push(std::move(bmc::serialise(pool_, ref_form)));
+
+        roster_ = enrollment_->finalise();
+        enrollment_.reset();
     }
 }
 

@@ -40,7 +40,7 @@ struct ServerTransaction
 	unknownMsg @0 :Error.UnknownMsgError;
 	malformedMsg @1 :Error.MalformedMsgError;
 	disconnect @2 :Void;
-	regSuccess @3 :Void;
+	regAck @3 :Command.RegistrationAck;
 	regError @4 :Command.RegistrationError;
 	fieldOpen @5 :CommonJudgement.FieldOpen;
 	kickOff @6 :CommonJudgement.KickOff;

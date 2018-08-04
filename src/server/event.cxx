@@ -2,11 +2,13 @@
 #include "event.hh"
 #include <turbo/algorithm/recovery.hpp>
 #include <turbo/algorithm/recovery.hh>
+#include <robocup2Dsim/common/entity.capnp.h>
 #include <robocup2Dsim/common/rule.capnp.h>
 
 namespace bin = beam::internet;
 namespace bmc = beam::message::capnproto;
 namespace rsr = robocup2Dsim::srprotocol;
+namespace rce = robocup2Dsim::common::entity;
 namespace rco = robocup2Dsim::common;
 namespace rcs = robocup2Dsim::csprotocol;
 namespace tar = turbo::algorithm::recovery;
@@ -135,8 +137,34 @@ handle<state::noref_waiting> registration_requested(
 handle<state::withref_onbreak> roster_finalised(handle<state::withref_waiting>&& input)
 {
     input.roster = input.enrollment->finalise();
+    input.enrollment.reset();
+    for (auto iter = input.roster->cbegin(); iter != input.roster->cend(); ++iter)
+    {
+        bmc::form<rcs::ServerTransaction> ack_form(std::move(input.server_outbound_buffer_pool->borrow()), *iter);
+        rcs::ServerTransaction::Builder server_trans = ack_form.build();
+        rcs::RegistrationAck::Builder ack = server_trans.initRegAck();
+        rce::PlayerUniform::Builder uniform = ack.initUniform();
+
+        rce::UniformNumber number = rce::UniformNumber::ONE;
+        rce::TeamId team = rce::TeamId::ALPHA;
+        std::tie(number, team) = rce::id_to_uniform(iter.get_player_id());
+        uniform.setUniform(number);
+        uniform.setTeam(team);
+
+        bmc::payload<rcs::ServerTransaction> payload(std::move(bmc::serialise(*(input.server_outbound_buffer_pool), ack_form)));
+        tar::retry_with_random_backoff([&]()
+        {
+            if (input.server_trans_producer->try_enqueue_move(std::move(payload)) == rcs::server_trans_queue_type::producer::result::success)
+            {
+                return tar::try_state::done;
+            }
+            else
+            {
+                return tar::try_state::retry;
+            }
+        });
+    }
     handle<state::withref_onbreak> output(std::move(input));
-    // TODO: send back a registration success to each client
     return std::move(output);
 }
 

@@ -94,8 +94,6 @@ handle<next_state> registration_requested(
 	case enrollment::register_result::success:
 	default:
 	{
-	    trans.setRegSuccess();
-
 	    bmc::form<rsr::RefInput> ref_form(std::move(input.ref_outbound_buffer_pool->borrow()), rco::referee_endpoint);
 	    rsr::RefInput::Builder ref_input = ref_form.build();
 	    rsr::RegistrationRequest::Builder reg = ref_input.initRegistration();
@@ -114,7 +112,9 @@ handle<next_state> registration_requested(
 		    return tar::try_state::retry;
 		}
 	    });
-	    break;
+            // Acknowledgement is only sent after referee finalises roster
+            handle<next_state> output(std::move(input));
+            return std::move(output);
 	}
     }
     bmc::payload<rcs::ServerTransaction> payload(std::move(bmc::serialise(*(input.server_outbound_buffer_pool), client_form)));
