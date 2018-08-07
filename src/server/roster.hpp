@@ -97,7 +97,8 @@ public:
         }
         inline const_iterator operator++()
         {
-            return const_iterator(*teams_, *players_, ++iterator_);
+            ++iterator_;
+            return *this;
         }
         inline const_iterator operator++(int)
         {

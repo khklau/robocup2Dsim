@@ -388,6 +388,71 @@ TEST(enrollment_test, finalise_no_goalkeeper)
     }
 }
 
+TEST(enrollment_test, finalise_iterate_roster)
+{
+    rse::enrollment enrollment1;
+    bin::endpoint_id client(1000U, 12345U);
+    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::TWO, rce::UniformNumber::ELEVEN>())
+    {
+	ASSERT_EQ(rse::enrollment::register_result::success, register_client(
+		client,
+		"foo",
+		uniform,
+		rce::PlayerType::OUT_FIELD,
+		enrollment1)) << "reg failed";
+	client = bin::endpoint_id(client.get_address() + 1U, client.get_port());
+    }
+    ASSERT_EQ(rse::enrollment::register_result::success, register_client(
+	    client,
+	    "foo",
+	    rce::UniformNumber::ONE,
+	    rce::PlayerType::GOAL_KEEPER,
+	    enrollment1)) << "reg failed";
+    client = bin::endpoint_id(client.get_address() + 1U, client.get_port());
+    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::TWO, rce::UniformNumber::ELEVEN>())
+    {
+	ASSERT_EQ(rse::enrollment::register_result::success, register_client(
+		client,
+		"bar",
+		uniform,
+		rce::PlayerType::OUT_FIELD,
+		enrollment1)) << "reg failed";
+	client = bin::endpoint_id(client.get_address() + 1U, client.get_port());
+    }
+    ASSERT_EQ(rse::enrollment::register_result::success, register_client(
+	    client,
+	    "bar",
+	    rce::UniformNumber::ONE,
+	    rce::PlayerType::GOAL_KEEPER,
+	    enrollment1)) << "reg failed";
+    ASSERT_TRUE(enrollment1.is_full());
+    auto roster1 = enrollment1.finalise();
+    EXPECT_TRUE(roster1.get() != nullptr) << "finalise failed with full enrollment";
+    auto iter1 = roster1->cbegin();
+    rce::UniformNumber uniform1 = rce::UniformNumber::ONE;
+    rce::TeamId team1 = rce::TeamId::ALPHA;
+    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::ONE, rce::UniformNumber::ELEVEN>())
+    {
+        ASSERT_NE(roster1->cend(), iter1) << "Iterator unexpectedly reached the end of the range";
+        rce::player_id id = rce::uniform_to_id(uniform, rce::TeamId::ALPHA);
+        std::tie(uniform1, team1) = rce::id_to_uniform(id);
+        EXPECT_EQ(id, iter1.get_player_id()) << "Unexpected player_id";
+        EXPECT_EQ(uniform, uniform1) << "Player does not have the expected uniform";
+        EXPECT_EQ(rce::TeamId::ALPHA, team1) << "Player does not have the expected team id";
+        ++iter1;
+    }
+    for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::ONE, rce::UniformNumber::ELEVEN>())
+    {
+        ASSERT_NE(roster1->cend(), iter1) << "Iterator unexpectedly reached the end of the range";
+        rce::player_id id = rce::uniform_to_id(uniform, rce::TeamId::BETA);
+        std::tie(uniform1, team1) = rce::id_to_uniform(id);
+        EXPECT_EQ(id, iter1.get_player_id()) << "Unexpected player_id";
+        EXPECT_EQ(uniform, uniform1) << "Player at does not have the expected uniform";
+        EXPECT_EQ(rce::TeamId::BETA, team1) << "Player does not have the expected team id";
+        ++iter1;
+    }
+}
+
 TEST(roster_test, find_client_invalid)
 {
     rse::roster::player_list_type player_list1{
@@ -652,8 +717,8 @@ TEST(roster_test, iteration_basic)
         std::tie(uniform1, team1) = rce::id_to_uniform(id);
         EXPECT_EQ(player_list1[index1], *iter1) << "Player at index1 " << index1 << " does not have the expected endpoint";
         EXPECT_EQ(id, iter1.get_player_id()) << "Unexpected player_id at index " << index1;
-        EXPECT_EQ(uniform, uniform1) << "Player at index1 " << index1 << " does not have the expected uniform";
-        EXPECT_EQ(rce::TeamId::ALPHA, team1) << "Player at index1 " << index1 << " does not have the expected team id";
+        EXPECT_EQ(uniform, uniform1) << "Player at index " << index1 << " does not have the expected uniform";
+        EXPECT_EQ(rce::TeamId::ALPHA, team1) << "Player at index " << index1 << " does not have the expected team id";
         ++iter1;
         ++index1;
     }
@@ -663,8 +728,8 @@ TEST(roster_test, iteration_basic)
         std::tie(uniform1, team1) = rce::id_to_uniform(id);
         EXPECT_EQ(player_list1[index1], *iter1) << "Player at index1 " << index1 << " does not have the expected endpoint";
         EXPECT_EQ(id, iter1.get_player_id()) << "Unexpected player_id at index " << index1;
-        EXPECT_EQ(uniform, uniform1) << "Player at index1 " << index1 << " does not have the expected uniform";
-        EXPECT_EQ(rce::TeamId::BETA, team1) << "Player at index1 " << index1 << " does not have the expected team id";
+        EXPECT_EQ(uniform, uniform1) << "Player at index " << index1 << " does not have the expected uniform";
+        EXPECT_EQ(rce::TeamId::BETA, team1) << "Player at index " << index1 << " does not have the expected team id";
         ++iter1;
         ++index1;
     }
