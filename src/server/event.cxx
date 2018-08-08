@@ -140,7 +140,8 @@ handle<state::withref_onbreak> roster_finalised(handle<state::withref_waiting>&&
     input.enrollment.reset();
     for (auto iter = input.roster->cbegin(); iter != input.roster->cend(); ++iter)
     {
-        bmc::form<rcs::ServerTransaction> ack_form(std::move(input.server_outbound_buffer_pool->borrow()), *iter);
+        bin::endpoint_id client = *iter;
+        bmc::form<rcs::ServerTransaction> ack_form(std::move(input.server_outbound_buffer_pool->borrow()), client);
         rcs::ServerTransaction::Builder server_trans = ack_form.build();
         rcs::RegistrationAck::Builder ack = server_trans.initRegAck();
         rce::PlayerUniform::Builder uniform = ack.initUniform();

@@ -11,8 +11,30 @@ def configure(confCtx):
 def build(buildCtx):
     buildCtx.env.component = buildCtx.env.product.getComponent(name(buildCtx))
     buildCtx.program(
+	    name='exe_event_test',
+	    source=[buildCtx.path.find_node('event_test.cxx'),
+                    buildCtx.path.find_node('test_utility.cxx')],
+	    target=os.path.join(buildCtx.env.component.build_tree.testPathFromBuild(buildCtx), 'event_test'),
+	    defines=['GTEST_HAS_PTHREAD=1'],
+	    includes=['.'] + buildCtx.env.component.include_path_list,
+	    cxxflags=buildCtx.env.CXXFLAGS,
+	    linkflags=buildCtx.env.LDFLAGS,
+	    use=['GTEST_STLIB',
+		    'TURBO_SHLIB',
+		    'ASIO_SHLIB',
+		    'CAPNPROTO_SHLIB',
+		    'ENET_SHLIB',
+		    'BEAM_SHLIB',
+		    'stlib_robocup2Dsim_common',
+		    'stlib_robocup2Dsim_server'],
+	    libpath=['.'] + buildCtx.env.component.lib_path_list,
+	    rpath=buildCtx.env.component.rpath_list,
+	    install_path=None,
+	    after=['stlib_robocup2Dsim_common', 'stlib_robocup2Dsim_server'])
+    buildCtx.program(
 	    name='exe_roster_test',
-	    source=[buildCtx.path.find_node('roster_test.cxx')],
+	    source=[buildCtx.path.find_node('roster_test.cxx'),
+                    buildCtx.path.find_node('test_utility.cxx')],
 	    target=os.path.join(buildCtx.env.component.build_tree.testPathFromBuild(buildCtx), 'roster_test'),
 	    defines=['GTEST_HAS_PTHREAD=1'],
 	    includes=['.'] + buildCtx.env.component.include_path_list,
@@ -30,4 +52,3 @@ def build(buildCtx):
 	    rpath=buildCtx.env.component.rpath_list,
 	    install_path=None,
 	    after=['stlib_robocup2Dsim_common', 'stlib_robocup2Dsim_server'])
-
