@@ -1,9 +1,10 @@
 #include <robocup2Dsim/server/roster.hpp>
-#include <unordered_map>
-#include <capnp/message.h>
-#include <gtest/gtest.h>
+#include "test_utility.hpp"
 #include <turbo/type_utility/enum_iterator.hpp>
 #include <turbo/type_utility/enum_iterator.hh>
+#include <capnp/message.h>
+#include <gtest/gtest.h>
+#include <unordered_map>
 
 namespace bin = beam::internet;
 namespace rce = robocup2Dsim::common::entity;
@@ -11,21 +12,6 @@ namespace rcc = robocup2Dsim::common::command;
 namespace rcm = robocup2Dsim::common::metadata;
 namespace rse = robocup2Dsim::server;
 namespace ttu = turbo::type_utility;
-
-rse::enrollment::register_result register_client(bin::endpoint_id client, const std::string& team, rce::UniformNumber uniform, rce::PlayerType ptype, rse::enrollment& enrollment)
-{
-    capnp::MallocMessageBuilder arena;
-    rcc::Registration::Builder request = arena.initRoot<rcc::Registration>();
-    rcm::Version::Builder version = request.initVersion();
-    version.setNumberA(1U);
-    version.setNumberB(0U);
-    version.setNumberC(0U);
-    version.setNumberD(0U);
-    request.setTeamName(team);
-    request.setUniform(uniform);
-    request.setPlayerType(ptype);
-    return enrollment.register_client(client, request.asReader());
-}
 
 TEST(enrollment_test, register_client_team_taken)
 {
@@ -451,6 +437,7 @@ TEST(enrollment_test, finalise_iterate_roster)
         EXPECT_EQ(rce::TeamId::BETA, team1) << "Player does not have the expected team id";
         ++iter1;
     }
+    EXPECT_EQ(roster1->cend(), iter1) << "Iterator should have reached end of the range";
 }
 
 TEST(roster_test, find_client_invalid)
