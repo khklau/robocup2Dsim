@@ -17,16 +17,6 @@
 namespace robocup2Dsim {
 namespace server {
 
-constexpr std::size_t MAX_CLUB_COUNT =  turbo::type_utility::enum_count(
-	robocup2Dsim::common::entity::TeamId::ALPHA,
-	robocup2Dsim::common::entity::TeamId::BETA);
-
-constexpr std::size_t MAX_TEAM_SIZE = turbo::type_utility::enum_count(
-	robocup2Dsim::common::entity::UniformNumber::ONE,
-	robocup2Dsim::common::entity::UniformNumber::ELEVEN);
-
-constexpr std::size_t MAX_ROSTER_SIZE = MAX_CLUB_COUNT * MAX_TEAM_SIZE;
-
 enum class deregister_result
 {
     success,
@@ -43,9 +33,9 @@ public:
         robocup2Dsim::common::entity::player_id last_player;
     };
 
-    typedef std::array<beam::internet::endpoint_id, MAX_ROSTER_SIZE> player_list_type;
-    typedef std::array<team_sheet, MAX_CLUB_COUNT> team_list_type;
-    typedef std::array<robocup2Dsim::common::entity::player_id, MAX_CLUB_COUNT> goalie_list_type;
+    typedef std::array<beam::internet::endpoint_id, common::entity::MAX_ROSTER_SIZE> player_list_type;
+    typedef std::array<team_sheet, common::entity::MAX_CLUB_COUNT> team_list_type;
+    typedef std::array<robocup2Dsim::common::entity::player_id, common::entity::MAX_CLUB_COUNT> goalie_list_type;
 
     enum find_result
     {

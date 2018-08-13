@@ -5,6 +5,7 @@
 #include <turbo/type_utility/enum_metadata.hpp>
 #include <cstdint>
 #include <limits>
+#include <sstream>
 #include <stdexcept>
 #include <tuple>
 
@@ -59,6 +60,16 @@ enum class fixture_name : std::uint16_t
 typedef std::uint8_t player_id;
 
 static const player_id no_player = std::numeric_limits<player_id>::max();
+
+constexpr std::size_t MAX_CLUB_COUNT =  turbo::type_utility::enum_count(
+	robocup2Dsim::common::entity::TeamId::ALPHA,
+	robocup2Dsim::common::entity::TeamId::BETA);
+
+constexpr std::size_t MAX_TEAM_SIZE = turbo::type_utility::enum_count(
+	robocup2Dsim::common::entity::UniformNumber::ONE,
+	robocup2Dsim::common::entity::UniformNumber::ELEVEN);
+
+constexpr std::size_t MAX_ROSTER_SIZE = MAX_CLUB_COUNT * MAX_TEAM_SIZE;
 
 struct old_player_id
 {
@@ -197,6 +208,57 @@ inline std::tuple<UniformNumber, TeamId> id_to_uniform(player_id player)
         default:
             return std::make_tuple(UniformNumber::ELEVEN, team);
     }
+}
+
+inline std::string uniform_to_string(UniformNumber uniform, TeamId team)
+{
+    std::ostringstream out;
+    switch (team)
+    {
+        case TeamId::ALPHA:
+            out << "ALPHA-";
+            break;
+        case TeamId::BETA:
+            out << "BETA-";
+            break;
+    }
+    switch (uniform)
+    {
+        case UniformNumber::ONE:
+            out << "01";
+            break;
+        case UniformNumber::TWO:
+            out << "02";
+            break;
+        case UniformNumber::THREE:
+            out << "03";
+            break;
+        case UniformNumber::FOUR:
+            out << "04";
+            break;
+        case UniformNumber::FIVE:
+            out << "05";
+            break;
+        case UniformNumber::SIX:
+            out << "06";
+            break;
+        case UniformNumber::SEVEN:
+            out << "07";
+            break;
+        case UniformNumber::EIGHT:
+            out << "08";
+            break;
+        case UniformNumber::NINE:
+            out << "09";
+            break;
+        case UniformNumber::TEN:
+            out << "10";
+            break;
+        case UniformNumber::ELEVEN:
+            out << "11";
+            break;
+    }
+    return out.str();
 }
 
 } // namespace entity

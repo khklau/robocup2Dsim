@@ -150,8 +150,8 @@ std::unique_ptr<roster> enrollment::finalise() const
     {
 	return std::move(std::unique_ptr<roster>());
     }
-    std::array<bin::endpoint_id, MAX_ROSTER_SIZE> player_list;
-    std::array<rce::player_id, MAX_CLUB_COUNT> goalie_list;
+    std::array<bin::endpoint_id, rce::MAX_ROSTER_SIZE> player_list;
+    std::array<rce::player_id, rce::MAX_CLUB_COUNT> goalie_list;
     rce::player_id goalie_index = 0U;
     for (rce::player_id& goalie: goalie_list)
     {
@@ -176,9 +176,9 @@ std::unique_ptr<roster> enrollment::finalise() const
         auto& beta_client = enrollment_.crbegin()->second.at(uniform);
         finalise_player(beta_player, beta_client);
     }
-    std::array<roster::team_sheet, MAX_CLUB_COUNT> team_list{{
-            { enrollment_.cbegin()->first, 0U, MAX_TEAM_SIZE - 1U },
-            { enrollment_.crbegin()->first, MAX_TEAM_SIZE, MAX_ROSTER_SIZE - 1U } }};
+    std::array<roster::team_sheet, rce::MAX_CLUB_COUNT> team_list{{
+            { enrollment_.cbegin()->first, 0U, rce::MAX_TEAM_SIZE - 1U },
+            { enrollment_.crbegin()->first, rce::MAX_TEAM_SIZE, rce::MAX_ROSTER_SIZE - 1U } }};
     std::unique_ptr<roster> result(new roster(player_list, team_list, goalie_list));
     return std::move(result);
 }
@@ -196,10 +196,10 @@ bool enrollment::is_registered(const std::string& team, robocup2Dsim::common::en
 
 bool enrollment::is_full() const
 {
-    bool is_team_full = (enrollment_.size() == MAX_CLUB_COUNT);
+    bool is_team_full = (enrollment_.size() == rce::MAX_CLUB_COUNT);
     for (auto pair: enrollment_)
     {
-	is_team_full &= (pair.second.size() == MAX_TEAM_SIZE);
+	is_team_full &= (pair.second.size() == rce::MAX_TEAM_SIZE);
     }
     return is_team_full;
 }
