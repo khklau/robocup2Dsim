@@ -44,11 +44,19 @@ physics::physics(const vec2& gravity, const solver_config& solver_conf)
 	solver_conf_{solver_conf.velocity_iteration_limit, solver_conf.position_iteration_limit}
 { }
 
-physics_ptr<dynamics::body> physics::make_body(rru::ecs_db::entity_id_type, const body_def& def)
+physics_ptr<dynamics::body> physics::make_body(const rru::ecs_db::entity_id_type, const body_def& def)
 {
     physics_ptr<dynamics::body> body(world_.CreateBody(&def), &delete_body);
     body->SetUserData(reinterpret_cast<void*>(this));
     return std::move(body);
+}
+
+void physics::make_body(
+        const rru::ecs_db::entity_id_type entity_id,
+        const body_def& def,
+        dynamics::body& place)
+{
+    world_.CreateBody(&def, &place);
 }
 
 void physics::destroy_body(dynamics::body* body)

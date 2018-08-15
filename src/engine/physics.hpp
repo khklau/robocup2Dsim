@@ -90,7 +90,8 @@ public:
     };
     physics();
     physics(const vec2& gravity, const solver_config& solver_conf);
-    physics_ptr<dynamics::body> make_body(robocup2Dsim::runtime::ecs_db::entity_id_type entity_id, const body_def& def);
+    physics_ptr<dynamics::body> make_body(const robocup2Dsim::runtime::ecs_db::entity_id_type entity_id, const body_def& def);
+    void make_body(const robocup2Dsim::runtime::ecs_db::entity_id_type entity_id, const body_def& def, dynamics::body& place);
     void destroy_body(dynamics::body* body);
     template <class contact_category_t>
     fixture_def make_fixture_def(
