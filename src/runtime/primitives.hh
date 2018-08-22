@@ -111,7 +111,8 @@ std::size_t hash<robocup2Dsim::runtime::primitives::fixed_cstring<length_c>>::op
 {
     // use the same hash function as java.lang.String
     std::size_t result = 0U;
-    for (std::size_t counter = 0U; counter < length_c; ++counter)
+    std::size_t length = ::strlen(cstring.c_str());
+    for (std::size_t counter = 0U; counter < length; ++counter)
     {
 	result = cstring.c_str()[counter] + (result * 31U);
     }
