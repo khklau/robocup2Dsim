@@ -125,7 +125,7 @@ typedef robocup2Dsim::runtime::table<
 		robocup2Dsim::runtime::primitives::fixed_cstring_32>
 	physics_table_type;
 
-void register_system(robocup2Dsim::runtime::ecs_db& db, std::unique_ptr<physics> phys);
+std::unique_ptr<physics> register_system(robocup2Dsim::runtime::ecs_db& db, std::unique_ptr<physics> phys);
 
 const physics& select_physics_instance(const robocup2Dsim::runtime::ecs_db& db);
 physics& update_physics_instance(robocup2Dsim::runtime::ecs_db& db);

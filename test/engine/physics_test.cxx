@@ -14,10 +14,35 @@ namespace rru = robocup2Dsim::runtime;
 static const float deg2rad = 0.0174532925199432957f;
 static const float rad2deg = 57.295779513082320876f;
 
-TEST(physics_test, local_allocator_basic)
+TEST(physics_test, register_instance)
 {
     std::unique_ptr<ren::physics> physics1(new ren::physics());
+    ren::physics* physics1_ptr = physics1.get();
     ren::register_system(rru::update_local_db(), std::move(physics1));
+
+    EXPECT_NO_THROW(ren::select_physics_instance(rru::select_local_db()))
+            << "Registered physics instance is not accessible";
+    EXPECT_NO_THROW(ren::update_physics_instance(rru::update_local_db()))
+            << "Registered physics instance is not accessible";
+    EXPECT_EQ(physics1_ptr, &(ren::select_physics_instance(rru::select_local_db())))
+            << "Physics instances returned is not the instance registered";
+    EXPECT_EQ(physics1_ptr, &(ren::update_physics_instance(rru::update_local_db())))
+            << "Physics instances returned is not the instance registered";
+
+    std::unique_ptr<ren::physics> physics2(new ren::physics());
+    ren::physics* physics2_ptr = physics2.get();
+    std::unique_ptr<ren::physics> physics3 = ren::register_system(rru::update_local_db(), std::move(physics2));
+
+    EXPECT_EQ(physics1_ptr, physics3.get())
+            << "Displaced physics instance is not the original registered";
+    EXPECT_NO_THROW(ren::select_physics_instance(rru::select_local_db()))
+            << "Registered physics instance is not accessible";
+    EXPECT_NO_THROW(ren::update_physics_instance(rru::update_local_db()))
+            << "Registered physics instance is not accessible";
+    EXPECT_EQ(physics2_ptr, &(ren::select_physics_instance(rru::select_local_db())))
+            << "Physics instances returned is not the instance registered";
+    EXPECT_EQ(physics2_ptr, &(ren::update_physics_instance(rru::update_local_db())))
+            << "Physics instances returned is not the instance registered";
 }
 
 TEST(physics_test, make_body_basic)
