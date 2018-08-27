@@ -186,6 +186,7 @@ void physics::step(float time_step, collision_func_t&& on_collision, separation_
 	    std::forward<separation_func_t>(on_separation));
     world_.SetContactListener(&listener);
     world_.Step(time_step, solver_conf_.velocity_iteration_limit, solver_conf_.position_iteration_limit);
+    world_.SetContactListener(nullptr);
 }
 
 } // namespace engine
