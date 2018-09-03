@@ -144,6 +144,8 @@ void contact_listener<c, s>::EndContact(b2Contact* contact)
     }
 }
 
+static constexpr std::uint16_t group_index_offset = 1U;
+
 } // anonyous namespace
 
 template <class contact_category_t>
@@ -158,7 +160,8 @@ typename physics::fixture_def physics::make_fixture_def(
     result.filter.maskBits = contact.to_uint();
     if (contact.get_from_same_entity_config() == contact_result::pass_over)
     {
-	result.filter.groupIndex = entity_id * -1;
+        // to achieve pass over the groupIndex cannot be 0
+	result.filter.groupIndex = (entity_id + group_index_offset) * -1;
     }
     set_fixture_data(result, entity_id, fixture_id);
     return result;
