@@ -1,14 +1,17 @@
 #include <robocup2Dsim/common/action.hpp>
 #include <robocup2Dsim/common/action.hh>
 #include <robocup2Dsim/common/action.capnp.h>
-#include <utility>
-#include <capnp/message.h>
-#include <gtest/gtest.h>
-#include <turbo/memory/slab_allocator.hpp>
-#include <turbo/memory/slab_allocator.hh>
-#include <robocup2Dsim/runtime/db_access.hpp>
+
 #include <robocup2Dsim/engine/physics.hh>
 #include <robocup2Dsim/engine/inventory.hh>
+#include <robocup2Dsim/runtime/db_access.hpp>
+
+#include <turbo/memory/slab_allocator.hpp>
+#include <turbo/memory/slab_allocator.hh>
+
+#include <capnp/message.h>
+#include <gtest/gtest.h>
+#include <utility>
 
 namespace rco = robocup2Dsim::common;
 namespace ren = robocup2Dsim::engine;
@@ -20,48 +23,51 @@ TEST(action_test, local_allocator_basic)
     EXPECT_TRUE(rru::update_local_db().component_allocator().in_configured_range(4U));
 }
 
-ren::physics_ptr<red::body> make_body(ren::physics& physics)
+void make_player_body(rco::entity::player_id id, rco::player_body& body)
 {
-    ren::physics::body_def body_def;
-    body_def.type = ren::physics::body_type::b2_dynamicBody;
-    body_def.linearDamping = 0.15f;
-    body_def.angularDamping = 0.15f;
-    body_def.position.Set(20.0, 20.0);
-    body_def.angle = 0.0;
-    ren::physics_ptr<red::body> result = physics.make_body(0U, body_def);
-    ren::physics::mass_data mass;
-    result->GetMassData(&mass);
-    mass.I = 1.0f;
-    result->SetMassData(&mass);
-    return std::move(result);
-}
-
-rco::player_body make_player_body(ren::physics& physics)
-{
-    rco::player_body result{make_body(physics), make_body(physics), make_body(physics)};
-    return std::move(result);
+    rco::make_player(
+            body,
+            rru::update_local_db(),
+            id,
+            ren::physics::vec2(20.0, 20.0),
+            0);
 }
 
 TEST(action_test, act_move_foot_forward_understock)
 {
     ren::energy original_energy1{rco::MoveFootAction::MAX_COST / 2};
     ren::inventory inventory1({0U, rco::MoveFootAction::MAX_COST});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{original_energy1.quantity};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::MoveFootAction::Builder action1 = arena1.initRoot<rco::MoveFootAction>();
     action1.setVelocity(rco::MoveFootAction::MAX_VELOCITY);
-    ren::physics::vec2 original_position1 = body1.foot->GetPosition();
+    ren::physics::vec2 original_position1 = body1.foot.GetPosition();
     EXPECT_EQ(ren::inventory::spend_result::understock,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "act succeeded when stock was insufficient";
     EXPECT_EQ(original_energy1.quantity, stock1.quantity) << "act failed but energy was still spent";
     physics1.step(10.0,
-	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
-	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    ren::physics::vec2 new_position1 = body1.foot->GetPosition();
-    EXPECT_TRUE(original_position1.x == new_position1.x && original_position1.y == new_position1.y)
+	    [&](const ren::physics::contact_participant& cp1, const ren::physics::contact_participant& cp2) -> void
+            {
+                ADD_FAILURE() << "Unexpected collision involving - "
+                        << "(entity: " << cp1.entity_id << ", fixture: " << cp1.fixture_id << ") & "
+                        << "(entity: " << cp2.entity_id << ", fixture: " << cp2.fixture_id << ")";
+            },
+	    [&](const ren::physics::contact_participant& cp1, const ren::physics::contact_participant& cp2) -> void
+            {
+                ADD_FAILURE() << "Unexpected separation involving - "
+                        << "(entity: " << cp1.entity_id << ", fixture: " << cp1.fixture_id << ") & "
+                        << "(entity: " << cp2.entity_id << ", fixture: " << cp2.fixture_id << ")";
+            });
+    ren::physics::vec2 new_position1 = body1.foot.GetPosition();
+    EXPECT_EQ(original_position1.x, new_position1.x)
+	    << "unsuccessful act affected the simulation";
+    EXPECT_EQ(original_position1.y, new_position1.y)
 	    << "unsuccessful act affected the simulation";
 }
 
@@ -69,13 +75,16 @@ TEST(action_test, act_move_foot_backward_understock)
 {
     ren::energy original_energy1{rco::MoveFootAction::MAX_COST / 2};
     ren::inventory inventory1({0U, rco::MoveFootAction::MAX_COST});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{original_energy1.quantity};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::MoveFootAction::Builder action1 = arena1.initRoot<rco::MoveFootAction>();
     action1.setVelocity(-rco::MoveFootAction::MAX_VELOCITY);
-    ren::physics::vec2 original_position1 = body1.foot->GetPosition();
+    ren::physics::vec2 original_position1 = body1.foot.GetPosition();
     EXPECT_EQ(ren::inventory::spend_result::understock,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "act succeeded when stock was insufficient";
@@ -83,8 +92,10 @@ TEST(action_test, act_move_foot_backward_understock)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    ren::physics::vec2 new_position1 = body1.foot->GetPosition();
-    EXPECT_TRUE(original_position1.x == new_position1.x && original_position1.y == new_position1.y)
+    ren::physics::vec2 new_position1 = body1.foot.GetPosition();
+    EXPECT_EQ(original_position1.x, new_position1.x)
+	    << "unsuccessful act affected the simulation";
+    EXPECT_EQ(original_position1.y, new_position1.y)
 	    << "unsuccessful act affected the simulation";
 }
 
@@ -92,13 +103,16 @@ TEST(action_test, act_move_foot_forward_basic)
 {
     ren::energy original_energy1{rco::MoveFootAction::MAX_COST + 20};
     ren::inventory inventory1({0U, rco::MoveFootAction::MAX_COST + 20});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{original_energy1.quantity};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::MoveFootAction::Builder action1 = arena1.initRoot<rco::MoveFootAction>();
     action1.setVelocity(rco::MoveFootAction::MAX_VELOCITY);
-    ren::physics::vec2 original_position1 = body1.foot->GetPosition();
+    ren::physics::vec2 original_position1 = body1.foot.GetPosition();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -106,7 +120,7 @@ TEST(action_test, act_move_foot_forward_basic)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    ren::physics::vec2 new_position1 = body1.foot->GetPosition();
+    ren::physics::vec2 new_position1 = body1.foot.GetPosition();
     EXPECT_TRUE(original_position1.x != new_position1.x || original_position1.y != new_position1.y)
 	    << "action had no effect on simulation";
 }
@@ -115,13 +129,16 @@ TEST(action_test, act_move_foot_backward_basic)
 {
     ren::energy original_energy1{rco::MoveFootAction::MAX_COST + 20};
     ren::inventory inventory1({0U, rco::MoveFootAction::MAX_COST + 20});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{original_energy1.quantity};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::MoveFootAction::Builder action1 = arena1.initRoot<rco::MoveFootAction>();
     action1.setVelocity(-rco::MoveFootAction::MAX_VELOCITY);
-    ren::physics::vec2 original_position1 = body1.foot->GetPosition();
+    ren::physics::vec2 original_position1 = body1.foot.GetPosition();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -129,7 +146,7 @@ TEST(action_test, act_move_foot_backward_basic)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    ren::physics::vec2 new_position1 = body1.foot->GetPosition();
+    ren::physics::vec2 new_position1 = body1.foot.GetPosition();
     EXPECT_TRUE(original_position1.x != new_position1.x || original_position1.y != new_position1.y)
 	    << "action had no effect on simulation";
 }
@@ -137,13 +154,16 @@ TEST(action_test, act_move_foot_backward_basic)
 TEST(action_test, act_move_foot_forward_half_velocity)
 {
     ren::inventory inventory1({0U, rco::MoveFootAction::MAX_COST});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{rco::MoveFootAction::MAX_COST};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::MoveFootAction::Builder action1 = arena1.initRoot<rco::MoveFootAction>();
     action1.setVelocity(rco::MoveFootAction::MAX_VELOCITY / 2);
-    ren::physics::vec2 original_position1 = body1.foot->GetPosition();
+    ren::physics::vec2 original_position1 = body1.foot.GetPosition();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -151,7 +171,7 @@ TEST(action_test, act_move_foot_forward_half_velocity)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    ren::physics::vec2 new_position1 = body1.foot->GetPosition();
+    ren::physics::vec2 new_position1 = body1.foot.GetPosition();
     EXPECT_TRUE(original_position1.x != new_position1.x || original_position1.y != new_position1.y)
 	    << "action had no effect on simulation";
 }
@@ -159,13 +179,16 @@ TEST(action_test, act_move_foot_forward_half_velocity)
 TEST(action_test, act_move_foot_backward_half_velocity)
 {
     ren::inventory inventory1({0U, rco::MoveFootAction::MAX_COST});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{rco::MoveFootAction::MAX_COST};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::MoveFootAction::Builder action1 = arena1.initRoot<rco::MoveFootAction>();
     action1.setVelocity(-rco::MoveFootAction::MAX_VELOCITY / 2);
-    ren::physics::vec2 original_position1 = body1.foot->GetPosition();
+    ren::physics::vec2 original_position1 = body1.foot.GetPosition();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -173,7 +196,7 @@ TEST(action_test, act_move_foot_backward_half_velocity)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    ren::physics::vec2 new_position1 = body1.foot->GetPosition();
+    ren::physics::vec2 new_position1 = body1.foot.GetPosition();
     EXPECT_TRUE(original_position1.x != new_position1.x || original_position1.y != new_position1.y)
 	    << "action had no effect on simulation";
 }
@@ -181,13 +204,16 @@ TEST(action_test, act_move_foot_backward_half_velocity)
 TEST(action_test, act_move_foot_excess_forward_velocity)
 {
     ren::inventory inventory1({0U, rco::MoveFootAction::MAX_COST + 20});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{rco::MoveFootAction::MAX_COST};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::MoveFootAction::Builder action1 = arena1.initRoot<rco::MoveFootAction>();
     action1.setVelocity(rco::MoveFootAction::MAX_VELOCITY + 10);
-    ren::physics::vec2 original_position1 = body1.foot->GetPosition();
+    ren::physics::vec2 original_position1 = body1.foot.GetPosition();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -195,7 +221,7 @@ TEST(action_test, act_move_foot_excess_forward_velocity)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    ren::physics::vec2 new_position1 = body1.foot->GetPosition();
+    ren::physics::vec2 new_position1 = body1.foot.GetPosition();
     EXPECT_TRUE(original_position1.x != new_position1.x || original_position1.y != new_position1.y)
 	    << "action had no effect on simulation";
 }
@@ -203,13 +229,16 @@ TEST(action_test, act_move_foot_excess_forward_velocity)
 TEST(action_test, act_move_foot_excess_backward_velocity)
 {
     ren::inventory inventory1({0U, rco::MoveFootAction::MAX_COST +20});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{rco::MoveFootAction::MAX_COST};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::MoveFootAction::Builder action1 = arena1.initRoot<rco::MoveFootAction>();
     action1.setVelocity(-rco::MoveFootAction::MAX_VELOCITY - 10);
-    ren::physics::vec2 original_position1 = body1.foot->GetPosition();
+    ren::physics::vec2 original_position1 = body1.foot.GetPosition();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -217,7 +246,7 @@ TEST(action_test, act_move_foot_excess_backward_velocity)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    ren::physics::vec2 new_position1 = body1.foot->GetPosition();
+    ren::physics::vec2 new_position1 = body1.foot.GetPosition();
     EXPECT_TRUE(original_position1.x != new_position1.x || original_position1.y != new_position1.y)
 	    << "action had no effect on simulation";
 }
@@ -226,13 +255,16 @@ TEST(action_test, act_run_forward_understock)
 {
     ren::energy original_energy1{rco::RunAction::MAX_FORWARD_COST / 2};
     ren::inventory inventory1({0U, rco::RunAction::MAX_FORWARD_COST});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{original_energy1.quantity};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::RunAction::Builder action1 = arena1.initRoot<rco::RunAction>();
     action1.setVelocity(rco::RunAction::MAX_FORWARD_VELOCITY);
-    ren::physics::vec2 original_position1 = body1.torso->GetPosition();
+    ren::physics::vec2 original_position1 = body1.torso.GetPosition();
     EXPECT_EQ(ren::inventory::spend_result::understock,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "act succeeded when stock was insufficient";
@@ -240,8 +272,10 @@ TEST(action_test, act_run_forward_understock)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    ren::physics::vec2 new_position1 = body1.torso->GetPosition();
-    EXPECT_TRUE(original_position1.x == new_position1.x && original_position1.y == new_position1.y)
+    ren::physics::vec2 new_position1 = body1.torso.GetPosition();
+    EXPECT_EQ(original_position1.x, new_position1.x)
+	    << "unsuccessful act affected the simulation";
+    EXPECT_EQ(original_position1.y, new_position1.y)
 	    << "unsuccessful act affected the simulation";
 }
 
@@ -249,13 +283,16 @@ TEST(action_test, act_run_backward_understock)
 {
     ren::energy original_energy1{rco::RunAction::MAX_BACKWARD_COST / 2};
     ren::inventory inventory1({0U, rco::RunAction::MAX_BACKWARD_COST});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{original_energy1.quantity};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::RunAction::Builder action1 = arena1.initRoot<rco::RunAction>();
     action1.setVelocity(rco::RunAction::MAX_BACKWARD_VELOCITY);
-    ren::physics::vec2 original_position1 = body1.torso->GetPosition();
+    ren::physics::vec2 original_position1 = body1.torso.GetPosition();
     EXPECT_EQ(ren::inventory::spend_result::understock,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "act succeeded when stock was insufficient";
@@ -263,8 +300,10 @@ TEST(action_test, act_run_backward_understock)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    ren::physics::vec2 new_position1 = body1.torso->GetPosition();
-    EXPECT_TRUE(original_position1.x == new_position1.x && original_position1.y == new_position1.y)
+    ren::physics::vec2 new_position1 = body1.torso.GetPosition();
+    EXPECT_EQ(original_position1.x, new_position1.x)
+	    << "unsuccessful act affected the simulation";
+    EXPECT_EQ(original_position1.y, new_position1.y)
 	    << "unsuccessful act affected the simulation";
 }
 
@@ -272,13 +311,16 @@ TEST(action_test, act_run_forward_basic)
 {
     ren::energy original_energy1{rco::RunAction::MAX_FORWARD_COST + 20};
     ren::inventory inventory1({0U, rco::RunAction::MAX_FORWARD_COST + 20});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{original_energy1.quantity};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::RunAction::Builder action1 = arena1.initRoot<rco::RunAction>();
     action1.setVelocity(rco::RunAction::MAX_FORWARD_VELOCITY);
-    ren::physics::vec2 original_position1 = body1.torso->GetPosition();
+    ren::physics::vec2 original_position1 = body1.torso.GetPosition();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -286,7 +328,7 @@ TEST(action_test, act_run_forward_basic)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    ren::physics::vec2 new_position1 = body1.torso->GetPosition();
+    ren::physics::vec2 new_position1 = body1.torso.GetPosition();
     EXPECT_TRUE(original_position1.x != new_position1.x || original_position1.y != new_position1.y)
 	    << "action had no effect on simulation";
 }
@@ -295,13 +337,16 @@ TEST(action_test, act_run_backward_basic)
 {
     ren::energy original_energy1{rco::RunAction::MAX_BACKWARD_COST + 10};
     ren::inventory inventory1({0U, rco::RunAction::MAX_BACKWARD_COST + 10});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{original_energy1.quantity};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::RunAction::Builder action1 = arena1.initRoot<rco::RunAction>();
     action1.setVelocity(rco::RunAction::MAX_BACKWARD_VELOCITY);
-    ren::physics::vec2 original_position1 = body1.torso->GetPosition();
+    ren::physics::vec2 original_position1 = body1.torso.GetPosition();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -309,7 +354,7 @@ TEST(action_test, act_run_backward_basic)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    ren::physics::vec2 new_position1 = body1.torso->GetPosition();
+    ren::physics::vec2 new_position1 = body1.torso.GetPosition();
     EXPECT_TRUE(original_position1.x != new_position1.x || original_position1.y != new_position1.y)
 	    << "action had no effect on simulation";
 }
@@ -317,13 +362,16 @@ TEST(action_test, act_run_backward_basic)
 TEST(action_test, act_run_forward_half_velocity)
 {
     ren::inventory inventory1({0U, rco::RunAction::MAX_FORWARD_COST});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{rco::RunAction::MAX_FORWARD_COST};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::RunAction::Builder action1 = arena1.initRoot<rco::RunAction>();
     action1.setVelocity(rco::RunAction::MAX_FORWARD_VELOCITY / 2);
-    ren::physics::vec2 original_position1 = body1.torso->GetPosition();
+    ren::physics::vec2 original_position1 = body1.torso.GetPosition();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -331,7 +379,7 @@ TEST(action_test, act_run_forward_half_velocity)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    ren::physics::vec2 new_position1 = body1.torso->GetPosition();
+    ren::physics::vec2 new_position1 = body1.torso.GetPosition();
     EXPECT_TRUE(original_position1.x != new_position1.x || original_position1.y != new_position1.y)
 	    << "action had no effect on simulation";
 }
@@ -339,13 +387,16 @@ TEST(action_test, act_run_forward_half_velocity)
 TEST(action_test, act_run_backward_half_velocity)
 {
     ren::inventory inventory1({0U, rco::RunAction::MAX_BACKWARD_COST});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{rco::RunAction::MAX_BACKWARD_COST};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::RunAction::Builder action1 = arena1.initRoot<rco::RunAction>();
     action1.setVelocity(rco::RunAction::MAX_BACKWARD_VELOCITY / 2);
-    ren::physics::vec2 original_position1 = body1.torso->GetPosition();
+    ren::physics::vec2 original_position1 = body1.torso.GetPosition();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -353,7 +404,7 @@ TEST(action_test, act_run_backward_half_velocity)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    ren::physics::vec2 new_position1 = body1.torso->GetPosition();
+    ren::physics::vec2 new_position1 = body1.torso.GetPosition();
     EXPECT_TRUE(original_position1.x != new_position1.x || original_position1.y != new_position1.y)
 	    << "action had no effect on simulation";
 }
@@ -361,13 +412,16 @@ TEST(action_test, act_run_backward_half_velocity)
 TEST(action_test, act_run_forward_excess_velocity)
 {
     ren::inventory inventory1({0U, rco::RunAction::MAX_FORWARD_COST + 20});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{rco::RunAction::MAX_FORWARD_COST};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::RunAction::Builder action1 = arena1.initRoot<rco::RunAction>();
     action1.setVelocity(rco::RunAction::MAX_FORWARD_VELOCITY + 10);
-    ren::physics::vec2 original_position1 = body1.torso->GetPosition();
+    ren::physics::vec2 original_position1 = body1.torso.GetPosition();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -375,7 +429,7 @@ TEST(action_test, act_run_forward_excess_velocity)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    ren::physics::vec2 new_position1 = body1.torso->GetPosition();
+    ren::physics::vec2 new_position1 = body1.torso.GetPosition();
     EXPECT_TRUE(original_position1.x != new_position1.x || original_position1.y != new_position1.y)
 	    << "action had no effect on simulation";
 }
@@ -383,13 +437,16 @@ TEST(action_test, act_run_forward_excess_velocity)
 TEST(action_test, act_run_backward_excess_velocity)
 {
     ren::inventory inventory1({0U, rco::RunAction::MAX_BACKWARD_COST + 20});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{rco::RunAction::MAX_BACKWARD_COST};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::RunAction::Builder action1 = arena1.initRoot<rco::RunAction>();
     action1.setVelocity(rco::RunAction::MAX_BACKWARD_VELOCITY - 10);
-    ren::physics::vec2 original_position1 = body1.torso->GetPosition();
+    ren::physics::vec2 original_position1 = body1.torso.GetPosition();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -397,7 +454,7 @@ TEST(action_test, act_run_backward_excess_velocity)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    ren::physics::vec2 new_position1 = body1.torso->GetPosition();
+    ren::physics::vec2 new_position1 = body1.torso.GetPosition();
     EXPECT_TRUE(original_position1.x != new_position1.x || original_position1.y != new_position1.y)
 	    << "action had no effect on simulation";
 }
@@ -406,13 +463,16 @@ TEST(action_test, act_turn_head_antiwise_understock)
 {
     ren::energy original_energy1{rco::TurnHeadAction::MAX_COST / 2};
     ren::inventory inventory1({0U, rco::TurnHeadAction::MAX_COST});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{original_energy1.quantity};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::TurnHeadAction::Builder action1 = arena1.initRoot<rco::TurnHeadAction>();
     action1.setVelocity(rco::TurnHeadAction::MAX_VELOCITY);
-    auto original_angle1 = body1.head->GetAngle();
+    auto original_angle1 = body1.head.GetAngle();
     EXPECT_EQ(ren::inventory::spend_result::understock,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "act succeeded when stock was insufficient";
@@ -420,7 +480,7 @@ TEST(action_test, act_turn_head_antiwise_understock)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    auto new_angle1 = body1.head->GetAngle();
+    auto new_angle1 = body1.head.GetAngle();
     EXPECT_TRUE(original_angle1 == new_angle1)
 	    << "unsuccessful act affected the simulation";
 }
@@ -429,13 +489,16 @@ TEST(action_test, act_turn_head_clockwise_understock)
 {
     ren::energy original_energy1{rco::TurnHeadAction::MAX_COST / 2};
     ren::inventory inventory1({0U, rco::TurnHeadAction::MAX_COST});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{original_energy1.quantity};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::TurnHeadAction::Builder action1 = arena1.initRoot<rco::TurnHeadAction>();
     action1.setVelocity(-rco::TurnHeadAction::MAX_VELOCITY);
-    auto original_angle1 = body1.head->GetAngle();
+    auto original_angle1 = body1.head.GetAngle();
     EXPECT_EQ(ren::inventory::spend_result::understock,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "act succeeded when stock was insufficient";
@@ -443,7 +506,7 @@ TEST(action_test, act_turn_head_clockwise_understock)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    auto new_angle1 = body1.head->GetAngle();
+    auto new_angle1 = body1.head.GetAngle();
     EXPECT_TRUE(original_angle1 == new_angle1)
 	    << "unsuccessful act affected the simulation";
 }
@@ -452,13 +515,16 @@ TEST(action_test, act_turn_head_antiwise_basic)
 {
     ren::energy original_energy1{rco::TurnHeadAction::MAX_COST + 20};
     ren::inventory inventory1({0U, rco::TurnHeadAction::MAX_COST + 20});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{original_energy1.quantity};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::TurnHeadAction::Builder action1 = arena1.initRoot<rco::TurnHeadAction>();
     action1.setVelocity(rco::TurnHeadAction::MAX_VELOCITY);
-    auto original_angle1 = body1.head->GetAngle();
+    auto original_angle1 = body1.head.GetAngle();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -466,7 +532,7 @@ TEST(action_test, act_turn_head_antiwise_basic)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    auto new_angle1 = body1.head->GetAngle();
+    auto new_angle1 = body1.head.GetAngle();
     EXPECT_TRUE(original_angle1 < new_angle1)
 	    << "action had no effect on simulation";
 }
@@ -475,13 +541,16 @@ TEST(action_test, act_turn_head_clockwise_basic)
 {
     ren::energy original_energy1{rco::TurnHeadAction::MAX_COST + 20};
     ren::inventory inventory1({0U, rco::TurnHeadAction::MAX_COST + 20});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{original_energy1.quantity};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::TurnHeadAction::Builder action1 = arena1.initRoot<rco::TurnHeadAction>();
     action1.setVelocity(-rco::TurnHeadAction::MAX_VELOCITY);
-    auto original_angle1 = body1.head->GetAngle();
+    auto original_angle1 = body1.head.GetAngle();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -489,7 +558,7 @@ TEST(action_test, act_turn_head_clockwise_basic)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    auto new_angle1 = body1.head->GetAngle();
+    auto new_angle1 = body1.head.GetAngle();
     EXPECT_TRUE(new_angle1 < original_angle1)
 	    << "action had no effect on simulation";
 }
@@ -497,13 +566,16 @@ TEST(action_test, act_turn_head_clockwise_basic)
 TEST(action_test, act_turn_head_antiwise_half_velocity)
 {
     ren::inventory inventory1({0U, rco::TurnHeadAction::MAX_COST});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{rco::TurnHeadAction::MAX_COST};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::TurnHeadAction::Builder action1 = arena1.initRoot<rco::TurnHeadAction>();
     action1.setVelocity(rco::TurnHeadAction::MAX_VELOCITY / 2);
-    auto original_angle1 = body1.head->GetAngle();
+    auto original_angle1 = body1.head.GetAngle();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -511,7 +583,7 @@ TEST(action_test, act_turn_head_antiwise_half_velocity)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    auto new_angle1 = body1.head->GetAngle();
+    auto new_angle1 = body1.head.GetAngle();
     EXPECT_TRUE(original_angle1 < new_angle1)
 	    << "action had no effect on simulation";
 }
@@ -519,13 +591,16 @@ TEST(action_test, act_turn_head_antiwise_half_velocity)
 TEST(action_test, act_turn_head_clockwise_half_velocity)
 {
     ren::inventory inventory1({0U, rco::TurnHeadAction::MAX_COST});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{rco::TurnHeadAction::MAX_COST};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::TurnHeadAction::Builder action1 = arena1.initRoot<rco::TurnHeadAction>();
     action1.setVelocity(-rco::TurnHeadAction::MAX_VELOCITY / 2);
-    auto original_angle1 = body1.head->GetAngle();
+    auto original_angle1 = body1.head.GetAngle();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -533,7 +608,7 @@ TEST(action_test, act_turn_head_clockwise_half_velocity)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    auto new_angle1 = body1.head->GetAngle();
+    auto new_angle1 = body1.head.GetAngle();
     EXPECT_TRUE(new_angle1 < original_angle1)
 	    << "action had no effect on simulation";
 }
@@ -541,13 +616,16 @@ TEST(action_test, act_turn_head_clockwise_half_velocity)
 TEST(action_test, act_turn_head_antiwise_excess_velocity)
 {
     ren::inventory inventory1({0U, rco::TurnHeadAction::MAX_COST + 20});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{rco::TurnHeadAction::MAX_COST};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::TurnHeadAction::Builder action1 = arena1.initRoot<rco::TurnHeadAction>();
     action1.setVelocity(rco::TurnHeadAction::MAX_VELOCITY + 20);
-    auto original_angle1 = body1.head->GetAngle();
+    auto original_angle1 = body1.head.GetAngle();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -555,7 +633,7 @@ TEST(action_test, act_turn_head_antiwise_excess_velocity)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    auto new_angle1 = body1.head->GetAngle();
+    auto new_angle1 = body1.head.GetAngle();
     EXPECT_TRUE(original_angle1 < new_angle1)
 	    << "action had no effect on simulation";
 }
@@ -563,13 +641,16 @@ TEST(action_test, act_turn_head_antiwise_excess_velocity)
 TEST(action_test, act_turn_head_clockwise_excess_velocity)
 {
     ren::inventory inventory1({0U, rco::TurnHeadAction::MAX_COST + 20});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{rco::TurnHeadAction::MAX_COST};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::TurnHeadAction::Builder action1 = arena1.initRoot<rco::TurnHeadAction>();
     action1.setVelocity(-rco::TurnHeadAction::MAX_VELOCITY - 20);
-    auto original_angle1 = body1.head->GetAngle();
+    auto original_angle1 = body1.head.GetAngle();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -577,7 +658,7 @@ TEST(action_test, act_turn_head_clockwise_excess_velocity)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    auto new_angle1 = body1.head->GetAngle();
+    auto new_angle1 = body1.head.GetAngle();
     EXPECT_TRUE(new_angle1 < original_angle1)
 	    << "action had no effect on simulation";
 }
@@ -586,14 +667,17 @@ TEST(action_test, act_turn_torso_antiwise_understock)
 {
     ren::energy original_energy1{rco::TurnTorsoAction::MAX_COST / 2};
     ren::inventory inventory1({0U, rco::TurnTorsoAction::MAX_COST});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{original_energy1.quantity};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::TurnTorsoAction::Builder action1 = arena1.initRoot<rco::TurnTorsoAction>();
     action1.setVelocity(rco::TurnTorsoAction::MAX_VELOCITY);
-    auto original_torso_angle1 = body1.torso->GetAngle();
-    auto original_foot_angle1 = body1.foot->GetAngle();
+    auto original_torso_angle1 = body1.torso.GetAngle();
+    auto original_foot_angle1 = body1.foot.GetAngle();
     EXPECT_EQ(ren::inventory::spend_result::understock,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "act succeeded when stock was insufficient";
@@ -601,9 +685,11 @@ TEST(action_test, act_turn_torso_antiwise_understock)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    auto new_torso_angle1 = body1.torso->GetAngle();
-    auto new_foot_angle1 = body1.foot->GetAngle();
-    EXPECT_TRUE(original_torso_angle1 == new_torso_angle1 && original_foot_angle1 == new_foot_angle1)
+    auto new_torso_angle1 = body1.torso.GetAngle();
+    auto new_foot_angle1 = body1.foot.GetAngle();
+    EXPECT_EQ(original_torso_angle1, new_torso_angle1)
+	    << "unsuccessful act affected the simulation";
+    EXPECT_EQ(original_foot_angle1, new_foot_angle1)
 	    << "unsuccessful act affected the simulation";
 }
 
@@ -611,14 +697,17 @@ TEST(action_test, act_turn_torso_clockwise_understock)
 {
     ren::energy original_energy1{rco::TurnTorsoAction::MAX_COST / 2};
     ren::inventory inventory1({0U, rco::TurnTorsoAction::MAX_COST});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{original_energy1.quantity};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::TurnTorsoAction::Builder action1 = arena1.initRoot<rco::TurnTorsoAction>();
     action1.setVelocity(-rco::TurnTorsoAction::MAX_VELOCITY);
-    auto original_torso_angle1 = body1.torso->GetAngle();
-    auto original_foot_angle1 = body1.foot->GetAngle();
+    auto original_torso_angle1 = body1.torso.GetAngle();
+    auto original_foot_angle1 = body1.foot.GetAngle();
     EXPECT_EQ(ren::inventory::spend_result::understock,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "act succeeded when stock was insufficient";
@@ -626,9 +715,11 @@ TEST(action_test, act_turn_torso_clockwise_understock)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    auto new_torso_angle1 = body1.torso->GetAngle();
-    auto new_foot_angle1 = body1.foot->GetAngle();
-    EXPECT_TRUE(original_torso_angle1 == new_torso_angle1 && original_foot_angle1 == new_foot_angle1)
+    auto new_torso_angle1 = body1.torso.GetAngle();
+    auto new_foot_angle1 = body1.foot.GetAngle();
+    EXPECT_EQ(original_torso_angle1, new_torso_angle1)
+	    << "unsuccessful act affected the simulation";
+    EXPECT_EQ(original_foot_angle1, new_foot_angle1)
 	    << "unsuccessful act affected the simulation";
 }
 
@@ -636,14 +727,17 @@ TEST(action_test, act_turn_torso_antiwise_basic)
 {
     ren::energy original_energy1{rco::TurnTorsoAction::MAX_COST + 20};
     ren::inventory inventory1({0U, rco::TurnTorsoAction::MAX_COST + 20});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{original_energy1.quantity};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::TurnTorsoAction::Builder action1 = arena1.initRoot<rco::TurnTorsoAction>();
     action1.setVelocity(rco::TurnTorsoAction::MAX_VELOCITY);
-    auto original_torso_angle1 = body1.torso->GetAngle();
-    auto original_foot_angle1 = body1.foot->GetAngle();
+    auto original_torso_angle1 = body1.torso.GetAngle();
+    auto original_foot_angle1 = body1.foot.GetAngle();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -651,8 +745,8 @@ TEST(action_test, act_turn_torso_antiwise_basic)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    auto new_torso_angle1 = body1.torso->GetAngle();
-    auto new_foot_angle1 = body1.foot->GetAngle();
+    auto new_torso_angle1 = body1.torso.GetAngle();
+    auto new_foot_angle1 = body1.foot.GetAngle();
     EXPECT_TRUE(original_torso_angle1 < new_torso_angle1 && original_foot_angle1 < new_foot_angle1)
 	    << "action had no effect on simulation";
 }
@@ -661,14 +755,17 @@ TEST(action_test, act_turn_torso_clockwise_basic)
 {
     ren::energy original_energy1{rco::TurnTorsoAction::MAX_COST + 20};
     ren::inventory inventory1({0U, rco::TurnTorsoAction::MAX_COST + 20});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{original_energy1.quantity};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::TurnTorsoAction::Builder action1 = arena1.initRoot<rco::TurnTorsoAction>();
     action1.setVelocity(-rco::TurnTorsoAction::MAX_VELOCITY);
-    auto original_torso_angle1 = body1.torso->GetAngle();
-    auto original_foot_angle1 = body1.foot->GetAngle();
+    auto original_torso_angle1 = body1.torso.GetAngle();
+    auto original_foot_angle1 = body1.foot.GetAngle();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -676,8 +773,8 @@ TEST(action_test, act_turn_torso_clockwise_basic)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    auto new_torso_angle1 = body1.torso->GetAngle();
-    auto new_foot_angle1 = body1.foot->GetAngle();
+    auto new_torso_angle1 = body1.torso.GetAngle();
+    auto new_foot_angle1 = body1.foot.GetAngle();
     EXPECT_TRUE(new_torso_angle1 < original_torso_angle1 && new_foot_angle1 < original_foot_angle1)
 	    << "action had no effect on simulation";
 }
@@ -685,14 +782,17 @@ TEST(action_test, act_turn_torso_clockwise_basic)
 TEST(action_test, act_turn_torso_antiwise_half_velocity)
 {
     ren::inventory inventory1({0U, rco::TurnTorsoAction::MAX_COST});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{rco::TurnTorsoAction::MAX_COST};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::TurnTorsoAction::Builder action1 = arena1.initRoot<rco::TurnTorsoAction>();
     action1.setVelocity(rco::TurnTorsoAction::MAX_VELOCITY / 2);
-    auto original_torso_angle1 = body1.torso->GetAngle();
-    auto original_foot_angle1 = body1.foot->GetAngle();
+    auto original_torso_angle1 = body1.torso.GetAngle();
+    auto original_foot_angle1 = body1.foot.GetAngle();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -700,8 +800,8 @@ TEST(action_test, act_turn_torso_antiwise_half_velocity)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    auto new_torso_angle1 = body1.torso->GetAngle();
-    auto new_foot_angle1 = body1.foot->GetAngle();
+    auto new_torso_angle1 = body1.torso.GetAngle();
+    auto new_foot_angle1 = body1.foot.GetAngle();
     EXPECT_TRUE(original_torso_angle1 < new_torso_angle1 && original_foot_angle1 < new_foot_angle1)
 	    << "action had no effect on simulation";
 }
@@ -709,14 +809,17 @@ TEST(action_test, act_turn_torso_antiwise_half_velocity)
 TEST(action_test, act_turn_torso_clockwise_half_velocity)
 {
     ren::inventory inventory1({0U, rco::TurnTorsoAction::MAX_COST});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{rco::TurnTorsoAction::MAX_COST};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::TurnTorsoAction::Builder action1 = arena1.initRoot<rco::TurnTorsoAction>();
     action1.setVelocity(-rco::TurnTorsoAction::MAX_VELOCITY / 2);
-    auto original_torso_angle1 = body1.torso->GetAngle();
-    auto original_foot_angle1 = body1.foot->GetAngle();
+    auto original_torso_angle1 = body1.torso.GetAngle();
+    auto original_foot_angle1 = body1.foot.GetAngle();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -724,8 +827,8 @@ TEST(action_test, act_turn_torso_clockwise_half_velocity)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    auto new_torso_angle1 = body1.torso->GetAngle();
-    auto new_foot_angle1 = body1.foot->GetAngle();
+    auto new_torso_angle1 = body1.torso.GetAngle();
+    auto new_foot_angle1 = body1.foot.GetAngle();
     EXPECT_TRUE(new_torso_angle1 < original_torso_angle1 && new_foot_angle1 < original_foot_angle1)
 	    << "action had no effect on simulation";
 }
@@ -733,14 +836,17 @@ TEST(action_test, act_turn_torso_clockwise_half_velocity)
 TEST(action_test, act_turn_torso_antiwise_excess_velocity)
 {
     ren::inventory inventory1({0U, rco::TurnTorsoAction::MAX_COST + 20});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{rco::TurnTorsoAction::MAX_COST};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::TurnTorsoAction::Builder action1 = arena1.initRoot<rco::TurnTorsoAction>();
     action1.setVelocity(rco::TurnTorsoAction::MAX_VELOCITY + 20);
-    auto original_torso_angle1 = body1.torso->GetAngle();
-    auto original_foot_angle1 = body1.foot->GetAngle();
+    auto original_torso_angle1 = body1.torso.GetAngle();
+    auto original_foot_angle1 = body1.foot.GetAngle();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -748,8 +854,8 @@ TEST(action_test, act_turn_torso_antiwise_excess_velocity)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    auto new_torso_angle1 = body1.torso->GetAngle();
-    auto new_foot_angle1 = body1.foot->GetAngle();
+    auto new_torso_angle1 = body1.torso.GetAngle();
+    auto new_foot_angle1 = body1.foot.GetAngle();
     EXPECT_TRUE(original_torso_angle1 < new_torso_angle1 && original_foot_angle1 < new_foot_angle1)
 	    << "action had no effect on simulation";
 }
@@ -757,14 +863,17 @@ TEST(action_test, act_turn_torso_antiwise_excess_velocity)
 TEST(action_test, act_turn_torso_clockwise_excess_velocity)
 {
     ren::inventory inventory1({0U, rco::TurnTorsoAction::MAX_COST + 20});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     ren::energy stock1{rco::TurnTorsoAction::MAX_COST};
-    rco::player_body body1 = make_player_body(physics1);
+    rco::player_body body1;
+    make_player_body(0U, body1);
     capnp::MallocMessageBuilder arena1;
     rco::TurnTorsoAction::Builder action1 = arena1.initRoot<rco::TurnTorsoAction>();
     action1.setVelocity(-rco::TurnTorsoAction::MAX_VELOCITY - 20);
-    auto original_torso_angle1 = body1.torso->GetAngle();
-    auto original_foot_angle1 = body1.foot->GetAngle();
+    auto original_torso_angle1 = body1.torso.GetAngle();
+    auto original_foot_angle1 = body1.foot.GetAngle();
     EXPECT_EQ(ren::inventory::spend_result::success,
 	    rco::act(inventory1, stock1, physics1, body1, action1.asReader()))
 	    << "failed to act";
@@ -772,8 +881,8 @@ TEST(action_test, act_turn_torso_clockwise_excess_velocity)
     physics1.step(10.0,
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { },
 	    [&](const ren::physics::contact_participant&, const ren::physics::contact_participant&) -> void { });
-    auto new_torso_angle1 = body1.torso->GetAngle();
-    auto new_foot_angle1 = body1.foot->GetAngle();
+    auto new_torso_angle1 = body1.torso.GetAngle();
+    auto new_foot_angle1 = body1.foot.GetAngle();
     EXPECT_TRUE(new_torso_angle1 < original_torso_angle1 && new_foot_angle1 < original_foot_angle1)
 	    << "action had no effect on simulation";
 }
@@ -782,9 +891,13 @@ TEST(action_test, vector_act_invalid_player)
 {
     ren::energy original_energy1{rco::TurnTorsoAction::MAX_COST};
     ren::inventory inventory1({0U, rco::TurnTorsoAction::MAX_COST});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     std::array<ren::energy, 2U> stock1{original_energy1.quantity, original_energy1.quantity};
-    std::array<rco::player_body, 2U> body1{make_player_body(physics1), make_player_body(physics1)};
+    std::array<rco::player_body, 2U> body1;
+    make_player_body(0U, body1[0]);
+    make_player_body(1U, body1[1]);
     capnp::MallocMessageBuilder arena1;
     rco::PlayerAction::Builder action1 = arena1.initRoot<rco::PlayerAction>();
     std::vector<rco::client_action> action_list1;
@@ -802,9 +915,13 @@ TEST(action_test, vector_act_understock)
 {
     ren::energy original_energy1{rco::RunAction::MAX_FORWARD_COST / 2U};
     ren::inventory inventory1({0U, rco::MoveFootAction::MAX_COST});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     std::array<ren::energy, 2U> stock1{original_energy1.quantity, original_energy1.quantity};
-    std::array<rco::player_body, 2U> body1{make_player_body(physics1), make_player_body(physics1)};
+    std::array<rco::player_body, 2U> body1;
+    make_player_body(0U, body1[0]);
+    make_player_body(1U, body1[1]);
     std::vector<rco::client_action> action_list1;
     capnp::MallocMessageBuilder arena1a;
     rco::PlayerAction::Builder action1a = arena1a.initRoot<rco::PlayerAction>();
@@ -829,9 +946,13 @@ TEST(action_test, vector_act_half_success)
     ASSERT_TRUE(rco::MoveFootAction::MAX_COST < rco::RunAction::MAX_BACKWARD_COST) << "Wrong action mix picked";
     ren::energy original_energy1{rco::MoveFootAction::MAX_COST};
     ren::inventory inventory1({0U, rco::RunAction::MAX_BACKWARD_COST});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     std::array<ren::energy, 2U> stock1{original_energy1.quantity, original_energy1.quantity};
-    std::array<rco::player_body, 2U> body1{make_player_body(physics1), make_player_body(physics1)};
+    std::array<rco::player_body, 2U> body1;
+    make_player_body(0U, body1[0]);
+    make_player_body(1U, body1[1]);
     std::vector<rco::client_action> action_list1;
     capnp::MallocMessageBuilder arena1a;
     rco::PlayerAction::Builder action1a = arena1a.initRoot<rco::PlayerAction>();
@@ -854,9 +975,13 @@ TEST(action_test, vector_act_all_success)
     ASSERT_TRUE(rco::TurnHeadAction::MAX_COST < rco::TurnTorsoAction::MAX_COST) << "Wrong action mix picked";
     ren::energy original_energy1{rco::TurnTorsoAction::MAX_COST};
     ren::inventory inventory1({0U, rco::TurnTorsoAction::MAX_COST});
-    ren::physics physics1(ren::physics::vec2(0.0, 0.0), {8U, 4U});
+    std::unique_ptr<ren::physics> tmp_phys1(new ren::physics(ren::physics::vec2(0.0, 0.0), {8U, 4U}));
+    ren::register_system(rru::update_local_db(), std::move(tmp_phys1));
+    ren::physics& physics1 = ren::update_physics_instance(rru::update_local_db());
     std::array<ren::energy, 2U> stock1{original_energy1.quantity, original_energy1.quantity};
-    std::array<rco::player_body, 2U> body1{make_player_body(physics1), make_player_body(physics1)};
+    std::array<rco::player_body, 2U> body1;
+    make_player_body(0U, body1[0]);
+    make_player_body(1U, body1[1]);
     std::vector<rco::client_action> action_list1;
     capnp::MallocMessageBuilder arena1a;
     rco::PlayerAction::Builder action1a = arena1a.initRoot<rco::PlayerAction>();

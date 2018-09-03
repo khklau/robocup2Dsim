@@ -29,9 +29,9 @@ ren::inventory::spend_result act(
     if (result == ren::inventory::spend_result::success)
     {
 	ren::physics::vec2 target(0, 0);
-	target.x = velocity / VELOCITY_SCALE_FACTOR * std::cos(body.torso->GetAngle());
-	target.y = velocity / VELOCITY_SCALE_FACTOR * std::sin(body.torso->GetAngle());
-	physics.apply_linear_impulse(*(body.foot), target);
+	target.x = velocity / VELOCITY_SCALE_FACTOR * std::cos(body.torso.GetAngle());
+	target.y = velocity / VELOCITY_SCALE_FACTOR * std::sin(body.torso.GetAngle());
+	physics.apply_linear_impulse(body.foot, target);
     }
     return result;
 }
@@ -54,11 +54,11 @@ ren::inventory::spend_result act(
     if (result == ren::inventory::spend_result::success)
     {
 	ren::physics::vec2 target(0, 0);
-	target.x = velocity / VELOCITY_SCALE_FACTOR * std::cos(body.torso->GetAngle());
-	target.y = velocity / VELOCITY_SCALE_FACTOR * std::sin(body.torso->GetAngle());
-	physics.apply_linear_impulse(*(body.torso), target);
-	physics.apply_linear_impulse(*(body.head), target);
-	physics.apply_linear_impulse(*(body.foot), target);
+	target.x = velocity / VELOCITY_SCALE_FACTOR * std::cos(body.torso.GetAngle());
+	target.y = velocity / VELOCITY_SCALE_FACTOR * std::sin(body.torso.GetAngle());
+	physics.apply_linear_impulse(body.torso, target);
+	physics.apply_linear_impulse(body.head, target);
+	physics.apply_linear_impulse(body.foot, target);
     }
     return result;
 }
@@ -81,7 +81,7 @@ ren::inventory::spend_result act(
     ren::inventory::spend_result result = inventory.spend(stock, cost);
     if (result == ren::inventory::spend_result::success)
     {
-	physics.apply_angular_impulse(*(body.head), velocity / VELOCITY_SCALE_FACTOR);
+	physics.apply_angular_impulse(body.head, velocity / VELOCITY_SCALE_FACTOR);
     }
     return result;
 }
@@ -104,8 +104,8 @@ ren::inventory::spend_result act(
     ren::inventory::spend_result result = inventory.spend(stock, cost);
     if (result == ren::inventory::spend_result::success)
     {
-	physics.apply_angular_impulse(*(body.torso), action.getVelocity() / VELOCITY_SCALE_FACTOR);
-	physics.apply_angular_impulse(*(body.foot), action.getVelocity() / VELOCITY_SCALE_FACTOR);
+	physics.apply_angular_impulse(body.torso, action.getVelocity() / VELOCITY_SCALE_FACTOR);
+	physics.apply_angular_impulse(body.foot, action.getVelocity() / VELOCITY_SCALE_FACTOR);
     }
     return result;
 }
