@@ -2,6 +2,7 @@
 #include <utility>
 #include <robocup2Dsim/common/entity.hpp>
 #include <robocup2Dsim/engine/math.hpp>
+#include <robocup2Dsim/engine/physics.hh>
 
 namespace rem = robocup2Dsim::engine::math;
 namespace ren = robocup2Dsim::engine;
@@ -10,9 +11,21 @@ namespace rru = robocup2Dsim::runtime;
 namespace robocup2Dsim {
 namespace common {
 
-ren::physics_ptr<ren::dynamics::body> make_torso(
+player_body::~player_body()
+{
+    ren::physics* engine = static_cast<ren::physics*>(torso.GetUserData());
+     if (engine != nullptr)
+     {
+	 engine->destroy_body(&torso);
+	 engine->destroy_body(&head);
+	 engine->destroy_body(&foot);
+     }
+}
+
+void make_torso(
+        ren::dynamics::body& body,
 	rru::ecs_db& db,
-	const std::string& player_name,
+	const entity::player_id id,
 	const ren::physics::vec2& position,
 	const std::uint16_t angle_degree)
 {
@@ -21,16 +34,17 @@ ren::physics_ptr<ren::dynamics::body> make_torso(
     body_def.type = ren::physics::body_type::b2_dynamicBody;
     body_def.linearDamping = 0.15f;
     body_def.angularDamping = 0.15f;
-    std::string torso_name(player_name);
+    std::string torso_name("player ");
+    torso_name.append(std::to_string(id));
     torso_name.append(" torso");
-    rru::ecs_db::entity_table_type::key_type entity_id = db.insert_entity(torso_name);
-    ren::physics_ptr<ren::dynamics::body> body = std::move(physics.make_body(entity_id, body_def));
+    db.insert_entity(torso_name);
+    physics.make_body(id, body_def, body);
 
     ren::physics::mass_data mass;
-    body->GetMassData(&mass);
+    body.GetMassData(&mass);
     mass.I = 1.0f;
-    body->SetMassData(&mass);
-    body->SetTransform(position, angle_degree * rem::deg2rad);
+    body.SetMassData(&mass);
+    body.SetTransform(position, angle_degree * rem::deg2rad);
 
     std::array<ren::physics::vec2, 8> vertices;
     vertices[0].Set(1, -1);
@@ -48,22 +62,20 @@ ren::physics_ptr<ren::dynamics::body> make_torso(
     collision_config.set(entity::collision_category::ball_sensor, ren::contact_result::pass_over);
     collision_config.set(entity::collision_category::marker_sensor, ren::contact_result::pass_over);
     ren::physics::fixture_def fixture_def = physics.make_fixture_def(
-	    entity_id,
+	    id,
 	    static_cast<std::underlying_type<entity::fixture_name>::type>(entity::fixture_name::torso),
 	    entity::collision_category::player_body,
 	    collision_config);
     fixture_def.shape = &shape;
     fixture_def.density = 4.0f;
-    physics.make_fixture(*body, fixture_def);
-
-    return std::move(body);
+    physics.make_fixture(body, fixture_def);
 }
 
 void make_vision(
 	ren::physics& physics,
-	rru::ecs_db::entity_table_type::key_type entity_id,
+	const entity::player_id id,
 	ren::dynamics::body& body,
-	std::size_t vision_radius,
+	const std::size_t vision_radius,
 	const std::uint16_t arc_degree,
 	const std::int16_t offset_degree)
 {
@@ -81,7 +93,7 @@ void make_vision(
     collision_config.set(entity::collision_category::player_sensor, ren::contact_result::pass_over);
     collision_config.set(entity::collision_category::ball_sensor, ren::contact_result::pass_over);
     ren::physics::fixture_def fixture_def = physics.make_fixture_def(
-	    entity_id,
+	    id,
 	    static_cast<std::underlying_type<entity::fixture_name>::type>(entity::fixture_name::vision),
 	    entity::collision_category::player_sensor,
 	    collision_config);
@@ -91,9 +103,10 @@ void make_vision(
     physics.make_fixture(body, fixture_def);
 }
 
-ren::physics_ptr<ren::dynamics::body> make_head(
+void make_head(
+        ren::dynamics::body& body,
 	rru::ecs_db& db,
-	const std::string& player_name,
+	const entity::player_id id,
 	const ren::physics::vec2& position,
 	const std::uint16_t angle_degree,
 	std::size_t vision_radius,
@@ -104,16 +117,17 @@ ren::physics_ptr<ren::dynamics::body> make_head(
     body_def.type = ren::physics::body_type::b2_dynamicBody;
     body_def.linearDamping = 0.15f;
     body_def.angularDamping = 0.15f;
-    std::string head_name(player_name);
+    std::string head_name("player ");
+    head_name.append(std::to_string(id));
     head_name.append(" head");
-    rru::ecs_db::entity_table_type::key_type entity_id = db.insert_entity(head_name);
-    ren::physics_ptr<ren::dynamics::body> body = std::move(physics.make_body(entity_id, body_def));
+    db.insert_entity(head_name);
+    physics.make_body(id, body_def, body);
 
     ren::physics::mass_data mass;
-    body->GetMassData(&mass);
+    body.GetMassData(&mass);
     mass.I = 1.0f;
-    body->SetMassData(&mass);
-    body->SetTransform(position, angle_degree * rem::deg2rad);
+    body.SetMassData(&mass);
+    body.SetTransform(position, angle_degree * rem::deg2rad);
 
     ren::physics::circle_shape shape;
     shape.m_p.Set(0, 0);
@@ -123,25 +137,24 @@ ren::physics_ptr<ren::dynamics::body> make_head(
     collision_config.set(entity::collision_category::ball_sensor, ren::contact_result::pass_over);
     collision_config.set(entity::collision_category::marker_sensor, ren::contact_result::pass_over);
     ren::physics::fixture_def fixture_def = physics.make_fixture_def(
-	    entity_id,
+	    id,
 	    static_cast<std::underlying_type<entity::fixture_name>::type>(entity::fixture_name::head),
 	    entity::collision_category::player_body,
 	    collision_config);
     fixture_def.shape = &shape;
-    physics.make_fixture(*body, fixture_def);
+    physics.make_fixture(body, fixture_def);
 
     const std::size_t arc_degree = vision_degree / 4;
-    make_vision(physics, entity_id, *body, vision_radius, arc_degree, arc_degree * -2);
-    make_vision(physics, entity_id, *body, vision_radius, arc_degree, arc_degree * -1);
-    make_vision(physics, entity_id, *body, vision_radius, arc_degree, 0);
-    make_vision(physics, entity_id, *body, vision_radius, arc_degree, arc_degree);
-
-    return std::move(body);
+    make_vision(physics, id, body, vision_radius, arc_degree, arc_degree * -2);
+    make_vision(physics, id, body, vision_radius, arc_degree, arc_degree * -1);
+    make_vision(physics, id, body, vision_radius, arc_degree, 0);
+    make_vision(physics, id, body, vision_radius, arc_degree, arc_degree);
 }
 
-ren::physics_ptr<ren::dynamics::body> make_foot(
+void make_foot(
+        ren::dynamics::body& body,
 	rru::ecs_db& db,
-	const std::string& player_name,
+	const entity::player_id id,
 	const ren::physics::vec2& position,
 	const std::uint16_t angle_degree)
 {
@@ -150,16 +163,17 @@ ren::physics_ptr<ren::dynamics::body> make_foot(
     body_def.type = ren::physics::body_type::b2_dynamicBody;
     body_def.linearDamping = 0.15f;
     body_def.angularDamping = 0.15f;
-    std::string foot_name(player_name);
+    std::string foot_name("player ");
+    foot_name.append(std::to_string(id));
     foot_name.append(" foot");
-    rru::ecs_db::entity_table_type::key_type entity_id = db.insert_entity(foot_name);
-    ren::physics_ptr<ren::dynamics::body> body = std::move(physics.make_body(entity_id, body_def));
+    db.insert_entity(foot_name);
+    physics.make_body(id, body_def, body);
 
     ren::physics::mass_data mass;
-    body->GetMassData(&mass);
+    body.GetMassData(&mass);
     mass.I = 1.0f;
-    body->SetMassData(&mass);
-    body->SetTransform(position, angle_degree * rem::deg2rad);
+    body.SetMassData(&mass);
+    body.SetTransform(position, angle_degree * rem::deg2rad);
 
     std::array<ren::physics::vec2, 4> vertices;
     vertices[0].Set(1, 0.5);
@@ -173,14 +187,12 @@ ren::physics_ptr<ren::dynamics::body> make_foot(
     collision_config.set(entity::collision_category::ball_sensor, ren::contact_result::pass_over);
     collision_config.set(entity::collision_category::marker_sensor, ren::contact_result::pass_over);
     ren::physics::fixture_def fixture_def = physics.make_fixture_def(
-	    entity_id,
+	    id,
 	    static_cast<std::underlying_type<entity::fixture_name>::type>(entity::fixture_name::foot),
 	    entity::collision_category::player_body,
 	    collision_config);
     fixture_def.shape = &shape;
-    physics.make_fixture(*body, fixture_def);
-
-    return std::move(body);
+    physics.make_fixture(body, fixture_def);
 }
 
 void make_neck(
@@ -223,22 +235,18 @@ void make_hip(
     physics.make_joint(joint_def);
 }
 
-player_body make_player(
-	rru::ecs_db& db,
-	const std::string& name,
-	const ren::physics::vec2& position,
+void make_player(
+        player_body& output,
+	robocup2Dsim::runtime::ecs_db& db,
+	const entity::player_id id,
+	const robocup2Dsim::engine::physics::vec2& position,
 	const std::uint16_t angle_degree)
 {
-    ren::physics_ptr<ren::dynamics::body> torso = make_torso(db, name, position, angle_degree);
-    ren::physics_ptr<ren::dynamics::body> head = make_head(db, name, position, angle_degree, 360, 120);
-    ren::physics_ptr<ren::dynamics::body> foot = make_foot(db, name, position, angle_degree);
-    make_neck(ren::update_physics_instance(db), *torso, *head, -60, 60);
-    make_hip(ren::update_physics_instance(db), *torso, *foot, 0, 2);
-    player_body result{
-	    std::move(torso),
-	    std::move(head),
-	    std::move(foot)};
-    return std::move(result);
+    make_torso(output.torso, db, id, position, angle_degree);
+    make_head(output.head, db, id, position, angle_degree, 360, 120);
+    make_foot(output.foot, db, id, position, angle_degree);
+    make_neck(ren::update_physics_instance(db), output.torso, output.head, -60, 60);
+    make_hip(ren::update_physics_instance(db), output.torso, output.foot, 0, 2);
 }
 
 } // namespace common

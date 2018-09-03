@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <string>
+#include <robocup2Dsim/common/entity.hpp>
 #include <robocup2Dsim/engine/dynamics.hpp>
 #include <robocup2Dsim/engine/physics.hpp>
 #include <robocup2Dsim/runtime/ecs_db.hpp>
@@ -12,14 +13,22 @@ namespace common {
 
 struct player_body
 {
-    robocup2Dsim::engine::physics_ptr<robocup2Dsim::engine::dynamics::body> torso;
-    robocup2Dsim::engine::physics_ptr<robocup2Dsim::engine::dynamics::body> head;
-    robocup2Dsim::engine::physics_ptr<robocup2Dsim::engine::dynamics::body> foot;
+    robocup2Dsim::engine::dynamics::body torso;
+    robocup2Dsim::engine::dynamics::body head;
+    robocup2Dsim::engine::dynamics::body foot;
+
+    player_body() = default;
+    player_body(const player_body&) = delete;
+    player_body(player_body&&) = delete;
+    ~player_body();
+    player_body& operator=(const player_body&) = delete;
+    player_body& operator=(player_body&&) = delete;
 };
 
-player_body make_player(
+void make_player(
+        player_body& output,
 	robocup2Dsim::runtime::ecs_db& db,
-	const std::string& name,
+	const entity::player_id id,
 	const robocup2Dsim::engine::physics::vec2& position,
 	const std::uint16_t angle_degree);
 

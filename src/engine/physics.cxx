@@ -57,6 +57,7 @@ void physics::make_body(
         dynamics::body& place)
 {
     world_.CreateBody(&def, &place);
+    place.SetUserData(reinterpret_cast<void*>(this));
 }
 
 void physics::destroy_body(dynamics::body* body)
