@@ -25,7 +25,7 @@ TEST(action_test, local_allocator_basic)
 
 void make_player_body(rco::entity::player_id id, rco::player_body& body)
 {
-    rco::make_player(
+    rco::init_player(
             body,
             rru::update_local_db(),
             id,
