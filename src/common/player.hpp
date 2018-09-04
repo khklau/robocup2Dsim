@@ -25,7 +25,7 @@ struct player_body
     player_body& operator=(player_body&&) = delete;
 };
 
-void make_player(
+void init_player(
         player_body& output,
 	robocup2Dsim::runtime::ecs_db& db,
 	const entity::player_id id,

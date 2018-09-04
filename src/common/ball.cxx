@@ -17,7 +17,7 @@ ball_component::~ball_component()
     }
 }
 
-void make_ball(ball_component& output, robocup2Dsim::runtime::ecs_db& db, const ren::physics::vec2& position)
+void init_ball(ball_component& output, robocup2Dsim::runtime::ecs_db& db, const ren::physics::vec2& position)
 {
     ren::physics& physics = ren::update_physics_instance(db);
     ren::physics::body_def body_def;

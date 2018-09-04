@@ -235,7 +235,7 @@ void make_hip(
     physics.make_joint(joint_def);
 }
 
-void make_player(
+void init_player(
         player_body& output,
 	robocup2Dsim::runtime::ecs_db& db,
 	const entity::player_id id,
