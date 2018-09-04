@@ -17,13 +17,21 @@ commonCapnpFiles=[
 	'rule.capnp']
 
 publicHeaders = [
-    'action.hpp',
-    'action.hh',
-    'ball.hpp',
-    'entity.hpp',
-    'field.hpp',
-    'metadata.hpp',
-    'player.hpp']
+        'action.hpp',
+        'action.hh',
+        'ball.hpp',
+        'entity.hpp',
+        'field.hpp',
+        'metadata.hpp',
+        'player.hpp',
+        'state.hpp']
+
+sourceFiles = [
+        'action.cxx',
+        'ball.cxx',
+        'field.cxx',
+        'player.cxx',
+        'state.cxx']
 
 def configure(confCtx):
     confCtx.env.component = Component.fromContext(confCtx, name(confCtx), confCtx.env.product)
@@ -69,16 +77,23 @@ def build(buildCtx):
 	headerPublishTaskList.append(publishTask)
     buildCtx.stlib(
 	    name='stlib_robocup2Dsim_common',
-	    source=commonCxxNodeList +
-		    [buildCtx.path.find_node('action.cxx'),
-		    buildCtx.path.find_node('ball.cxx'),
-		    buildCtx.path.find_node('field.cxx'),
-		    buildCtx.path.find_node('player.cxx')],
+	    source=commonCxxNodeList + [buildCtx.path.find_node(source) for source in sourceFiles],
 	    target=os.path.join(buildCtx.env.component.build_tree.libPathFromBuild(buildCtx), 'robocup2Dsim_common'),
 	    includes=['.'] + buildCtx.env.component.include_path_list,
 	    libpath=buildCtx.env.component.lib_path_list,
 	    cxxflags=buildCtx.env.CXXFLAGS,
 	    linkflags=buildCtx.env.LDFLAGS,
+	    use=['TURBO_STLIB',
+		    'ASIO_STLIB',
+		    'CAPNPROTO_STLIB',
+		    'ENET_STLIB',
+		    'BEAM_STLIB',
+		    'GLOG_STLIB',
+		    'stlib_robocup2Dsim_runtime',
+		    'SNAPBOX2D_STLIB',
+		    'stlib_robocup2Dsim_engine'],
 	    install_path=buildCtx.env.component.install_tree.lib,
 	    after=headerPublishTaskList +
-		    commonCapnpTaskList)
+		    commonCapnpTaskList +
+                    ['stlib_robocup2Dsim_runtime',
+		    'stlib_robocup2Dsim_engine'])
