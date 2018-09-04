@@ -8,12 +8,14 @@
 namespace robocup2Dsim {
 namespace common {
 
-struct ball_components
+struct ball_component
 {
-    robocup2Dsim::engine::physics_ptr<robocup2Dsim::engine::dynamics::body> body;
+    robocup2Dsim::engine::dynamics::body body;
+
+    ~ball_component();
 };
 
-ball_components make_ball(robocup2Dsim::runtime::ecs_db& db, const robocup2Dsim::engine::physics::vec2& position);
+void make_ball(ball_component& output, robocup2Dsim::runtime::ecs_db& db, const robocup2Dsim::engine::physics::vec2& position);
 
 } // namespace common
 } // robocup2Dsim
