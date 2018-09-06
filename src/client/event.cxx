@@ -5,6 +5,7 @@
 #include <robocup2Dsim/common/metadata.capnp.h>
 #include <robocup2Dsim/csprotocol/command.capnp.h>
 #include <robocup2Dsim/csprotocol/protocol.capnp.h>
+#include <robocup2Dsim/runtime/db_access.hpp>
 #include <turbo/algorithm/recovery.hpp>
 #include <turbo/algorithm/recovery.hh>
 
@@ -14,6 +15,7 @@ namespace rce = robocup2Dsim::common::entity;
 namespace rcl = robocup2Dsim::client;
 namespace rco = robocup2Dsim::common;
 namespace rcs = robocup2Dsim::csprotocol;
+namespace rru = robocup2Dsim::runtime;
 namespace tar = turbo::algorithm::recovery;
 
 namespace robocup2Dsim {
@@ -31,6 +33,7 @@ basic_handle::basic_handle(
 	decltype(bot_outbound_buffer_pool)&& bot_outbound_pool,
 	decltype(client_outbound_buffer_pool)&& client_outbound_pool,
 	decltype(server_inbound_buffer_pool)&& server_inbound_pool,
+	decltype(game_state)&& game,
 	state my_state)
     :
 	bot_input_producer(bot_in),
@@ -43,6 +46,7 @@ basic_handle::basic_handle(
 	bot_outbound_buffer_pool(std::move(bot_outbound_pool)),
 	client_outbound_buffer_pool(std::move(client_outbound_pool)),
 	server_inbound_buffer_pool(std::move(server_inbound_pool)),
+	game_state(std::move(game)),
 	client_state(my_state)
 { }
 
@@ -58,6 +62,7 @@ basic_handle::basic_handle(basic_handle&& other) :
 	bot_outbound_buffer_pool(std::move(other.bot_outbound_buffer_pool)),
 	client_outbound_buffer_pool(std::move(other.client_outbound_buffer_pool)),
 	server_inbound_buffer_pool(std::move(other.server_inbound_buffer_pool)),
+        game_state(std::move(other.game_state)),
 	client_state(other.client_state)
 {
     other.bot_input_producer = nullptr;
@@ -80,6 +85,7 @@ basic_handle& basic_handle::operator=(basic_handle&& other)
     bot_outbound_buffer_pool = std::move(other.bot_outbound_buffer_pool);
     client_outbound_buffer_pool = std::move(other.client_outbound_buffer_pool);
     server_inbound_buffer_pool = std::move(other.server_inbound_buffer_pool);
+    game_state = std::move(other.game_state);
     client_state = other.client_state;
     other.bot_input_producer = nullptr;
     other.bot_output_consumer = nullptr;
@@ -129,13 +135,23 @@ handle<state::withbot_unregistered> spawned(handle<state::nobot_unregistered>&& 
     return std::move(output);
 }
 
-handle<state::withbot_onbench> registration_succeeded(handle<state::withbot_unregistered>&& input)
+handle<state::withbot_onbench> registration_succeeded(
+        handle<state::withbot_unregistered>&& input,
+        const rcs::RegistrationAck::Reader& ack)
 {
+    rco::entity::PlayerUniform::Reader uniform = ack.getUniform();
     handle<state::withbot_onbench> output(std::move(input));
+    output.game_state.reset(new rcl::client_game_state(
+            rru::update_local_db(),
+            uniform.getUniform(),
+            uniform.getTeam(),
+            ack.getPlayerType()));
     return std::move(output);
 }
 
-handle<state::withbot_unregistered> registration_failed(handle<state::withbot_unregistered>&& input, const rcs::RegistrationError::Reader& reader)
+handle<state::withbot_unregistered> registration_failed(
+        handle<state::withbot_unregistered>&& input,
+        const rcs::RegistrationError::Reader& reader)
 {
     handle<state::withbot_unregistered> output(std::move(input));
     return std::move(output);

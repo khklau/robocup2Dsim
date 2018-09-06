@@ -29,7 +29,8 @@ handle<state_value>::handle(
 	decltype(bot_inbound_buffer_pool)&& bot_inbound_pool,
 	decltype(bot_outbound_buffer_pool)&& bot_outbound_pool,
 	decltype(client_outbound_buffer_pool)&& client_outbound_pool,
-	decltype(server_inbound_buffer_pool)&& server_inbound_pool)
+	decltype(server_inbound_buffer_pool)&& server_inbound_pool,
+	decltype(game_state)&& game)
     :
 	basic_handle(
 		bot_in,
@@ -42,6 +43,7 @@ handle<state_value>::handle(
 		std::move(bot_outbound_pool),
 		std::move(client_outbound_pool),
 		std::move(server_inbound_pool),
+                std::move(game),
 		state_value)
 { }
 

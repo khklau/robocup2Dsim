@@ -1,11 +1,8 @@
 #ifndef ROBOCUP2DSIM_CLIENT_EVENT_HPP
 #define ROBOCUP2DSIM_CLIENT_EVENT_HPP
 
-#include <cstdint>
-#include <functional>
-#include <memory>
-#include <typeinfo>
-#include <kj/array.h>
+#include "config.hpp"
+#include "state.hpp"
 #include <beam/message/buffer_pool.hpp>
 #include <beam/message/capnproto.hpp>
 #include <robocup2Dsim/bcprotocol/protocol.capnp.h>
@@ -14,7 +11,11 @@
 #include <robocup2Dsim/csprotocol/protocol.hpp>
 #include <turbo/container/spsc_ring_queue.hpp>
 #include <turbo/toolset/extension.hpp>
-#include "config.hpp"
+#include <kj/array.h>
+#include <cstdint>
+#include <functional>
+#include <memory>
+#include <typeinfo>
 
 namespace robocup2Dsim {
 namespace client {
@@ -45,6 +46,7 @@ public:
     std::unique_ptr<beam::message::buffer_pool> bot_outbound_buffer_pool;
     std::unique_ptr<beam::message::buffer_pool> client_outbound_buffer_pool;
     std::unique_ptr<beam::message::buffer_pool> server_inbound_buffer_pool;
+    std::unique_ptr<client_game_state> game_state;
     state client_state;
     basic_handle(
 	    decltype(bot_input_producer) bot_in,
@@ -57,6 +59,7 @@ public:
 	    decltype(bot_outbound_buffer_pool)&& bot_outbound_pool,
 	    decltype(client_outbound_buffer_pool)&& client_outbound_pool,
 	    decltype(server_inbound_buffer_pool)&& server_inbound_pool,
+	    decltype(game_state)&& game,
 	    state my_state);
     basic_handle(basic_handle&& other);
     basic_handle& operator=(basic_handle&& other);
@@ -82,7 +85,8 @@ public:
 	    decltype(bot_inbound_buffer_pool)&& bot_inbound_pool,
 	    decltype(bot_outbound_buffer_pool)&& bot_outbound_pool,
 	    decltype(client_outbound_buffer_pool)&& client_outbound_pool,
-	    decltype(server_inbound_buffer_pool)&& server_inbound_pool);
+	    decltype(server_inbound_buffer_pool)&& server_inbound_pool,
+	    decltype(game_state)&& game);
     template <state other_state>
     handle(handle<other_state>&& other);
     handle(basic_handle&& other);
@@ -100,8 +104,13 @@ inline void with(basic_handle&& arg, func_t&& func);
 
 handle<state::withbot_unregistered> spawned(handle<state::nobot_unregistered>&&, const robocup2Dsim::client::config& conf);
 
-handle<state::withbot_onbench> registration_succeeded(handle<state::withbot_unregistered>&& input);
-handle<state::withbot_unregistered> registration_failed(handle<state::withbot_unregistered>&& input, const robocup2Dsim::csprotocol::RegistrationError::Reader& reader);
+handle<state::withbot_onbench> registration_succeeded(
+        handle<state::withbot_unregistered>&& input,
+        const robocup2Dsim::csprotocol::RegistrationAck::Reader& reader);
+handle<state::withbot_unregistered> registration_failed(
+        handle<state::withbot_unregistered>&& input,
+        const robocup2Dsim::csprotocol::RegistrationError::Reader& reader);
+
 handle<state::nobot_unregistered> bot_terminated(handle<state::withbot_unregistered>&& input);
 handle<state::nobot_unregistered> bot_crashed(handle<state::withbot_unregistered>&& input);
 

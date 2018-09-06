@@ -31,6 +31,7 @@
 #include "config.hpp"
 #include "event.hpp"
 #include "event.hh"
+#include "state.hpp"
 #include "server_io.hpp"
 
 namespace bmc = beam::message::capnproto;
@@ -177,6 +178,7 @@ client::client(const rcl::config& config, tpp::child&& bot) :
 	    std::move(std::unique_ptr<bme::buffer_pool>(new bme::buffer_pool(config_.bot_msg_word_length, config_.bot_msg_buffer_capacity))),
 	    std::move(std::unique_ptr<bme::buffer_pool>(new bme::buffer_pool(config_.server_msg_word_length, config_.server_msg_buffer_capacity))),
 	    std::move(std::unique_ptr<bme::buffer_pool>(new bme::buffer_pool(config_.server_msg_word_length, config_.server_msg_buffer_capacity))),
+	    std::move(std::unique_ptr<rcl::client_game_state>()),
 	    rcl::event::state::nobot_unregistered
 	},
 	notifier_(),
@@ -315,9 +317,11 @@ void client::run()
 		},
 		[&](rcl::event::handle<rcl::event::state::withbot_unregistered>&& handle)
 		{
-		    if (server_trans.read().isRegSuccess())
+		    if (server_trans.read().isRegAck())
 		    {
-			handle_ = std::move(rcl::event::registration_succeeded(std::move(handle)));
+			handle_ = std::move(rcl::event::registration_succeeded(
+                                std::move(handle),
+                                server_trans.read().getRegAck()));
 		    }
 		    else if (server_trans.read().isRegError())
 		    {
