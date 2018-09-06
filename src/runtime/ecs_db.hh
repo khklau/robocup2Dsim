@@ -1,6 +1,7 @@
 #ifndef ROBOCUP2DSIM_RUNTIME_ECS_DB_HXX
 #define ROBOCUP2DSIM_RUNTIME_ECS_DB_HXX
 
+#include <robocup2Dsim/runtime/ecs_db.hpp>
 #include <robocup2Dsim/runtime/ram_db.hh>
 
 namespace robocup2Dsim {
