@@ -8,6 +8,13 @@
 #include <robocup2Dsim/engine/inventory.hpp>
 
 namespace robocup2Dsim {
+
+namespace runtime {
+
+class ecs_db;
+
+} // namespace runtime
+
 namespace common {
 
 struct sim_state
@@ -16,7 +23,7 @@ struct sim_state
     std::array<player_body, entity::MAX_ROSTER_SIZE> players;
     ball_component ball;
 
-    sim_state();
+    sim_state(robocup2Dsim::runtime::ecs_db& db);
 };
 
 } // namespace common

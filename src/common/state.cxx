@@ -1,5 +1,5 @@
 #include "state.hpp"
-#include <robocup2Dsim/runtime/db_access.hpp>
+#include <robocup2Dsim/runtime/ecs_db.hh>
 #include <turbo/type_utility/enum_iterator.hh>
 
 namespace ttu = turbo::type_utility;
@@ -7,7 +7,11 @@ namespace ttu = turbo::type_utility;
 namespace robocup2Dsim {
 namespace common {
 
-sim_state::sim_state()
+sim_state::sim_state(robocup2Dsim::runtime::ecs_db& db)
+    :
+        stock(),
+        players(),
+        ball(db, engine::physics::vec2(0, 340))
 {
     float direction = -1;
     for (auto team : ttu::enum_iterator<entity::TeamId, entity::TeamId::ALPHA, entity::TeamId::BETA>())
@@ -22,7 +26,7 @@ sim_state::sim_state()
             stock[index] = engine::energy{0U};
             init_player(
                     players[index],
-                    runtime::update_local_db(),
+                    db,
                     index,
                     engine::physics::vec2(x_position * direction, y_position),
                     90U);
@@ -30,7 +34,6 @@ sim_state::sim_state()
         }
         direction *= -1;
     }
-    init_ball(ball, runtime::update_local_db(), engine::physics::vec2(0, 340));
 }
 
 } // namespace common

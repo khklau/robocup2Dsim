@@ -8,16 +8,9 @@ namespace rru = robocup2Dsim::runtime;
 namespace robocup2Dsim {
 namespace common {
 
-ball_component::~ball_component()
-{
-    ren::physics* engine = static_cast<ren::physics*>(body.GetUserData());
-    if (engine != nullptr)
-    {
-        engine->destroy_body(&body);
-    }
-}
-
-void init_ball(ball_component& output, robocup2Dsim::runtime::ecs_db& db, const ren::physics::vec2& position)
+ball_component::ball_component(robocup2Dsim::runtime::ecs_db& db, const robocup2Dsim::engine::physics::vec2& position)
+    :
+        body()
 {
     ren::physics& physics = ren::update_physics_instance(db);
     ren::physics::body_def body_def;
@@ -27,7 +20,7 @@ void init_ball(ball_component& output, robocup2Dsim::runtime::ecs_db& db, const 
     body_def.linearDamping = 0.15f;
     body_def.angularDamping = 0.15f;
     rru::ecs_db::entity_table_type::key_type entity_id = db.insert_entity("ball");
-    physics.make_body(entity_id, body_def, output.body);
+    physics.make_body(entity_id, body_def, body);
 
     ren::physics::circle_shape shape;
     shape.m_p.Set(0, 0);
@@ -41,7 +34,16 @@ void init_ball(ball_component& output, robocup2Dsim::runtime::ecs_db& db, const 
 	    entity::collision_category::ball,
 	    collision_config);
     fixture_def.shape = &shape;
-    physics.make_fixture(output.body, fixture_def);
+    physics.make_fixture(body, fixture_def);
+}
+
+ball_component::~ball_component()
+{
+    ren::physics* engine = static_cast<ren::physics*>(body.GetUserData());
+    if (engine != nullptr)
+    {
+        engine->destroy_body(&body);
+    }
 }
 
 } // namespace common

@@ -347,28 +347,35 @@ void make_penalty_box(
 
 } // anonymous namespace
 
+field::field(robocup2Dsim::runtime::ecs_db& db)
+    :
+        left_goal(),
+        right_goal(),
+        center_circle(),
+        boundary(),
+        left_penalty_box(),
+        right_penalty_box()
+{
+    make_goal(left_goal, db, Side::LEFT, ren::physics::vec2(-480, 340)),
+    make_goal(right_goal, db, Side::RIGHT, ren::physics::vec2(480, 340)),
+    make_center_circle(center_circle, db, 80, ren::physics::vec2(0, 340)),
+    make_boundary(boundary, db, 480 * 2, 340 * 2, ren::physics::vec2(0, 0)),
+    make_penalty_box(left_penalty_box, db, Side::LEFT, ren::physics::vec2(-480, 340)),
+    make_penalty_box(right_penalty_box, db, Side::RIGHT, ren::physics::vec2(480, 340));
+}
+
 field::~field()
 {
     ren::physics* engine = static_cast<ren::physics*>(boundary.GetUserData());
-     if (engine != nullptr)
-     {
-	 engine->destroy_body(&left_goal);
-	 engine->destroy_body(&right_goal);
-	 engine->destroy_body(&center_circle);
-	 engine->destroy_body(&boundary);
-	 engine->destroy_body(&left_penalty_box);
-	 engine->destroy_body(&right_penalty_box);
-     }
-}
-
-void init_field(field& output, rru::ecs_db& db)
-{
-    make_goal(output.left_goal, db, Side::LEFT, ren::physics::vec2(-480, 340)),
-    make_goal(output.right_goal, db, Side::RIGHT, ren::physics::vec2(480, 340)),
-    make_center_circle(output.center_circle, db, 80, ren::physics::vec2(0, 340)),
-    make_boundary(output.boundary, db, 480 * 2, 340 * 2, ren::physics::vec2(0, 0)),
-    make_penalty_box(output.left_penalty_box, db, Side::LEFT, ren::physics::vec2(-480, 340)),
-    make_penalty_box(output.right_penalty_box, db, Side::RIGHT, ren::physics::vec2(480, 340));
+    if (engine != nullptr)
+    {
+        engine->destroy_body(&left_goal);
+        engine->destroy_body(&right_goal);
+        engine->destroy_body(&center_circle);
+        engine->destroy_body(&boundary);
+        engine->destroy_body(&left_penalty_box);
+        engine->destroy_body(&right_penalty_box);
+    }
 }
 
 } // namespace common

@@ -17,15 +17,13 @@ struct field
     robocup2Dsim::engine::dynamics::body left_penalty_box;
     robocup2Dsim::engine::dynamics::body right_penalty_box;
 
-    field() = default;
+    field(robocup2Dsim::runtime::ecs_db& db);
     field(const field&) = delete;
     field(field&&) = delete;
     ~field();
     field& operator=(const field&) = delete;
     field& operator=(field&&) = delete;
 };
-
-void init_field(field& output, robocup2Dsim::runtime::ecs_db& db);
 
 } // namespace common
 } // namespace robocup2Dsim
