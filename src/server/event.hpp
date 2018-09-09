@@ -17,6 +17,7 @@
 #include <turbo/toolset/extension.hpp>
 #include "config.hpp"
 #include "roster.hpp"
+#include "state.hpp"
 
 namespace robocup2Dsim {
 namespace server {
@@ -52,6 +53,7 @@ public:
     std::unique_ptr<beam::message::buffer_pool> client_inbound_buffer_pool;
     std::unique_ptr<robocup2Dsim::server::enrollment> enrollment;
     std::unique_ptr<robocup2Dsim::server::roster> roster;
+    std::unique_ptr<robocup2Dsim::server::server_game_state> game_state;
     state server_state;
     basic_handle(
 	    decltype(ref_input_producer) ref_in,

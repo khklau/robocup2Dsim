@@ -5,7 +5,8 @@ publicHeaders = [
     'config.hpp',
     'event.hpp',
     'event.hh',
-    'roster.hpp']
+    'roster.hpp',
+    'state.hpp']
 
 sourceFiles = [
     'event.cxx',

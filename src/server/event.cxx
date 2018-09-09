@@ -4,6 +4,7 @@
 #include <turbo/algorithm/recovery.hh>
 #include <robocup2Dsim/common/entity.capnp.h>
 #include <robocup2Dsim/common/rule.capnp.h>
+#include <robocup2Dsim/runtime/db_access.hpp>
 
 namespace bin = beam::internet;
 namespace bmc = beam::message::capnproto;
@@ -11,6 +12,7 @@ namespace rsr = robocup2Dsim::srprotocol;
 namespace rce = robocup2Dsim::common::entity;
 namespace rco = robocup2Dsim::common;
 namespace rcs = robocup2Dsim::csprotocol;
+namespace rru = robocup2Dsim::runtime;
 namespace tar = turbo::algorithm::recovery;
 
 namespace robocup2Dsim {
@@ -42,6 +44,7 @@ basic_handle::basic_handle(
 	client_inbound_buffer_pool(std::move(client_inbound_pool)),
 	enrollment(new robocup2Dsim::server::enrollment()),
 	roster(),
+	game_state(),
 	server_state(my_state)
 { }
 
@@ -60,6 +63,7 @@ basic_handle::basic_handle(basic_handle&& other)
 	client_inbound_buffer_pool(std::move(other.client_inbound_buffer_pool)),
 	enrollment(std::move(other.enrollment)),
 	roster(std::move(other.roster)),
+	game_state(std::move(other.game_state)),
 	server_state(other.server_state)
 {
     other.ref_input_producer = nullptr;
@@ -84,6 +88,7 @@ basic_handle& basic_handle::operator=(basic_handle&& other)
     client_inbound_buffer_pool = std::move(other.client_inbound_buffer_pool),
     enrollment = std::move(other.enrollment),
     roster = std::move(other.roster),
+    game_state = std::move(other.game_state),
     server_state = other.server_state;
 
     other.ref_input_producer = nullptr;
@@ -166,6 +171,7 @@ handle<state::withref_onbreak> roster_finalised(handle<state::withref_waiting>&&
         });
     }
     handle<state::withref_onbreak> output(std::move(input));
+    output.game_state.reset(new server_game_state(rru::update_local_db()));
     return std::move(output);
 }
 
