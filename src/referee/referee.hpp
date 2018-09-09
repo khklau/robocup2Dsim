@@ -9,6 +9,7 @@
 #include <robocup2Dsim/srprotocol/protocol.capnp.h>
 #include <robocup2Dsim/srprotocol/protocol.hpp>
 #include <robocup2Dsim/server/roster.hpp>
+#include <robocup2Dsim/server/state.hpp>
 
 #include <queue>
 
@@ -29,6 +30,7 @@ private:
     config config_;
     std::unique_ptr<robocup2Dsim::server::enrollment> enrollment_;
     std::unique_ptr<robocup2Dsim::server::roster> roster_;
+    std::unique_ptr<robocup2Dsim::server::server_game_state> game_state_;
     beam::message::buffer_pool pool_;
 };
 

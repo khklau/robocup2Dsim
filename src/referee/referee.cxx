@@ -1,4 +1,5 @@
 #include "referee.hpp"
+#include <robocup2Dsim/runtime/db_access.hpp>
 
 namespace bin = beam::internet;
 namespace bmc = beam::message::capnproto;
@@ -6,6 +7,7 @@ namespace rcc = robocup2Dsim::common::command;
 namespace rre = robocup2Dsim::referee;
 namespace rse = robocup2Dsim::server;
 namespace rsr = robocup2Dsim::srprotocol;
+namespace rru = robocup2Dsim::runtime;
 
 namespace robocup2Dsim {
 namespace referee {
@@ -15,6 +17,7 @@ referee::referee(const config& conf)
 	config_(conf),
 	enrollment_(new rse::enrollment()),
 	roster_(),
+	game_state_(),
 	pool_(config_.msg_word_length, config_.msg_buffer_capacity)
 { }
 
@@ -54,6 +57,7 @@ void referee::process(
 
         roster_ = enrollment_->finalise();
         enrollment_.reset();
+        game_state_.reset(new rse::server_game_state(rru::update_local_db()));
     }
 }
 
