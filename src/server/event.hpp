@@ -132,6 +132,10 @@ handle<state::withref_waiting> disconnected(handle<state::withref_waiting>&& inp
 
 handle<state::noref_waiting> ref_crashed(handle<state::withref_waiting>&& input);
 
+handle<state::withref_onbreak> ping_timedout(handle<state::withref_onbreak>&& input);
+
+handle<state::noref_onbreak> ping_timedout(handle<state::noref_onbreak>&& input);
+
 handle<state::withref_playing> status_uploaded(handle<state::withref_playing>&&, const robocup2Dsim::csprotocol::ClientStatus::Reader& reader);
 handle<state::withref_playing> control_actioned(handle<state::withref_playing>&&, const robocup2Dsim::common::PlayerAction::Reader& reader);
 handle<state::withref_playing> play_judged(handle<state::withref_playing>&&, const robocup2Dsim::common::PlayJudgement::Reader& reader);

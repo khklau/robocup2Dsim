@@ -225,6 +225,18 @@ handle<state::withref_playing> play_judged(handle<state::withref_playing>&& inpu
     return std::move(output);
 }
 
+handle<state::withref_onbreak> ping_timedout(handle<state::withref_onbreak>&& input)
+{
+    handle<state::withref_playing> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::noref_onbreak> ping_timedout(handle<state::noref_onbreak>&& input)
+{
+    handle<state::noref_playing> output(std::move(input));
+    return std::move(output);
+}
+
 handle<state::withref_playing> simulation_timedout(handle<state::withref_playing>&& input)
 {
     handle<state::withref_playing> output(std::move(input));

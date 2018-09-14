@@ -20,11 +20,12 @@ struct config
 	    ref_msg_per_sec_limit(16U),
 	    ref_msg_word_length(64U),
 	    ref_msg_buffer_capacity(64U),
-	    frame_duration(10),
-	    simulation_frequency(2),
-	    snapshot_frequency(4),
-	    simulation_start_frame(0),
-	    snapshot_start_frame(1),
+	    frame_duration(500),
+	    ping_frequency(80),
+	    simulation_frequency(20),
+	    snapshot_frequency(80),
+	    simulation_start_frame(1),
+	    snapshot_start_frame(2),
 	    connection_timeout(15000),
 	    client_msg_queue_length(128U),
 	    client_wait_amount(1U),
@@ -44,6 +45,7 @@ struct config
     uint16_t ref_msg_word_length;
     uint16_t ref_msg_buffer_capacity;
     std::chrono::milliseconds frame_duration;
+    std::size_t ping_frequency;
     std::size_t simulation_frequency;
     std::size_t snapshot_frequency;
     std::size_t simulation_start_frame;

@@ -102,6 +102,7 @@ public:
     server(const rse::config& config, tpp::child&& ref);
     void run();
 private:
+    typedef std::chrono::high_resolution_clock clock_type;
     const rse::config config_;
     rsr::ref_input_queue_type ref_input_queue_;
     rsr::ref_output_queue_type ref_output_queue_;
@@ -176,15 +177,17 @@ void server::run()
     bmc::payload<rsr::RefOutput> ref_payload;
     bmc::payload<rcs::ClientStatus> status_payload;
     bmc::payload<rcs::ClientTransaction> trans_payload;
-    std::chrono:: high_resolution_clock::time_point next_frame_time = std::chrono::high_resolution_clock::now() + config_.frame_duration;
-    asio::io_service service;
-    asio::high_resolution_timer timer(service);
     rco::frame_number frame = 0;
+    clock_type::time_point next_frame_time = clock_type::now() + std::chrono::microseconds(config_.frame_duration);
     bool should_run = true;
     while (should_run)
     {
-	timer.expires_at(next_frame_time);
-	timer.wait();
+        clock_type::time_point now = clock_type::now();
+        if (now < next_frame_time)
+        {
+            continue;
+        }
+        ++frame;
 	if (ref_output_consumer_.try_dequeue_move(ref_payload) == rsr::ref_output_queue_type::consumer::result::success)
 	{
 	    bmc::statement<rsr::RefOutput> ref_output(std::move(ref_payload));
@@ -328,6 +331,20 @@ void server::run()
 	    );
 	}
 	rse::event::with(std::move(handle_),
+	    [&](rse::event::handle<rse::event::state::withref_onbreak>&& handle)
+	    {
+		if (frame % config_.ping_frequency == 0U)
+		{
+		    handle_ = std::move(rse::event::ping_timedout(std::move(handle)));
+		}
+            },
+	    [&](rse::event::handle<rse::event::state::noref_onbreak>&& handle)
+	    {
+		if (frame % config_.ping_frequency == 0U)
+		{
+		    handle_ = std::move(rse::event::ping_timedout(std::move(handle)));
+		}
+            },
 	    [&](rse::event::handle<rse::event::state::withref_playing>&& handle)
 	    {
 		if (frame % config_.simulation_frequency == config_.simulation_start_frame)
@@ -351,13 +368,12 @@ void server::run()
 		}
 	    }
 	);
-	next_frame_time += config_.frame_duration;
-	if (TURBO_UNLIKELY(std::chrono::high_resolution_clock::now() > next_frame_time))
+	next_frame_time += std::chrono::microseconds(config_.frame_duration);
+	if (clock_type::now() > next_frame_time)
 	{
-	    std::time_t time = std::chrono::high_resolution_clock::to_time_t(next_frame_time);
+	    std::time_t time = clock_type::to_time_t(next_frame_time);
 	    LOG(WARNING) << "Frame number " << frame << " at " << ctime(&time) << " missed";
 	}
-	++frame;
     }
 }
 
