@@ -109,7 +109,7 @@ handle<state_value>::handle(basic_handle&& other)
     assert(server_state == state_value);
 }
 
-handle<state::withref_waiting> ref_spawned(handle<state::noref_waiting>&& input, const robocup2Dsim::server::config& config)
+handle<state::waiting> ref_spawned(handle<state::waiting>&& input, const robocup2Dsim::server::config& config)
 {
     bmc::form<rsr::RefInput> form(std::move(input.ref_outbound_buffer_pool->borrow()));
     rsr::RefInput::Builder ref_input = form.build();
@@ -127,19 +127,19 @@ handle<state::withref_waiting> ref_spawned(handle<state::noref_waiting>&& input,
 	    return tar::try_state::retry;
 	}
     });
-    handle<state::withref_waiting> output(std::move(input));
+    handle<state::waiting> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::noref_waiting> registration_requested(
-	handle<state::noref_waiting>&& input,
+handle<state::waiting> registration_requested(
+	handle<state::waiting>&& input,
 	bin::endpoint_id source,
 	const rcs::RegistrationRequest::Reader& reader)
 {
-    return std::move(detail::registration_requested<state::noref_waiting>(std::move(input), source, reader));
+    return std::move(detail::registration_requested<state::waiting>(std::move(input), source, reader));
 }
 
-handle<state::withref_onbreak> roster_finalised(handle<state::withref_waiting>&& input)
+handle<state::onbreak> roster_finalised(handle<state::waiting>&& input)
 {
     input.roster = input.enrollment->finalise();
     input.enrollment.reset();
@@ -170,158 +170,106 @@ handle<state::withref_onbreak> roster_finalised(handle<state::withref_waiting>&&
             }
         });
     }
-    handle<state::withref_onbreak> output(std::move(input));
+    handle<state::onbreak> output(std::move(input));
     output.game_state.reset(new server_game_state(rru::update_local_db()));
     return std::move(output);
 }
 
-handle<state::noref_waiting> disconnected(handle<state::noref_waiting>&& input)
+handle<state::waiting> disconnected(handle<state::waiting>&& input)
 {
-    handle<state::noref_waiting> output(std::move(input));
+    handle<state::waiting> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withref_playing> field_opened(handle<state::withref_waiting>&& input, const rco::FieldOpen::Reader& reader)
+handle<state::waiting> ref_crashed(handle<state::waiting>&& input)
 {
-    handle<state::withref_playing> output(std::move(input));
+    handle<state::waiting> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withref_waiting> registration_requested(
-	handle<state::withref_waiting>&& input,
+handle<state::playing> field_opened(handle<state::onbreak>&& input, const rco::FieldOpen::Reader& reader)
+{
+    handle<state::playing> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::onbreak> ping_timedout(handle<state::onbreak>&& input)
+{
+    handle<state::playing> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::onbreak> ref_crashed(handle<state::onbreak>&& input)
+{
+    handle<state::waiting> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::playing> status_uploaded(handle<state::playing>&& input, const rcs::ClientStatus::Reader& reader)
+{
+    handle<state::playing> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::playing> control_actioned(handle<state::playing>&& input, const rco::PlayerAction::Reader& reader)
+{
+    handle<state::playing> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::playing> play_judged(handle<state::playing>&& input, const rco::PlayJudgement::Reader& reader)
+{
+    handle<state::playing> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::playing> simulation_timedout(handle<state::playing>&& input)
+{
+    handle<state::playing> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::playing> snapshot_timedout(handle<state::playing>&& input)
+{
+    handle<state::playing> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::playing> registration_requested(
+	handle<state::playing>&& input,
 	bin::endpoint_id source,
 	const rcs::RegistrationRequest::Reader& reader)
 {
-    return std::move(detail::registration_requested<state::withref_waiting>(std::move(input), source, reader));
+    return std::move(detail::registration_requested<state::playing>(std::move(input), source, reader));
 }
 
-handle<state::withref_waiting> disconnected(handle<state::withref_waiting>&& input)
+handle<state::playing> disconnected(handle<state::playing>&& input)
 {
-    handle<state::withref_waiting> output(std::move(input));
+    handle<state::playing> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::noref_waiting> ref_crashed(handle<state::withref_waiting>&& input)
+handle<state::playing> ref_crashed(handle<state::playing>&& input)
 {
-    handle<state::noref_waiting> output(std::move(input));
+    handle<state::playing> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withref_playing> status_uploaded(handle<state::withref_playing>&& input, const rcs::ClientStatus::Reader& reader)
+handle<state::waiting> match_closed(handle<state::playing>&& input, const robocup2Dsim::common::MatchClose::Reader& reader)
 {
-    handle<state::withref_playing> output(std::move(input));
+    handle<state::waiting> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withref_playing> control_actioned(handle<state::withref_playing>&& input, const rco::PlayerAction::Reader& reader)
+handle<state::waiting> match_aborted(handle<state::playing>&& input, const robocup2Dsim::common::MatchAbort::Reader& reader)
 {
-    handle<state::withref_playing> output(std::move(input));
+    handle<state::waiting> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withref_playing> play_judged(handle<state::withref_playing>&& input, const rco::PlayJudgement::Reader& reader)
+handle<state::playing> ref_spawned(handle<state::playing>&& input, const robocup2Dsim::server::config& config)
 {
-    handle<state::withref_playing> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::withref_onbreak> ping_timedout(handle<state::withref_onbreak>&& input)
-{
-    handle<state::withref_playing> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::noref_onbreak> ping_timedout(handle<state::noref_onbreak>&& input)
-{
-    handle<state::noref_playing> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::withref_playing> simulation_timedout(handle<state::withref_playing>&& input)
-{
-    handle<state::withref_playing> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::withref_playing> snapshot_timedout(handle<state::withref_playing>&& input)
-{
-    handle<state::withref_playing> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::withref_playing> registration_requested(
-	handle<state::withref_playing>&& input,
-	bin::endpoint_id source,
-	const rcs::RegistrationRequest::Reader& reader)
-{
-    return std::move(detail::registration_requested<state::withref_playing>(std::move(input), source, reader));
-}
-
-handle<state::withref_playing> disconnected(handle<state::withref_playing>&& input)
-{
-    handle<state::withref_playing> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::noref_playing> ref_crashed(handle<state::withref_playing>&& input)
-{
-    handle<state::noref_playing> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::withref_waiting> match_closed(handle<state::withref_playing>&& input, const robocup2Dsim::common::MatchClose::Reader& reader)
-{
-    handle<state::withref_waiting> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::withref_waiting> match_aborted(handle<state::withref_playing>&& input, const robocup2Dsim::common::MatchAbort::Reader& reader)
-{
-    handle<state::withref_waiting> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::withref_playing> ref_spawned(handle<state::noref_playing>&& input, const robocup2Dsim::server::config& config)
-{
-    handle<state::withref_playing> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::noref_playing> status_uploaded(handle<state::noref_playing>&& input, const rcs::ClientStatus::Reader& reader)
-{
-    handle<state::noref_playing> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::noref_playing> control_actioned(handle<state::noref_playing>&& input, const rco::PlayerAction::Reader& reader)
-{
-    handle<state::noref_playing> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::noref_playing> simulation_timedout(handle<state::noref_playing>&& input)
-{
-    handle<state::noref_playing> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::noref_playing> snapshot_timedout(handle<state::noref_playing>&& input)
-{
-    handle<state::noref_playing> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::noref_playing> registration_requested(
-	handle<state::noref_playing>&& input,
-	bin::endpoint_id source,
-	const rcs::RegistrationRequest::Reader& reader)
-{
-    return std::move(detail::registration_requested<state::noref_playing>(std::move(input), source, reader));
-}
-
-handle<state::noref_playing> disconnected(handle<state::noref_playing>&& input)
-{
-    handle<state::noref_playing> output(std::move(input));
+    handle<state::playing> output(std::move(input));
     return std::move(output);
 }
 

@@ -149,7 +149,7 @@ server::server(const rse::config& config, tpp::child&& ref) :
 	    std::move(std::unique_ptr<bme::buffer_pool>(new bme::buffer_pool(config_.ref_msg_word_length, config_.ref_msg_buffer_capacity))),
 	    std::move(std::unique_ptr<bme::buffer_pool>(new bme::buffer_pool(config_.client_msg_word_length, config_.client_msg_buffer_capacity))),
 	    std::move(std::unique_ptr<bme::buffer_pool>(new bme::buffer_pool(config_.client_msg_word_length, config_.client_msg_buffer_capacity))),
-	    rse::event::state::noref_waiting
+	    rse::event::state::waiting
 	},
 	notifier_(),
 	ref_(std::move(ref)),
@@ -169,7 +169,7 @@ server::server(const rse::config& config, tpp::child&& ref) :
 void server::run()
 {
     rse::event::with(std::move(handle_),
-	[&](rse::event::handle<rse::event::state::noref_waiting>&& handle)
+	[&](rse::event::handle<rse::event::state::waiting>&& handle)
 	{
 	    handle_ = std::move(rse::event::ref_spawned(std::move(handle), config_));
 	}
@@ -192,20 +192,9 @@ void server::run()
 	{
 	    bmc::statement<rsr::RefOutput> ref_output(std::move(ref_payload));
 	    rse::event::with(std::move(handle_),
-		[&](rse::event::handle<rse::event::state::noref_waiting>&& handle)
+		[&](rse::event::handle<rse::event::state::waiting>&& handle)
 		{
-		    if (ref_output.read().isRefReady())
-		    {
-			handle_ = std::move(rse::event::ref_spawned(std::move(handle), config_));
-		    }
-		},
-		[&](rse::event::handle<rse::event::state::withref_waiting>&& handle)
-		{
-		    if (ref_output.read().isFieldOpen())
-		    {
-			handle_ = std::move(rse::event::field_opened(std::move(handle), ref_output.read().getFieldOpen()));
-		    }
-		    else if (ref_output.read().isRosterFinalised())
+		    if (ref_output.read().isRosterFinalised())
 		    {
 			handle_ = std::move(rse::event::roster_finalised(std::move(handle)));
 		    }
@@ -214,7 +203,18 @@ void server::run()
 			handle_ = std::move(rse::event::ref_crashed(std::move(handle)));
 		    }
 		},
-		[&](rse::event::handle<rse::event::state::withref_playing>&& handle)
+		[&](rse::event::handle<rse::event::state::onbreak>&& handle)
+		{
+		    if (ref_output.read().isFieldOpen())
+		    {
+			handle_ = std::move(rse::event::field_opened(std::move(handle), ref_output.read().getFieldOpen()));
+		    }
+		    else if (ref_output.read().isRefCrashed())
+		    {
+			handle_ = std::move(rse::event::ref_crashed(std::move(handle)));
+		    }
+		},
+		[&](rse::event::handle<rse::event::state::playing>&& handle)
 		{
 		    if (ref_output.read().isPlayJudgement())
 		    {
@@ -232,13 +232,6 @@ void server::run()
 		    {
 			handle_ = std::move(rse::event::ref_crashed(std::move(handle)));
 		    }
-		},
-		[&](rse::event::handle<rse::event::state::noref_playing>&& handle)
-		{
-		    if (ref_output.read().isRefReady())
-		    {
-			handle_ = std::move(rse::event::ref_spawned(std::move(handle), config_));
-		    }
 		}
 	    );
 	}
@@ -246,11 +239,7 @@ void server::run()
 	{
 	    bmc::statement<rcs::ClientStatus> client_status(std::move(status_payload));
 	    rse::event::with(std::move(handle_),
-		[&](rse::event::handle<rse::event::state::withref_playing>&& handle)
-		{
-		    handle_ = std::move(rse::event::status_uploaded(std::move(handle), client_status.read()));
-		},
-		[&](rse::event::handle<rse::event::state::noref_playing>&& handle)
+		[&](rse::event::handle<rse::event::state::playing>&& handle)
 		{
 		    handle_ = std::move(rse::event::status_uploaded(std::move(handle), client_status.read()));
 		}
@@ -260,7 +249,7 @@ void server::run()
 	{
 	    bmc::statement<rcs::ClientTransaction> client_trans(std::move(trans_payload));
 	    rse::event::with(std::move(handle_),
-		[&](rse::event::handle<rse::event::state::noref_waiting>&& handle)
+		[&](rse::event::handle<rse::event::state::waiting>&& handle)
 		{
 		    if (client_trans.read().isRegistration())
 		    {
@@ -275,41 +264,7 @@ void server::run()
 			handle_ = std::move(rse::event::disconnected(std::move(handle)));
 		    }
 		},
-		[&](rse::event::handle<rse::event::state::withref_waiting>&& handle)
-		{
-		    if (client_trans.read().isRegistration())
-		    {
-			handle_ = std::move(rse::event::registration_requested(
-				std::move(handle),
-				client_trans.get_source(),
-				client_trans.read().getRegistration()));
-		    }
-		    else if (client_trans.read().isDisconnect())
-		    {
-			// FIXME: disconnected needs more information
-			handle_ = std::move(rse::event::disconnected(std::move(handle)));
-		    }
-		},
-		[&](rse::event::handle<rse::event::state::withref_playing>&& handle)
-		{
-		    if (client_trans.read().isAction())
-		    {
-			handle_ = std::move(rse::event::control_actioned(std::move(handle), client_trans.read().getAction()));
-		    }
-		    else if (client_trans.read().isRegistration())
-		    {
-			handle_ = std::move(rse::event::registration_requested(
-				std::move(handle),
-				client_trans.get_source(),
-				client_trans.read().getRegistration()));
-		    }
-		    else if (client_trans.read().isDisconnect())
-		    {
-			// FIXME: disconnected needs more information
-			handle_ = std::move(rse::event::disconnected(std::move(handle)));
-		    }
-		},
-		[&](rse::event::handle<rse::event::state::noref_playing>&& handle)
+		[&](rse::event::handle<rse::event::state::playing>&& handle)
 		{
 		    if (client_trans.read().isAction())
 		    {
@@ -331,32 +286,14 @@ void server::run()
 	    );
 	}
 	rse::event::with(std::move(handle_),
-	    [&](rse::event::handle<rse::event::state::withref_onbreak>&& handle)
+	    [&](rse::event::handle<rse::event::state::onbreak>&& handle)
 	    {
 		if (frame % config_.ping_frequency == 0U)
 		{
 		    handle_ = std::move(rse::event::ping_timedout(std::move(handle)));
 		}
             },
-	    [&](rse::event::handle<rse::event::state::noref_onbreak>&& handle)
-	    {
-		if (frame % config_.ping_frequency == 0U)
-		{
-		    handle_ = std::move(rse::event::ping_timedout(std::move(handle)));
-		}
-            },
-	    [&](rse::event::handle<rse::event::state::withref_playing>&& handle)
-	    {
-		if (frame % config_.simulation_frequency == config_.simulation_start_frame)
-		{
-		    handle_ = std::move(rse::event::simulation_timedout(std::move(handle)));
-		}
-		if (frame % config_.snapshot_frequency == config_.snapshot_start_frame)
-		{
-		    handle_ = std::move(rse::event::snapshot_timedout(std::move(handle)));
-		}
-	    },
-	    [&](rse::event::handle<rse::event::state::noref_playing>&& handle)
+	    [&](rse::event::handle<rse::event::state::playing>&& handle)
 	    {
 		if (frame % config_.simulation_frequency == config_.simulation_start_frame)
 		{
