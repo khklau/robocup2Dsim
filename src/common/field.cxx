@@ -149,7 +149,7 @@ void make_ball_sensor(
     physics.make_fixture(body, fixture_def);
 }
 
-ren::physics_ptr<ren::dynamics::body> make_goal(
+void make_goal(
         ren::dynamics::body& body,
 	rru::ecs_db& db,
 	Side side,
@@ -214,7 +214,7 @@ void make_marker_sensor(
     physics.make_fixture(body, fixture_def);
 }
 
-ren::physics_ptr<ren::dynamics::body> make_center_circle(
+void make_center_circle(
         ren::dynamics::body& body,
 	rru::ecs_db& db,
 	float radius,
@@ -238,7 +238,7 @@ ren::physics_ptr<ren::dynamics::body> make_center_circle(
 ///
 /// FIXME: use the length and width parameters
 ///
-ren::physics_ptr<ren::dynamics::body> make_boundary(
+void make_boundary(
         ren::dynamics::body& body,
 	rru::ecs_db& db,
 	float,
