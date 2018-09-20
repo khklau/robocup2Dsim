@@ -6,6 +6,8 @@
 #include <robocup2Dsim/common/metadata.hpp>
 #include <robocup2Dsim/common/entity.capnp.h>
 #include <robocup2Dsim/common/entity.hpp>
+#include <robocup2Dsim/engine/physics.hpp>
+#include <robocup2Dsim/runtime/db_access.hpp>
 #include <turbo/type_utility/enum_iterator.hh>
 #include <gtest/gtest.h>
 #include <algorithm>
@@ -18,6 +20,8 @@ namespace bmc = beam::message::capnproto;
 namespace rce = robocup2Dsim::common::entity;
 namespace rco = robocup2Dsim::common;
 namespace rcs = robocup2Dsim::csprotocol;
+namespace ren = robocup2Dsim::engine;
+namespace rru = robocup2Dsim::runtime;
 namespace rse = robocup2Dsim::server;
 namespace rsr = robocup2Dsim::srprotocol;
 namespace ttu = turbo::type_utility;
@@ -74,8 +78,12 @@ struct context
 TEST(event_test_registration, roster_finalised_basic)
 {
     rse::config config1;
-    context context1(config1, rse::event::state::withref_waiting);
+    context context1(config1, rse::event::state::waiting);
     std::unordered_set<bin::endpoint_id> expected_clients1;
+
+    std::unique_ptr<ren::physics> physics1(new ren::physics());
+    ren::physics* physics1_ptr = physics1.get();
+    ren::register_system(rru::update_local_db(), std::move(physics1));
 
     bin::endpoint_id client(1000U, 12345U);
     for (auto uniform: ttu::enum_iterator<rce::UniformNumber, rce::UniformNumber::ONE, rce::UniformNumber::ELEVEN>())
@@ -103,7 +111,7 @@ TEST(event_test_registration, roster_finalised_basic)
     ASSERT_TRUE(context1.handle_.enrollment->is_full());
 
     rse::event::with(std::move(context1.handle_),
-        [&](rse::event::handle<rse::event::state::withref_waiting>&& handle)
+        [&](rse::event::handle<rse::event::state::waiting>&& handle)
         {
             context1.handle_ = std::move(rse::event::roster_finalised(std::move(handle)));
         }
