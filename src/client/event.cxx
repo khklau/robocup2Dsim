@@ -104,7 +104,9 @@ handle<state_value>::handle(basic_handle&& other)
     assert(client_state == state_value);
 }
 
-handle<state::withbot_unregistered> spawned(handle<state::nobot_unregistered>&& input, const rcl::config& conf)
+handle<state::unregistered> spawned(
+        handle<state::unregistered>&& input,
+        const rcl::config& conf)
 {
     bmc::form<rcs::ClientTransaction> form(std::move(input.client_outbound_buffer_pool->borrow()));
     rcs::ClientTransaction::Builder trans = form.build();
@@ -131,16 +133,16 @@ handle<state::withbot_unregistered> spawned(handle<state::nobot_unregistered>&& 
 	    return tar::try_state::retry;
 	}
     });
-    handle<state::withbot_unregistered> output(std::move(input));
+    handle<state::unregistered> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withbot_onbench> registration_succeeded(
-        handle<state::withbot_unregistered>&& input,
+handle<state::onbench> registration_succeeded(
+        handle<state::unregistered>&& input,
         const rcs::RegistrationAck::Reader& ack)
 {
     rco::entity::PlayerUniform::Reader uniform = ack.getUniform();
-    handle<state::withbot_onbench> output(std::move(input));
+    handle<state::onbench> output(std::move(input));
     output.game_state.reset(new rcl::client_game_state(
             rru::update_local_db(),
             uniform.getUniform(),
@@ -149,125 +151,146 @@ handle<state::withbot_onbench> registration_succeeded(
     return std::move(output);
 }
 
-handle<state::withbot_unregistered> registration_failed(
-        handle<state::withbot_unregistered>&& input,
+handle<state::unregistered> registration_failed(
+        handle<state::unregistered>&& input,
         const rcs::RegistrationError::Reader& reader)
 {
-    handle<state::withbot_unregistered> output(std::move(input));
+    handle<state::unregistered> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::nobot_unregistered> bot_terminated(handle<state::withbot_unregistered>&& input)
+handle<state::unregistered> bot_terminated(
+        handle<state::unregistered>&& input)
 {
-    handle<state::nobot_unregistered> output(std::move(input));
+    handle<state::unregistered> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::nobot_unregistered> bot_crashed(handle<state::withbot_unregistered>&& input)
+handle<state::unregistered> bot_crashed(
+        handle<state::unregistered>&& input)
 {
-    handle<state::nobot_unregistered> output(std::move(input));
+    handle<state::unregistered> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::nobot_unregistered> disconnected(handle<state::nobot_onbench>&& input)
+handle<state::playing> field_opened(
+        handle<state::onbench>&& input,
+        const rco::FieldOpen::Reader& reader)
 {
-    handle<state::nobot_unregistered> output(std::move(input));
+    handle<state::playing> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withbot_playing> field_opened(handle<state::withbot_onbench>&& input, const rco::FieldOpen::Reader& reader)
+handle<state::onbench> query_requested(
+        handle<state::onbench>&& input,
+        const rbc::QueryRequest::Reader& reader)
 {
-    handle<state::withbot_playing> output(std::move(input));
+    handle<state::onbench> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withbot_onbench> query_requested(handle<state::withbot_onbench>&& input, const rbc::QueryRequest::Reader& reader)
+handle<state::unregistered> match_aborted(
+        handle<state::onbench>&& input,
+        const robocup2Dsim::common::MatchAbort::Reader& reader)
 {
-    handle<state::withbot_onbench> output(std::move(input));
+    handle<state::unregistered> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withbot_unregistered> match_aborted(handle<state::withbot_onbench>&& input, const robocup2Dsim::common::MatchAbort::Reader& reader)
+handle<state::onbench> bot_crashed(
+        handle<state::onbench>&& input)
 {
-    handle<state::withbot_unregistered> output(std::move(input));
+    handle<state::onbench> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::nobot_onbench> bot_crashed(handle<state::withbot_onbench>&& input)
+handle<state::unregistered> disconnected(
+        handle<state::onbench>&& input)
 {
-    handle<state::nobot_onbench> output(std::move(input));
+    handle<state::unregistered> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withbot_unregistered> disconnected(handle<state::withbot_onbench>&& input)
+handle<state::playing> received_snapshot(
+        handle<state::playing>&& input,
+        const rcs::ServerStatus::Reader& reader)
 {
-    handle<state::withbot_unregistered> output(std::move(input));
+    handle<state::playing> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withbot_playing> received_snapshot(handle<state::withbot_playing>&& input, const rcs::ServerStatus::Reader& reader)
+handle<state::playing> control_actioned(
+        handle<state::playing>&& input,
+        const rco::PlayerAction::Reader& reader)
 {
-    handle<state::withbot_playing> output(std::move(input));
+    handle<state::playing> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withbot_playing> control_actioned(handle<state::withbot_playing>&& input, const rco::PlayerAction::Reader& reader)
+handle<state::playing> query_requested(
+        handle<state::playing>&& input,
+        const rbc::QueryRequest::Reader& reader)
 {
-    handle<state::withbot_playing> output(std::move(input));
+    handle<state::playing> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withbot_playing> query_requested(handle<state::withbot_playing>&& input, const rbc::QueryRequest::Reader& reader)
+handle<state::playing> play_judged(
+        handle<state::playing>&& input,
+        const rco::PlayJudgement::Reader& reader)
 {
-    handle<state::withbot_playing> output(std::move(input));
+    handle<state::playing> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withbot_playing> play_judged(handle<state::withbot_playing>&& input, const rco::PlayJudgement::Reader& reader)
+handle<state::playing> simulation_timedout(
+        handle<state::playing>&& input)
 {
-    handle<state::withbot_playing> output(std::move(input));
+    handle<state::playing> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withbot_playing> simulation_timedout(handle<state::withbot_playing>&& input)
+handle<state::playing> sensor_timedout(
+        handle<state::playing>&& input)
 {
-    handle<state::withbot_playing> output(std::move(input));
+    handle<state::playing> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withbot_playing> sensor_timedout(handle<state::withbot_playing>&& input)
+handle<state::playing> upload_timedout(
+        handle<state::playing>&& input)
 {
-    handle<state::withbot_playing> output(std::move(input));
+    handle<state::playing> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withbot_playing> upload_timedout(handle<state::withbot_playing>&& input)
+handle<state::unregistered> match_closed(
+        handle<state::playing>&& input,
+        const robocup2Dsim::common::MatchClose::Reader& reader)
 {
-    handle<state::withbot_playing> output(std::move(input));
+    handle<state::unregistered> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withbot_unregistered> match_closed(handle<state::withbot_playing>&& input, const robocup2Dsim::common::MatchClose::Reader& reader)
+handle<state::unregistered> match_aborted(
+        handle<state::playing>&& input,
+        const robocup2Dsim::common::MatchAbort::Reader& reader)
 {
-    handle<state::withbot_unregistered> output(std::move(input));
+    handle<state::unregistered> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::withbot_unregistered> match_aborted(handle<state::withbot_playing>&& input, const robocup2Dsim::common::MatchAbort::Reader& reader)
+handle<state::onbench> bot_crashed(
+        handle<state::playing>&& input)
 {
-    handle<state::withbot_unregistered> output(std::move(input));
+    handle<state::onbench> output(std::move(input));
     return std::move(output);
 }
 
-handle<state::nobot_onbench> bot_crashed(handle<state::withbot_playing>&& input)
+handle<state::unregistered> disconnected(
+        handle<state::playing>&& input)
 {
-    handle<state::nobot_onbench> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::withbot_unregistered> disconnected(handle<state::withbot_playing>&& input)
-{
-    handle<state::withbot_unregistered> output(std::move(input));
+    handle<state::unregistered> output(std::move(input));
     return std::move(output);
 }
 

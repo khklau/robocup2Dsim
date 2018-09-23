@@ -179,7 +179,7 @@ client::client(const rcl::config& config, tpp::child&& bot) :
 	    std::move(std::unique_ptr<bme::buffer_pool>(new bme::buffer_pool(config_.server_msg_word_length, config_.server_msg_buffer_capacity))),
 	    std::move(std::unique_ptr<bme::buffer_pool>(new bme::buffer_pool(config_.server_msg_word_length, config_.server_msg_buffer_capacity))),
 	    std::move(std::unique_ptr<rcl::client_game_state>()),
-	    rcl::event::state::nobot_unregistered
+	    rcl::event::state::unregistered
 	},
 	notifier_(),
 	bot_(std::move(bot)),
@@ -199,7 +199,7 @@ client::client(const rcl::config& config, tpp::child&& bot) :
 void client::run()
 {
     rcl::event::with(std::move(handle_),
-	[&](rcl::event::handle<rcl::event::state::nobot_unregistered>&& handle)
+	[&](rcl::event::handle<rcl::event::state::unregistered>&& handle)
 	{
 	    handle_ = std::move(rcl::event::spawned(std::move(handle), config_));
 	}
@@ -220,7 +220,7 @@ void client::run()
 	{
 	    bmc::statement<rbc::BotOutput> bot_output(std::move(bot_payload));
 	    rcl::event::with(std::move(handle_),
-		[&](rcl::event::handle<rcl::event::state::withbot_playing>&& handle)
+		[&](rcl::event::handle<rcl::event::state::playing>&& handle)
 		{
 		    if (bot_output.read().isAction())
 		    {
@@ -235,7 +235,7 @@ void client::run()
 			handle_ = std::move(rcl::event::bot_crashed(std::move(handle)));
 		    }
 		},
-		[&](rcl::event::handle<rcl::event::state::withbot_onbench>&& handle)
+		[&](rcl::event::handle<rcl::event::state::onbench>&& handle)
 		{
 		    if (bot_output.read().isQuery())
 		    {
@@ -246,7 +246,7 @@ void client::run()
 			handle_ = std::move(rcl::event::bot_crashed(std::move(handle)));
 		    }
 		},
-		[&](rcl::event::handle<rcl::event::state::withbot_unregistered>&& handle)
+		[&](rcl::event::handle<rcl::event::state::unregistered>&& handle)
 		{
 		    if (bot_output.read().isShutDown())
 		    {
@@ -263,7 +263,7 @@ void client::run()
 	{
 	    bmc::statement<rcs::ServerStatus> server_status(std::move(status_payload));
 	    rcl::event::with(std::move(handle_),
-		[&](rcl::event::handle<rcl::event::state::withbot_playing>&& handle)
+		[&](rcl::event::handle<rcl::event::state::playing>&& handle)
 		{
 		    handle_ = std::move(rcl::event::received_snapshot(std::move(handle), server_status.read()));
 		}
@@ -273,7 +273,7 @@ void client::run()
 	{
 	    bmc::statement<rcs::ServerTransaction> server_trans(std::move(trans_payload));
 	    rcl::event::with(std::move(handle_),
-		[&](rcl::event::handle<rcl::event::state::withbot_playing>&& handle)
+		[&](rcl::event::handle<rcl::event::state::playing>&& handle)
 		{
 		    if (server_trans.read().isPlayJudgement())
 		    {
@@ -292,7 +292,7 @@ void client::run()
 			handle_ = std::move(rcl::event::disconnected(std::move(handle)));
 		    }
 		},
-		[&](rcl::event::handle<rcl::event::state::withbot_onbench>&& handle)
+		[&](rcl::event::handle<rcl::event::state::onbench>&& handle)
 		{
 		    if (server_trans.read().isFieldOpen())
 		    {
@@ -307,7 +307,7 @@ void client::run()
 			handle_ = std::move(rcl::event::disconnected(std::move(handle)));
 		    }
 		},
-		[&](rcl::event::handle<rcl::event::state::nobot_onbench>&& handle)
+		[&](rcl::event::handle<rcl::event::state::onbench>&& handle)
 		{
 		    if (server_trans.read().isDisconnect())
 		    {
@@ -315,7 +315,7 @@ void client::run()
 		    }
 		    // TODO: should handle spawn event?
 		},
-		[&](rcl::event::handle<rcl::event::state::withbot_unregistered>&& handle)
+		[&](rcl::event::handle<rcl::event::state::unregistered>&& handle)
 		{
 		    if (server_trans.read().isRegAck())
 		    {
@@ -331,7 +331,7 @@ void client::run()
 	    );
 	}
 	rcl::event::with(std::move(handle_),
-	    [&](rcl::event::handle<rcl::event::state::withbot_playing>&& handle)
+	    [&](rcl::event::handle<rcl::event::state::playing>&& handle)
 	    {
 		if (frame % config_.simulation_frequency == config_.simulation_start_frame)
 		{
