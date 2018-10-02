@@ -5,11 +5,13 @@ publicHeaders = [
     'config.hpp',
     'event.hpp',
     'event.hh',
+    'monitor.hpp',
     'roster.hpp',
     'state.hpp']
 
 sourceFiles = [
     'event.cxx',
+    'monitor.cxx',
     'roster.cxx']
 
 def name(context):
