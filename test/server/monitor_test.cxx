@@ -97,3 +97,145 @@ TEST(clock_monitor_test, needed_sequence_kept_single_client)
     EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint)) << "The number of recorded receives is wrong";
     EXPECT_EQ(seq3, monitor.oldest_receive()) << "The oldest receive calculation is wrong";
 }
+
+TEST(clock_monitor_test, needed_sequence_kept_multiple_clients)
+{
+    const bin::endpoint_id endpoint1(98);
+    const bin::endpoint_id endpoint2(99);
+    rse::clock_monitor monitor(5);
+
+    std::uint16_t seq1 = monitor.record_transmit();
+    std::uint16_t seq2 = monitor.record_transmit();
+    std::uint16_t seq3 = monitor.record_transmit();
+    std::uint16_t seq4 = monitor.record_transmit();
+    std::uint16_t seq5 = monitor.record_transmit();
+
+    monitor.record_receive(endpoint1, seq1, std::chrono::steady_clock::now());
+    monitor.record_receive(endpoint1, seq2, std::chrono::steady_clock::now());
+    monitor.record_receive(endpoint1, seq3, std::chrono::steady_clock::now());
+    monitor.record_receive(endpoint1, seq4, std::chrono::steady_clock::now());
+    monitor.record_receive(endpoint1, seq5, std::chrono::steady_clock::now());
+
+    monitor.record_receive(endpoint2, seq1, std::chrono::steady_clock::now());
+    monitor.record_receive(endpoint2, seq2, std::chrono::steady_clock::now());
+    monitor.record_receive(endpoint2, seq3, std::chrono::steady_clock::now());
+    monitor.record_receive(endpoint2, seq4, std::chrono::steady_clock::now());
+    monitor.record_receive(endpoint2, seq5, std::chrono::steady_clock::now());
+
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint1)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(seq1, monitor.oldest_receive()) << "The oldest receive calculation is wrong";
+
+    std::uint16_t seq6 = monitor.record_transmit();
+    EXPECT_EQ(monitor.target_sample_size() + 1, monitor.transmit_sample_size()) << "The number of recorded transmits is wrong";
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint1)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(seq1, monitor.oldest_receive()) << "The oldest receive calculation is wrong";
+
+    monitor.record_receive(endpoint1, seq6, std::chrono::steady_clock::now());
+    EXPECT_EQ(monitor.target_sample_size() + 1, monitor.transmit_sample_size()) << "The number of recorded transmits is wrong";
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint1)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint2)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(seq1, monitor.oldest_receive()) << "The oldest receive calculation is wrong";
+
+    std::uint16_t seq7 = monitor.record_transmit();
+    EXPECT_EQ(monitor.target_sample_size() + 2, monitor.transmit_sample_size()) << "The number of recorded transmits is wrong";
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint1)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint2)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(seq1, monitor.oldest_receive()) << "The oldest receive calculation is wrong";
+
+    monitor.record_receive(endpoint2, seq6, std::chrono::steady_clock::now());
+    EXPECT_EQ(monitor.target_sample_size() + 2, monitor.transmit_sample_size()) << "The number of recorded transmits is wrong";
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint1)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint2)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(seq2, monitor.oldest_receive()) << "The oldest receive calculation is wrong";
+
+    std::uint16_t seq8 = monitor.record_transmit();
+    EXPECT_EQ(seq7 + 1, seq8) << "Wrong next sequence number";
+    EXPECT_EQ(monitor.target_sample_size() + 2, monitor.transmit_sample_size()) << "The number of recorded transmits is wrong";
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint1)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint2)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(seq2, monitor.oldest_receive()) << "The oldest receive calculation is wrong";
+
+    monitor.record_receive(endpoint2, seq7, std::chrono::steady_clock::now());
+    EXPECT_EQ(monitor.target_sample_size() + 2, monitor.transmit_sample_size()) << "The number of recorded transmits is wrong";
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint1)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint2)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(seq2, monitor.oldest_receive()) << "The oldest receive calculation is wrong";
+
+    std::uint16_t seq9 = monitor.record_transmit();
+    EXPECT_EQ(seq8 + 1, seq9) << "Wrong next sequence number";
+    EXPECT_EQ(monitor.target_sample_size() + 3, monitor.transmit_sample_size()) << "The number of recorded transmits is wrong";
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint1)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint2)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(seq2, monitor.oldest_receive()) << "The oldest receive calculation is wrong";
+
+    monitor.record_receive(endpoint1, seq7, std::chrono::steady_clock::now());
+    EXPECT_EQ(monitor.target_sample_size() + 3, monitor.transmit_sample_size()) << "The number of recorded transmits is wrong";
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint1)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint2)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(seq3, monitor.oldest_receive()) << "The oldest receive calculation is wrong";
+
+    monitor.record_transmit();
+    EXPECT_EQ(monitor.target_sample_size() + 3, monitor.transmit_sample_size()) << "The number of recorded transmits is wrong";
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint1)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint2)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(seq3, monitor.oldest_receive()) << "The oldest receive calculation is wrong";
+}
+
+TEST(clock_monitor_test, dropped_ping_single_client)
+{
+    const bin::endpoint_id endpoint(99);
+    rse::clock_monitor monitor(5);
+
+    std::uint16_t seq1 = monitor.record_transmit();
+    std::uint16_t seq2 = monitor.record_transmit();
+    std::uint16_t seq3 = monitor.record_transmit();
+    monitor.record_receive(endpoint, seq1, std::chrono::steady_clock::now());
+    monitor.record_receive(endpoint, seq3, std::chrono::steady_clock::now());
+
+    EXPECT_EQ(3, monitor.transmit_sample_size()) << "The number of recorded transmits is wrong";
+    EXPECT_EQ(2, monitor.receive_sample_size(endpoint)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(seq1, monitor.oldest_receive()) << "The oldest receive calculation is wrong";
+
+    std::uint16_t seq4 = monitor.record_transmit();
+    std::uint16_t seq5 = monitor.record_transmit();
+
+    monitor.record_receive(endpoint, seq5, std::chrono::steady_clock::now());
+    EXPECT_EQ(5, monitor.transmit_sample_size()) << "The number of recorded transmits is wrong";
+    EXPECT_EQ(3, monitor.receive_sample_size(endpoint)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(seq1, monitor.oldest_receive()) << "The oldest receive calculation is wrong";
+
+    std::uint16_t seq6 = monitor.record_transmit();
+    std::uint16_t seq7 = monitor.record_transmit();
+
+    monitor.record_receive(endpoint, seq6, std::chrono::steady_clock::now());
+    monitor.record_receive(endpoint, seq7, std::chrono::steady_clock::now());
+    EXPECT_EQ(7, monitor.transmit_sample_size()) << "The number of recorded transmits is wrong";
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(seq1, monitor.oldest_receive()) << "The oldest receive calculation is wrong";
+
+    std::uint16_t seq8 = monitor.record_transmit();
+    EXPECT_EQ(8, monitor.transmit_sample_size()) << "The number of recorded transmits is wrong";
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(seq1, monitor.oldest_receive()) << "The oldest receive calculation is wrong";
+
+    monitor.record_receive(endpoint, seq8, std::chrono::steady_clock::now());
+    EXPECT_EQ(8, monitor.transmit_sample_size()) << "The number of recorded transmits is wrong";
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(seq3, monitor.oldest_receive()) << "The oldest receive calculation is wrong";
+
+    std::uint16_t seq9 = monitor.record_transmit();
+    EXPECT_EQ(7, monitor.transmit_sample_size()) << "The number of recorded transmits is wrong";
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(seq3, monitor.oldest_receive()) << "The oldest receive calculation is wrong";
+
+    monitor.record_receive(endpoint, seq9, std::chrono::steady_clock::now());
+    EXPECT_EQ(7, monitor.transmit_sample_size()) << "The number of recorded transmits is wrong";
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(seq5, monitor.oldest_receive()) << "The oldest receive calculation is wrong";
+
+    std::uint16_t seq10 = monitor.record_transmit();
+    EXPECT_EQ(seq9 + 1, seq10) << "Wrong next sequence number";
+    EXPECT_EQ(6, monitor.transmit_sample_size()) << "The number of recorded transmits is wrong";
+    EXPECT_EQ(monitor.target_sample_size(), monitor.receive_sample_size(endpoint)) << "The number of recorded receives is wrong";
+    EXPECT_EQ(seq5, monitor.oldest_receive()) << "The oldest receive calculation is wrong";
+}
