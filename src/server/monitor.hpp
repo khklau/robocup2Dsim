@@ -40,11 +40,23 @@ public:
     std::size_t receive_sample_size(beam::internet::endpoint_id client) const;
     std::chrono::steady_clock::duration average_clock_diff(beam::internet::endpoint_id client) const;
     std::uint16_t oldest_receive() const;
-    std::uint16_t record_transmit();
+    std::uint16_t record_transmit(std::chrono::steady_clock::time_point transmit_time);
+    inline std::uint16_t record_transmit()
+    {
+        return record_transmit(std::chrono::steady_clock::now());
+    }
     void record_receive(
             beam::internet::endpoint_id client,
             std::uint16_t ping_seq_num,
-            std::chrono::steady_clock::time_point client_time);
+            std::chrono::steady_clock::time_point client_time,
+            std::chrono::steady_clock::time_point receive_time);
+    inline void record_receive(
+            beam::internet::endpoint_id client,
+            std::uint16_t ping_seq_num,
+            std::chrono::steady_clock::time_point client_time)
+    {
+        return record_receive(client, ping_seq_num, client_time, std::chrono::steady_clock::now());
+    }
 private:
     std::deque<ping_entry> transmitted_pings_;
     std::unordered_map<beam::internet::endpoint_id, std::deque<pong_entry>> received_pongs_;

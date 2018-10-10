@@ -42,7 +42,7 @@ std::chrono::steady_clock::duration clock_monitor::average_clock_diff(beam::inte
         auto& client_pongs = map_iter->second;
         auto ping_iter = transmitted_pings_.cbegin();
         auto pong_iter = client_pongs.cbegin();
-        duration total_clock_diff;
+        duration total_clock_diff = std::chrono::milliseconds(0);
         while (ping_iter != transmitted_pings_.cend() && pong_iter != client_pongs.cend())
         {
             if (ping_iter->sequence_num != pong_iter->sequence_num)
@@ -83,12 +83,10 @@ std::uint16_t clock_monitor::oldest_receive() const
     return oldest_seq;
 }
 
-std::uint16_t clock_monitor::record_transmit()
+std::uint16_t clock_monitor::record_transmit(std::chrono::steady_clock::time_point transmit_time)
 {
     ++current_seq_num_;
-    transmitted_pings_.push_back({
-            std::chrono::steady_clock::now(),
-            current_seq_num_});
+    transmitted_pings_.push_back({transmit_time, current_seq_num_});
     std::uint16_t oldest_trans = transmitted_pings_.front().sequence_num;
     std::uint16_t oldest_recv = oldest_receive();
     // FIXME: handle sequence number underflow
@@ -103,10 +101,11 @@ std::uint16_t clock_monitor::record_transmit()
 void clock_monitor::record_receive(
         beam::internet::endpoint_id client,
         std::uint16_t ping_seq_num,
-        std::chrono::steady_clock::time_point client_time)
+        std::chrono::steady_clock::time_point client_time,
+        std::chrono::steady_clock::time_point receive_time)
 {
     received_pongs_[client].push_back({
-            std::chrono::steady_clock::now(),
+            receive_time,
             client_time,
             ping_seq_num});
     while (received_pongs_[client].size() > target_sample_size_)
