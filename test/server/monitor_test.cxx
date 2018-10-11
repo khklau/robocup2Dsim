@@ -306,6 +306,7 @@ TEST(clock_monitor_test, average_clock_diff_basic_server_ahead)
 {
     const bin::endpoint_id endpoint(99);
     rse::clock_monitor monitor(4);
+
     std::chrono::steady_clock::time_point seq1_time = std::chrono::steady_clock::now();
     std::chrono::steady_clock::time_point seq2_time = seq1_time + std::chrono::seconds(1);
     std::chrono::steady_clock::time_point seq3_time = seq1_time + std::chrono::seconds(2);
@@ -318,17 +319,49 @@ TEST(clock_monitor_test, average_clock_diff_basic_server_ahead)
 
     std::chrono::steady_clock::duration single_trip_time = std::chrono::milliseconds(100);
 
-    std::chrono::steady_clock::time_point client_time1 = seq1_time + std::chrono::milliseconds(18) + single_trip_time;
-    std::chrono::steady_clock::time_point client_time2 = seq2_time + std::chrono::milliseconds(19) + single_trip_time;
-    std::chrono::steady_clock::time_point client_time3 = seq3_time + std::chrono::milliseconds(21) + single_trip_time;
-    std::chrono::steady_clock::time_point client_time4 = seq4_time + std::chrono::milliseconds(22) + single_trip_time;
+    std::chrono::steady_clock::time_point client_time1 = seq1_time + std::chrono::milliseconds(18);
+    std::chrono::steady_clock::time_point client_time2 = seq2_time + std::chrono::milliseconds(19);
+    std::chrono::steady_clock::time_point client_time3 = seq3_time + std::chrono::milliseconds(21);
+    std::chrono::steady_clock::time_point client_time4 = seq4_time + std::chrono::milliseconds(22);
 
-    monitor.record_receive(endpoint, seq1, client_time1, seq1_time + (2 * single_trip_time));
-    monitor.record_receive(endpoint, seq2, client_time2, seq2_time + (2 * single_trip_time));
-    monitor.record_receive(endpoint, seq3, client_time3, seq3_time + (2 * single_trip_time));
-    monitor.record_receive(endpoint, seq4, client_time4, seq4_time + (2 * single_trip_time));
+    monitor.record_receive(endpoint, seq1, client_time1 + single_trip_time, seq1_time + (2 * single_trip_time));
+    monitor.record_receive(endpoint, seq2, client_time2 + single_trip_time, seq2_time + (2 * single_trip_time));
+    monitor.record_receive(endpoint, seq3, client_time3 + single_trip_time, seq3_time + (2 * single_trip_time));
+    monitor.record_receive(endpoint, seq4, client_time4 + single_trip_time, seq4_time + (2 * single_trip_time));
 
     EXPECT_NE(std::chrono::steady_clock::duration(), monitor.average_clock_diff(endpoint));
     EXPECT_EQ(std::chrono::milliseconds(20), monitor.average_clock_diff(endpoint))
+            << "Calculated average clock difference is incorrect";
+}
+
+TEST(clock_monitor_test, average_clock_diff_basic_client_ahead)
+{
+    const bin::endpoint_id endpoint(99);
+    rse::clock_monitor monitor(4);
+
+    std::chrono::steady_clock::time_point client_time1 = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point client_time2 = client_time1 + std::chrono::seconds(1);
+    std::chrono::steady_clock::time_point client_time3 = client_time1 + std::chrono::seconds(2);
+    std::chrono::steady_clock::time_point client_time4 = client_time1 + std::chrono::seconds(3);
+
+    std::chrono::steady_clock::time_point seq1_time = client_time1 + std::chrono::milliseconds(12);
+    std::chrono::steady_clock::time_point seq2_time = client_time2 + std::chrono::milliseconds(11);
+    std::chrono::steady_clock::time_point seq3_time = client_time3 + std::chrono::milliseconds(9);
+    std::chrono::steady_clock::time_point seq4_time = client_time4 + std::chrono::milliseconds(8);
+
+    std::uint16_t seq1 = monitor.record_transmit(seq1_time);
+    std::uint16_t seq2 = monitor.record_transmit(seq2_time);
+    std::uint16_t seq3 = monitor.record_transmit(seq3_time);
+    std::uint16_t seq4 = monitor.record_transmit(seq4_time);
+
+    std::chrono::steady_clock::duration single_trip_time = std::chrono::milliseconds(100);
+
+    monitor.record_receive(endpoint, seq1, client_time1 + single_trip_time, seq1_time + (2 * single_trip_time));
+    monitor.record_receive(endpoint, seq2, client_time2 + single_trip_time, seq2_time + (2 * single_trip_time));
+    monitor.record_receive(endpoint, seq3, client_time3 + single_trip_time, seq3_time + (2 * single_trip_time));
+    monitor.record_receive(endpoint, seq4, client_time4 + single_trip_time, seq4_time + (2 * single_trip_time));
+
+    EXPECT_NE(std::chrono::steady_clock::duration(), monitor.average_clock_diff(endpoint));
+    EXPECT_EQ(std::chrono::milliseconds(-10), monitor.average_clock_diff(endpoint))
             << "Calculated average clock difference is incorrect";
 }

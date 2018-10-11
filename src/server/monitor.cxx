@@ -59,7 +59,7 @@ std::chrono::steady_clock::duration clock_monitor::average_clock_diff(beam::inte
             ++ping_iter;
             ++pong_iter;
         }
-        return total_clock_diff / client_pongs.size();
+        return total_clock_diff / static_cast<std::int64_t>(client_pongs.size());
     }
 }
 
