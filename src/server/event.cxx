@@ -4,6 +4,7 @@
 #include <turbo/algorithm/recovery.hh>
 #include <robocup2Dsim/common/entity.capnp.h>
 #include <robocup2Dsim/common/rule.capnp.h>
+#include <robocup2Dsim/csprotocol/status.capnp.h>
 #include <robocup2Dsim/runtime/db_access.hpp>
 
 namespace bin = beam::internet;
@@ -44,6 +45,7 @@ basic_handle::basic_handle(
 	client_inbound_buffer_pool(std::move(client_inbound_pool)),
 	enrollment(new robocup2Dsim::server::enrollment()),
 	roster(),
+	monitor(new robocup2Dsim::server::monitor()),
 	game_state(),
 	server_state(my_state)
 { }
@@ -63,6 +65,7 @@ basic_handle::basic_handle(basic_handle&& other)
 	client_inbound_buffer_pool(std::move(other.client_inbound_buffer_pool)),
 	enrollment(std::move(other.enrollment)),
 	roster(std::move(other.roster)),
+	monitor(std::move(other.monitor)),
 	game_state(std::move(other.game_state)),
 	server_state(other.server_state)
 {
@@ -88,6 +91,7 @@ basic_handle& basic_handle::operator=(basic_handle&& other)
     client_inbound_buffer_pool = std::move(other.client_inbound_buffer_pool),
     enrollment = std::move(other.enrollment),
     roster = std::move(other.roster),
+    monitor = std::move(other.monitor),
     game_state = std::move(other.game_state),
     server_state = other.server_state;
 
@@ -195,7 +199,31 @@ handle<state::playing> field_opened(handle<state::onbreak>&& input, const rco::F
 
 handle<state::onbreak> ping_timedout(handle<state::onbreak>&& input)
 {
-    handle<state::playing> output(std::move(input));
+    std::uint16_t seq_num = input.monitor->clock.record_transmit();
+    for (auto iter = input.roster->cbegin(); iter != input.roster->cend(); ++iter)
+    {
+        bin::endpoint_id client = *iter;
+        bmc::form<rcs::ServerStatus> ping_form(std::move(input.server_outbound_buffer_pool->borrow()), client);
+        rcs::ServerStatus::Builder server_status = ping_form.build();
+        server_status.setPing();
+        capnp::AnyPointer::Builder value1 = server_status.initValue1();
+        rcs::Ping::Builder ping = value1.initAs<rcs::Ping>();
+        ping.setSequence(seq_num);
+
+        bmc::payload<rcs::ServerStatus> payload(std::move(bmc::serialise(*(input.server_outbound_buffer_pool), ping_form)));
+        tar::retry_with_random_backoff([&]()
+        {
+            if (input.server_status_producer->try_enqueue_move(std::move(payload)) == rcs::server_status_queue_type::producer::result::success)
+            {
+                return tar::try_state::done;
+            }
+            else
+            {
+                return tar::try_state::retry;
+            }
+        });
+    }
+    handle<state::onbreak> output(std::move(input));
     return std::move(output);
 }
 

@@ -16,6 +16,7 @@
 #include <turbo/container/spsc_ring_queue.hpp>
 #include <turbo/toolset/extension.hpp>
 #include "config.hpp"
+#include "monitor.hpp"
 #include "roster.hpp"
 #include "state.hpp"
 
@@ -50,6 +51,7 @@ public:
     std::unique_ptr<beam::message::buffer_pool> client_inbound_buffer_pool;
     std::unique_ptr<robocup2Dsim::server::enrollment> enrollment;
     std::unique_ptr<robocup2Dsim::server::roster> roster;
+    std::unique_ptr<robocup2Dsim::server::monitor> monitor;
     std::unique_ptr<robocup2Dsim::server::server_game_state> game_state;
     state server_state;
     basic_handle(

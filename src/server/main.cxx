@@ -30,6 +30,7 @@
 #include "config.hpp"
 #include "event.hpp"
 #include "event.hh"
+#include "monitor.hpp"
 #include "ref_io.hpp"
 
 namespace bin = beam::internet;
