@@ -9,6 +9,7 @@
 #include <robocup2Dsim/bcprotocol/protocol.hpp>
 #include <robocup2Dsim/csprotocol/protocol.capnp.h>
 #include <robocup2Dsim/csprotocol/protocol.hpp>
+#include <robocup2Dsim/csprotocol/status.capnp.h>
 #include <turbo/container/spsc_ring_queue.hpp>
 #include <turbo/toolset/extension.hpp>
 #include <kj/array.h>
@@ -117,6 +118,11 @@ handle<state::unregistered> bot_terminated(
 
 handle<state::unregistered> bot_crashed(
         handle<state::unregistered>&& input);
+
+
+handle<state::onbench> received_ping(
+        handle<state::onbench>&& input,
+        const robocup2Dsim::csprotocol::Ping::Reader& reader);
 
 
 handle<state::playing> field_opened(

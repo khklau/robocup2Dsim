@@ -263,6 +263,15 @@ void client::run()
 	{
 	    bmc::statement<rcs::ServerStatus> server_status(std::move(status_payload));
 	    rcl::event::with(std::move(handle_),
+		[&](rcl::event::handle<rcl::event::state::onbench>&& handle)
+		{
+                    if (server_status.read().isPing())
+                    {
+                        handle_ = std::move(rcl::event::received_ping(
+                                std::move(handle),
+                                server_status.read().getValue1().getAs<rcs::Ping>()));
+                    }
+		},
 		[&](rcl::event::handle<rcl::event::state::playing>&& handle)
 		{
 		    handle_ = std::move(rcl::event::received_snapshot(std::move(handle), server_status.read()));

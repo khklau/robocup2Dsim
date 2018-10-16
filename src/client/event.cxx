@@ -173,6 +173,34 @@ handle<state::unregistered> bot_crashed(
     return std::move(output);
 }
 
+handle<state::onbench> received_ping(
+        handle<state::onbench>&& input,
+        const robocup2Dsim::csprotocol::Ping::Reader& ping)
+{
+    bmc::form<rcs::ClientStatus> form(std::move(input.client_outbound_buffer_pool->borrow()));
+    rcs::ClientStatus::Builder status = form.build();
+    status.setPong();
+    capnp::AnyPointer::Builder value1 = status.initValue1();
+    rcs::Pong::Builder pong = value1.initAs<rcs::Pong>();
+    pong.setSequence(ping.getSequence());
+    pong.setNow(std::chrono::steady_clock::now().time_since_epoch().count());
+
+    bmc::payload<rcs::ClientStatus> payload(std::move(bmc::serialise(*(input.client_outbound_buffer_pool), form)));
+    tar::retry_with_random_backoff([&]()
+    {
+	if (input.client_status_producer->try_enqueue_move(std::move(payload)) == rcs::client_status_queue_type::producer::result::success)
+	{
+	    return tar::try_state::done;
+	}
+	else
+	{
+	    return tar::try_state::retry;
+	}
+    });
+    handle<state::onbench> output(std::move(input));
+    return std::move(output);
+}
+
 handle<state::playing> field_opened(
         handle<state::onbench>&& input,
         const rco::FieldOpen::Reader& reader)
