@@ -13,6 +13,7 @@
 #include <robocup2Dsim/srprotocol/protocol.hpp>
 #include <robocup2Dsim/csprotocol/protocol.capnp.h>
 #include <robocup2Dsim/csprotocol/protocol.hpp>
+#include <robocup2Dsim/csprotocol/status.capnp.h>
 #include <turbo/container/spsc_ring_queue.hpp>
 #include <turbo/toolset/extension.hpp>
 #include "config.hpp"
@@ -124,6 +125,12 @@ handle<state::waiting> disconnected(
 
 handle<state::waiting> ref_crashed(
         handle<state::waiting>&& input);
+
+
+handle<state::onbreak> received_pong(
+        handle<state::onbreak>&& input,
+        beam::internet::endpoint_id client,
+        const robocup2Dsim::csprotocol::Pong::Reader& pong);
 
 
 handle<state::playing> field_opened(

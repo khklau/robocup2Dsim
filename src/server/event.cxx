@@ -191,6 +191,20 @@ handle<state::waiting> ref_crashed(handle<state::waiting>&& input)
     return std::move(output);
 }
 
+handle<state::onbreak> received_pong(
+        handle<state::onbreak>&& input,
+        beam::internet::endpoint_id client,
+        const robocup2Dsim::csprotocol::Pong::Reader& pong)
+{
+    typedef std::chrono::steady_clock clock_type;
+    clock_type::duration since_epoch(pong.getNow());
+    clock_type::time_point client_time(since_epoch);
+    input.monitor->clock.record_receive(client, pong.getSequence(), client_time);
+
+    handle<state::onbreak> output(std::move(input));
+    return std::move(output);
+}
+
 handle<state::playing> field_opened(handle<state::onbreak>&& input, const rco::FieldOpen::Reader& reader)
 {
     handle<state::playing> output(std::move(input));

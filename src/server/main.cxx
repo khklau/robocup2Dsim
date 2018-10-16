@@ -238,8 +238,19 @@ void server::run()
 	}
 	if (client_status_consumer_.try_dequeue_move(status_payload) == rcs::client_status_queue_type::consumer::result::success)
 	{
+            beam::internet::endpoint_id source_endpoint = status_payload.get_source();
 	    bmc::statement<rcs::ClientStatus> client_status(std::move(status_payload));
 	    rse::event::with(std::move(handle_),
+		[&](rse::event::handle<rse::event::state::onbreak>&& handle)
+		{
+                    if (client_status.read().isPong())
+                    {
+                        handle_ = std::move(rse::event::received_pong(
+                                std::move(handle),
+                                source_endpoint,
+                                client_status.read().getValue1().getAs<rcs::Pong>()));
+                    }
+		},
 		[&](rse::event::handle<rse::event::state::playing>&& handle)
 		{
 		    handle_ = std::move(rse::event::status_uploaded(std::move(handle), client_status.read()));
