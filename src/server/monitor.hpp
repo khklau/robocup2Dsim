@@ -38,6 +38,7 @@ public:
         return transmitted_pings_.size();
     }
     std::size_t receive_sample_size(beam::internet::endpoint_id client) const;
+    std::chrono::steady_clock::duration average_round_trip_time(beam::internet::endpoint_id client) const;
     std::chrono::steady_clock::duration average_clock_diff(beam::internet::endpoint_id client) const;
     std::uint16_t oldest_receive() const;
     std::uint16_t record_transmit(std::chrono::steady_clock::time_point transmit_time);

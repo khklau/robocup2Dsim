@@ -25,6 +25,40 @@ std::size_t clock_monitor::receive_sample_size(beam::internet::endpoint_id clien
     }
 }
 
+std::chrono::steady_clock::duration clock_monitor::average_round_trip_time(beam::internet::endpoint_id client) const
+{
+    typedef std::chrono::steady_clock::duration duration;
+    auto map_iter = received_pongs_.find(client);
+    if (map_iter == received_pongs_.cend())
+    {
+        return duration();
+    }
+    else if (map_iter->second.size() == 0)
+    {
+        return duration();
+    }
+    else
+    {
+        auto& client_pongs = map_iter->second;
+        auto ping_iter = transmitted_pings_.cbegin();
+        auto pong_iter = client_pongs.cbegin();
+        duration total_rtt = std::chrono::milliseconds(0);
+        while (ping_iter != transmitted_pings_.cend() && pong_iter != client_pongs.cend())
+        {
+            if (ping_iter->sequence_num != pong_iter->sequence_num)
+            {
+                ++ping_iter;
+                continue;
+            }
+            duration round_trip = pong_iter->receive_time - ping_iter->transmit_time;
+            total_rtt += round_trip;
+            ++ping_iter;
+            ++pong_iter;
+        }
+        return total_rtt / static_cast<std::int64_t>(client_pongs.size());
+    }
+}
+
 std::chrono::steady_clock::duration clock_monitor::average_clock_diff(beam::internet::endpoint_id client) const
 {
     typedef std::chrono::steady_clock::duration duration;
