@@ -6,6 +6,11 @@
 #include <robocup2Dsim/common/rule.capnp.h>
 #include <robocup2Dsim/csprotocol/status.capnp.h>
 #include <robocup2Dsim/runtime/db_access.hpp>
+#include <algorithm>
+#include <chrono>
+#include <limits>
+#include <utility>
+#include <vector>
 
 namespace bin = beam::internet;
 namespace bmc = beam::message::capnproto;
@@ -191,26 +196,6 @@ handle<state::waiting> ref_crashed(handle<state::waiting>&& input)
     return std::move(output);
 }
 
-handle<state::onbreak> received_pong(
-        handle<state::onbreak>&& input,
-        beam::internet::endpoint_id client,
-        const robocup2Dsim::csprotocol::Pong::Reader& pong)
-{
-    typedef std::chrono::steady_clock clock_type;
-    clock_type::duration since_epoch(pong.getNow());
-    clock_type::time_point client_time(since_epoch);
-    input.monitor->clock.record_receive(client, pong.getSequence(), client_time);
-
-    handle<state::onbreak> output(std::move(input));
-    return std::move(output);
-}
-
-handle<state::playing> field_opened(handle<state::onbreak>&& input, const rco::FieldOpen::Reader& reader)
-{
-    handle<state::playing> output(std::move(input));
-    return std::move(output);
-}
-
 handle<state::onbreak> ping_timedout(handle<state::onbreak>&& input)
 {
     std::uint16_t seq_num = input.monitor->clock.record_transmit();
@@ -238,6 +223,107 @@ handle<state::onbreak> ping_timedout(handle<state::onbreak>&& input)
         });
     }
     handle<state::onbreak> output(std::move(input));
+    return std::move(output);
+}
+
+handle<state::onbreak> received_pong(
+        handle<state::onbreak>&& input,
+        beam::internet::endpoint_id client,
+        const robocup2Dsim::csprotocol::Pong::Reader& pong)
+{
+    typedef std::chrono::steady_clock clock_type;
+    clock_type::duration since_epoch(pong.getNow());
+    clock_type::time_point client_time(since_epoch);
+    input.monitor->clock.record_receive(client, pong.getSequence(), client_time);
+
+    handle<state::onbreak> output(std::move(input));
+    return std::move(output);
+}
+
+std::size_t find_smallest_sample(const handle<state::playing>& handle)
+{
+    std::vector<std::size_t> client_samples;
+    std::transform(
+            handle.roster->cbegin(),
+            handle.roster->cend(),
+            client_samples.begin(),
+            [&] (const bin::endpoint_id& client)
+    {
+        return handle.monitor->clock.receive_sample_size(client);
+    });
+    auto iter = std::min_element(client_samples.cbegin(), client_samples.cend());
+    return *iter;
+}
+
+bin::endpoint_id find_most_ahead(const handle<state::playing>& handle)
+{
+    typedef std::chrono::steady_clock clock_type;
+    typedef std::pair<bin::endpoint_id, clock_type::duration> client_diff_type;
+
+    std::vector<client_diff_type> client_clock_diffs;
+    std::transform(
+            handle.roster->cbegin(),
+            handle.roster->cend(),
+            client_clock_diffs.begin(),
+            [&] (const bin::endpoint_id& client)
+    {
+        return std::make_pair(client, handle.monitor->clock.average_clock_diff(client));
+    });
+
+    auto iter = std::min_element(
+            client_clock_diffs.cbegin(),
+            client_clock_diffs.cend(),
+            [] (const client_diff_type& left, const client_diff_type& right)
+    {
+        return left.second < right.second;
+    });
+
+    return iter->first;
+}
+
+std::chrono::system_clock::time_point calc_kick_off_time(
+        std::chrono::steady_clock::duration ahead_diff,
+        std::chrono::steady_clock::duration ahead_rtt,
+        std::chrono::seconds time_buffer)
+{
+    typedef std::chrono::system_clock clock_type;
+    clock_type::duration adjustment = ahead_rtt;
+    if (ahead_diff < std::chrono::seconds(0))
+    {
+        // a client's clock is ahead of the server
+        adjustment += ahead_diff * -1;
+    }
+    else
+    {
+        adjustment += ahead_diff;
+    }
+    clock_type::time_point kick_off_time = clock_type::now()
+            + time_buffer
+            + adjustment;
+    return kick_off_time;
+}
+
+handle<state::onbreak> plan_kick_off(
+        handle<state::onbreak>&& input)
+{
+    typedef std::chrono::system_clock clock_type;
+    handle<state::playing> handle(std::move(input));
+
+    std::size_t smallest_sample = find_smallest_sample(handle);
+    if (smallest_sample < input.monitor->clock.target_sample_size())
+    {
+        return std::move(handle);
+    }
+
+    bin::endpoint_id most_ahead = find_most_ahead(handle);
+    clock_type::duration ahead_diff = handle.monitor->clock.average_clock_diff(most_ahead);
+    clock_type::duration ahead_rtt = handle.monitor->clock.average_round_trip_time(most_ahead);
+    clock_type::time_point kick_off_time = calc_kick_off_time(ahead_diff, ahead_rtt);
+}
+
+handle<state::playing> field_opened(handle<state::onbreak>&& input, const rco::FieldOpen::Reader& reader)
+{
+    handle<state::playing> output(std::move(input));
     return std::move(output);
 }
 

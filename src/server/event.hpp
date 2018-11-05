@@ -1,25 +1,30 @@
 #ifndef ROBOCUP2DSIM_SERVER_EVENT_HPP
 #define ROBOCUP2DSIM_SERVER_EVENT_HPP
 
-#include <cassert>
-#include <cstdint>
-#include <functional>
-#include <memory>
-#include <type_traits>
-#include <beam/internet/endpoint.hpp>
-#include <beam/message/buffer_pool.hpp>
-#include <beam/message/capnproto.hpp>
+#include "config.hpp"
+#include "monitor.hpp"
+#include "roster.hpp"
+#include "state.hpp"
+
 #include <robocup2Dsim/srprotocol/protocol.capnp.h>
 #include <robocup2Dsim/srprotocol/protocol.hpp>
 #include <robocup2Dsim/csprotocol/protocol.capnp.h>
 #include <robocup2Dsim/csprotocol/protocol.hpp>
 #include <robocup2Dsim/csprotocol/status.capnp.h>
+
+#include <beam/internet/endpoint.hpp>
+#include <beam/message/buffer_pool.hpp>
+#include <beam/message/capnproto.hpp>
 #include <turbo/container/spsc_ring_queue.hpp>
 #include <turbo/toolset/extension.hpp>
-#include "config.hpp"
-#include "monitor.hpp"
-#include "roster.hpp"
-#include "state.hpp"
+
+#include <chrono>
+#include <functional>
+#include <memory>
+#include <type_traits>
+
+#include <cassert>
+#include <cstdint>
 
 namespace robocup2Dsim {
 namespace server {
@@ -127,18 +132,20 @@ handle<state::waiting> ref_crashed(
         handle<state::waiting>&& input);
 
 
+handle<state::onbreak> ping_timedout(
+        handle<state::onbreak>&& input);
+
 handle<state::onbreak> received_pong(
         handle<state::onbreak>&& input,
         beam::internet::endpoint_id client,
         const robocup2Dsim::csprotocol::Pong::Reader& pong);
 
+handle<state::onbreak> plan_kick_off(
+        handle<state::onbreak>&& input);
 
 handle<state::playing> field_opened(
         handle<state::onbreak>&& input,
         const robocup2Dsim::common::FieldOpen::Reader& reader);
-
-handle<state::onbreak> ping_timedout(
-        handle<state::onbreak>&& input);
 
 handle<state::onbreak> ref_crashed(
         handle<state::onbreak>&& input);
@@ -184,6 +191,11 @@ handle<state::waiting> match_aborted(
 handle<state::playing> ref_spawned(
         handle<state::playing>&&,
         const robocup2Dsim::server::config& config);
+
+std::chrono::system_clock::time_point calc_kick_off_time(
+        std::chrono::system_clock::duration ahead_diff,
+        std::chrono::system_clock::duration ahead_rtt,
+        std::chrono::seconds time_buffer = std::chrono::seconds(120));
 
 } // namespace event
 } // namespace server
